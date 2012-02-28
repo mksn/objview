@@ -1,0 +1,10 @@
+#ifndef _MKSN_LODTEST_MODEL_OBJ_H_
+#define _MKSN_LODTEST_MODEL_OBJ_H_
+
+extern void draw_obj_model (struct model *model, float x, float y, float z);
+extern struct model *load_obj_model(char *filename);
+extern struct mesh *find_mesh(struct model *model, char *matname);
+extern struct material *find_material(struct model *model, char *matname);
+extern aabb_t *get_obj_bbox (struct model *model);
+extern void draw_obj_instances(struct model *model, float *t, int count);
+#endif
