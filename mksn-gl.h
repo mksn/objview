@@ -10,6 +10,7 @@
 #else
 #include <GL/gl.h>
 #endif
+
 enum {
 	ATT_POSITION,
 	ATT_TEXCOORD,
@@ -19,5 +20,8 @@ enum {
 	ATT_BLEND_WEIGHT,
 	ATT_COLOR
 };
+
+typedef unsigned char uchar;
+
 #endif
 

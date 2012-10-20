@@ -4,7 +4,7 @@
 #include <sys/time.h>
 #include <math.h>
 #include <string.h>
-#include <model_iqm.h>
+#include <model-iqm.h>
 #include <assert.h>
 
 #define NUMTREES 2048
@@ -12,6 +12,8 @@ extern int compile_shader(char *vfile, char *ffile);
 
 int prog;
 struct iqm_model *model;
+struct iqm_model *animation;
+int draw_bones;
 
 float lastx;
 float lasty;
@@ -42,11 +44,22 @@ void camera()
   //  glTranslated(-xpos, -ypos, -zpos);
 }
 
-void init(char *filename)
+void init(int argc, char **argv)
 {
-  prog = compile_shader("vertex.glsl", "fragment.glsl");
-  if (filename == NULL) model= load_iqm_model("gfx/tmp/tr_mo_c03_idle1.iqm");
-  else  model = load_iqm_model(filename);
+  prog = compile_shader(("vertex.glsl"),
+                        ("fragment.glsl"));
+  if (argc>2) {
+      animation = model_iqm_load(argv[2]);
+      //animation = load_iqm_model(argv[2]);
+  }
+  if (argc>1) {
+      model = model_iqm_load (argv[1]);
+  } else {
+      model = model_iqm_load ("gfx/tmp/tr_mo_c03_idle1.iqm");
+  }
+  //if (filename == NULL) model= load_iqm_model("gfx/tmp/tr_mo_c03_idle1.iqm");
+  //else  model = load_iqm_model(filename);
+  draw_bones = 0;
   assert(model != NULL);
 }
 
@@ -80,6 +93,7 @@ void kbdup (unsigned char key, int x, int y)
 
 void keyboard (unsigned char key, int x, int y)
 {
+    if (key == 'b') draw_bones = draw_bones?0:1;
   /*
     x = x;
     y = y;
@@ -164,30 +178,34 @@ void mouseMovement(int x, int y)
 void display()
 {
   int i;
-  animate_iqm_model(model, 0, frame++, 0);
+  //animate_iqm_model(model, 0, frame++, 0);
 
   //GLenum error;
   glClearColor (0.3, 0.3, 0.4, 1.0);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_CULL_FACE);
+  glFrontFace(GL_CW);
   glEnable(GL_DEPTH_TEST);
   
   camera();
   //glLightfv (GL_LIGHT0, GL_POSITION, lightpos);	
 
-	glPushMatrix();
+  glPushMatrix();
   glRotatef(-90, 1.0, 0.0, 0.0);
 
   glColor3f(1, 1, 1);
   glEnable(GL_TEXTURE_2D);
   glUseProgram(prog);
-  draw_iqm_model(model);
+  //draw_iqm_model(model);
+  //draw_static_iqm_model(model);
+  model_iqm_draw_static (model);
   glUseProgram(0);
   glDisable(GL_TEXTURE_2D);
 
-  //draw_iqm_bones(model);
+  if (draw_bones)
+      model_iqm_draw_bones(model);
 
-	glPopMatrix();
+  glPopMatrix();
 
   glColor3f(1, 0, 0);
   glBegin(GL_LINES);
@@ -201,6 +219,9 @@ void display()
     
   glutSwapBuffers();
   glutPostRedisplay();
+
+  GLenum e = glGetError();
+  if (e != GL_NO_ERROR) fprintf (stderr, "display: e: %s\n", gluErrorString(e));
 }
 
 void
@@ -239,11 +260,7 @@ int main (int argc, char **argv)
    * just go with the default selection
    *
    */
-  if (argc == 1) 
-    init(NULL);
-  else
-    init(argv[1]);
-  
+  init (argc, argv);
   glutDisplayFunc(display);
   glutIdleFunc(display);
   glutReshapeFunc(reshape);
