@@ -250,10 +250,12 @@ int main (int argc, char **argv)
   glutInitDisplayMode(GLUT_RGBA |  GLUT_DOUBLE | GLUT_DEPTH);
   glutInitWindowSize(1024, 768);
   glutCreateWindow("ObjView");
+#ifdef __APPLE__
   /* This is so that you can sync the animation vertically */
   int swap_interval = 1;
   CGLContextObj cgl_context = CGLGetCurrentContext();
   CGLSetParameter(cgl_context, kCGLCPSwapInterval, &swap_interval);
+#endif
 
   /*
    * Initiate the model with the argument, otherwise

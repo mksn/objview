@@ -2,6 +2,7 @@ objects =	main.o \
 			model-iqm.o\
 			shader.o \
 			image.o \
+			strlcpy.o \
 			vector.o
 		  #model_obj.o\
 
@@ -9,6 +10,7 @@ sources =	main.c \
 			model-iqm.c\
 			image.c \
 			shader.c \
+			strlcpy.c \
 			vector.c
 		  #model_obj.c \
 
@@ -21,8 +23,8 @@ CFLAGS += -I. -I/usr/X11/include -I/usr/local/include
 CFLAGS += -ggdb -fno-omit-frame-pointer -I.
 
 LDFLAGS = -L/usr/local/lib -L/usr/X11/lib
-ifeq ($UNAME, Linux) 
-LDFLAGS += -ljpeg -lm -lgjult -lGLEW -lGLU -lGL -lc
+ifeq ($(UNAME), Linux) 
+LDFLAGS += -ljpeg -lm -lglut -lGLEW -lGLU -lGL -lc
 endif
 ifeq ($(UNAME), Darwin) 
 LDFLAGS += -framework OpenGL -framework GLUT
