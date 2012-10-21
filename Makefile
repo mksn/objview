@@ -33,7 +33,6 @@ endif
 all: objview
 
 objview: $(objects)
-	echo $(UNAME)
 	gcc $(CFLAGS) -o objview $(objects) $(LDFLAGS)
 
 
