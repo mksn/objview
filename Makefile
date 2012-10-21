@@ -12,15 +12,31 @@ sources =	main.c \
 			vector.c
 		  #model_obj.c \
 
+UNAME = $(shell uname)
+CFLAGS =
+ifeq ($(UNAME), Darwin)
+CFLAGS += -m32 
+endif
+CFLAGS += -I. -I/usr/X11/include -I/usr/local/include
+CFLAGS += -ggdb -fno-omit-frame-pointer -I.
+
+LDFLAGS = -L/usr/local/lib -L/usr/X11/lib
+ifeq ($UNAME, Linux) 
+LDFLAGS += -ljpeg -lm -lgjult -lGLEW -lGLU -lGL -lc
+endif
+ifeq ($(UNAME), Darwin) 
+LDFLAGS += -framework OpenGL -framework GLUT
+endif
 
 all: objview
 
 objview: $(objects)
-	gcc -m32 -ggdb -fno-omit-frame-pointer -framework OpenGL -framework GLUT -L/usr/local/lib -L/usr/X11/lib -o objview $(objects)
+	echo $(UNAME)
+	gcc $(CFLAGS) -o objview $(objects) $(LDFLAGS)
 
 
 %.o : %.c $(wildcard *.h)
-	gcc -m32 -ggdb -fno-omit-frame-pointer -Wall -I. -I/usr/X11/include -I/usr/local/include -c $<
+	gcc $(CFLAGS) -c $<
 
 clean:
 	rm -f objview
