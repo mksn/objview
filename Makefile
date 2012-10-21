@@ -1,10 +1,14 @@
+UNAME = $(shell uname)
 objects =	main.o \
 			model-iqm.o\
 			shader.o \
 			image.o \
-			strlcpy.o \
 			vector.o
 		  #model_obj.o\
+
+ifeq ($(UNAME), Linux)
+objects += strlcpy.o
+endif
 
 sources =	main.c \
 			model-iqm.c\
@@ -14,7 +18,10 @@ sources =	main.c \
 			vector.c
 		  #model_obj.c \
 
-UNAME = $(shell uname)
+ifeq ($(UNAME), Linux)
+sources += strlcpy.c
+endif
+
 CFLAGS =
 ifeq ($(UNAME), Darwin)
 CFLAGS += -m32 

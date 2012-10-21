@@ -30,9 +30,11 @@ extern char *xstrsep (char **strinp, const char *delim);
 extern int xstrlcpy (char *dst, char *src, int sz);
 extern int xstrlcat (char *dst, char *src, int sz);
 
+#ifndef __APPLE__
 #define strlcpy xstrlcpy
 #define strlcat xstrlcat
 #define strlsep xstrlsep
+#endif
 
 #endif
 
