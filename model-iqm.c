@@ -8,6 +8,7 @@
 #include <image.h>
 #include <vector.h>
 
+typedef float vec3[3];
 /* 
  * Types for loading the data from any medium specified 
  *
@@ -204,11 +205,12 @@ _load_vertex_arrays(struct iqm_model *m,
                     struct _iqm_header *h)
 {
     int i;
-    struct _iqm_vertexarray *va = malloc (sizeof (struct _iqm_vertexarray));
+    struct _iqm_vertexarray *va; //= malloc (sizeof (struct _iqm_vertexarray));
     m->num_vertices = h->num_vertexes;
     for (i=0; i<h->num_vertexarrays; i++) {
-        memcpy (va, data+h->ofs_vertexarrays+(i*sizeof (struct _iqm_vertexarray)),
-                sizeof (struct _iqm_vertexarray));
+        /* memcpy (va, data+h->ofs_vertexarrays+(i*sizeof (struct _iqm_vertexarray)), */
+        /*         sizeof (struct _iqm_vertexarray)); */
+        va = (struct _iqm_vertexarray *)(data+h->ofs_vertexarrays+(i*sizeof (struct _iqm_vertexarray)));
         switch (va->type) {
             case IQM_VAT_POSITION:
                 assert(va->format == IQM_VAF_FLOAT && va->size == 3);
@@ -232,7 +234,7 @@ _load_vertex_arrays(struct iqm_model *m,
                 break;
 		}
     }
-    free (va);
+    //free (va);
 }
 
 static void
@@ -308,18 +310,19 @@ _load_bones (struct iqm_model *m,
         
         m->bones[i].parent = j[i].parent;
         m->bones[i].name = malloc(strlen(name)*sizeof(char));
-        strlcpy(m->bones[i].name, name, strlen(name));
+        strcpy(m->bones[i].name, name);
         read_pose(&m->bones[i].bind_pose, &j[i]);
         mat_from_pose(q,
-                      m->bones[i].bind_pose.rotate,
                       m->bones[i].bind_pose.translate,
+                      m->bones[i].bind_pose.rotate,
                       m->bones[i].bind_pose.scale);
         if (m->bones[i].parent >= 0) {
             struct iqm_bone *parent = &m->bones[m->bones[i].parent];
-            mat_mul(m->bones[i].bind_matrix, parent->bind_matrix, q);
+            mat_mul44(m->bones[i].bind_matrix, parent->bind_matrix, q);
         } else {
             mat_copy(m->bones[i].bind_matrix, q);
         }
+        mat_invert(m->bones[i].inv_bind_matrix, m->bones[i].bind_matrix);
     }
     free (j);
 }
@@ -371,7 +374,7 @@ _load_frames (struct iqm_model *mdl,
         chans[k].mask = _read32(data + ofs_poses + 4);
         for (n=0; n<10; n++) {
             chans[k].offset[n] = _readfloat(data + ofs_poses + 8 + n * 4);
-            chans[k].scale[n] = _readfloat(data + ofs_poses + 10 * 4 + n * 4);
+            chans[k].scale[n] = _readfloat(data + ofs_poses + 8 + 10 * 4 + n * 4);
         }
         ofs_poses += 22*4;
     }
@@ -386,16 +389,36 @@ _load_frames (struct iqm_model *mdl,
             }
             mdl->poses[i][k].rotate[3] = chans[k].offset[6];
 
-			if (chans[k].mask & 0x01) { mdl->poses[i][k].translate[0] += _read16(p) * chans[k].scale[0]; p += 2; }
-			if (chans[k].mask & 0x02) { mdl->poses[i][k].translate[1] += _read16(p) * chans[k].scale[1]; p += 2; }
-			if (chans[k].mask & 0x04) { mdl->poses[i][k].translate[2] += _read16(p) * chans[k].scale[2]; p += 2; }
-			if (chans[k].mask & 0x08) { mdl->poses[i][k].rotate[0] += _read16(p) * chans[k].scale[3]; p += 2; }
-			if (chans[k].mask & 0x10) { mdl->poses[i][k].rotate[1] += _read16(p) * chans[k].scale[4]; p += 2; }
-			if (chans[k].mask & 0x20) { mdl->poses[i][k].rotate[2] += _read16(p) * chans[k].scale[5]; p += 2; }
-			if (chans[k].mask & 0x40) { mdl->poses[i][k].rotate[3] += _read16(p) * chans[k].scale[6]; p += 2; }
-			if (chans[k].mask & 0x80) { mdl->poses[i][k].scale[0] += _read16(p) * chans[k].scale[7]; p += 2; }
-			if (chans[k].mask & 0x100) { mdl->poses[i][k].scale[1] += _read16(p) * chans[k].scale[8]; p += 2; }
-			if (chans[k].mask & 0x200) { mdl->poses[i][k].scale[2] += _read16(p) * chans[k].scale[9]; p += 2; }
+			if (chans[k].mask & 0x01) {
+                mdl->poses[i][k].translate[0] += _read16(p) * chans[k].scale[0]; p += 2;
+            }
+			if (chans[k].mask & 0x02) {
+                mdl->poses[i][k].translate[1] += _read16(p) * chans[k].scale[1]; p += 2;
+            }
+			if (chans[k].mask & 0x04) {
+                mdl->poses[i][k].translate[2] += _read16(p) * chans[k].scale[2]; p += 2;
+            }
+			if (chans[k].mask & 0x08) {
+                mdl->poses[i][k].rotate[0] += _read16(p) * chans[k].scale[3]; p += 2;
+            }
+			if (chans[k].mask & 0x10) {
+                mdl->poses[i][k].rotate[1] += _read16(p) * chans[k].scale[4]; p += 2;
+            }
+			if (chans[k].mask & 0x20) {
+                mdl->poses[i][k].rotate[2] += _read16(p) * chans[k].scale[5]; p += 2;
+            }
+			if (chans[k].mask & 0x40) {
+                mdl->poses[i][k].rotate[3] += _read16(p) * chans[k].scale[6]; p += 2;
+            }
+			if (chans[k].mask & 0x80) {
+                mdl->poses[i][k].scale[0] += _read16(p) * chans[k].scale[7]; p += 2;
+            }
+			if (chans[k].mask & 0x100) {
+                mdl->poses[i][k].scale[1] += _read16(p) * chans[k].scale[8]; p += 2;
+            }
+			if (chans[k].mask & 0x200) {
+                mdl->poses[i][k].scale[2] += _read16(p) * chans[k].scale[9]; p += 2;
+            }
 		}
     }
     free (chans);
@@ -414,7 +437,10 @@ _load_model (unsigned char *data,
     rc->dir = malloc((p - filename + 1) * sizeof(char));
     strlcpy(rc->dir, filename, p - filename+1);
   
-    if (imodel->num_vertexarrays && imodel->num_vertexes && imodel->num_triangles && imodel->num_meshes) {
+    if (imodel->num_vertexarrays &&
+        imodel->num_vertexes &&
+        imodel->num_triangles &&
+        imodel->num_meshes) {
         _load_vertex_arrays (rc, data, imodel);
         _load_triangles (rc, data, imodel);
         _load_meshes (rc, data, imodel);
@@ -451,6 +477,8 @@ _load_model (unsigned char *data,
     rc->outpose = NULL;
     rc->outbone = NULL;
     rc->outskin = NULL;
+    rc->dpos    = NULL;
+    rc->dnorm   = NULL;
   
     return rc;  
 }
@@ -692,6 +720,9 @@ model_iqm_draw_static (struct iqm_model *model)
     glNormalPointer(GL_FLOAT, 0, model->norm);
     glTexCoordPointer(2, GL_FLOAT, 0, model->texcoord);
 
+    if (model->dpos) glVertexPointer (3,GL_FLOAT, 0, model->dpos);
+    if (model->dnorm) glNormalPointer (GL_FLOAT, 0, model->dnorm);
+
     for (i = 0; i < limit; i++) {
         struct iqm_mesh *mesh = model->meshes + i;
         glBindTexture(GL_TEXTURE_2D, mesh->material);
@@ -728,14 +759,61 @@ model_iqm_draw_bones(struct iqm_model *model)
         {
             struct iqm_bone *pb = model->bones + b->parent;
             glColor3f(0,1,0);
-            glVertex3f(pb->bind_matrix[12], pb->bind_matrix[13], pb->bind_matrix[14]);
+            glVertex3f(pb->bind_matrix[12],
+                       pb->bind_matrix[13],
+                       pb->bind_matrix[14]);
         } else {
             glColor3f(0,1,0.5);
             glVertex3f(0,0,0);
         }
-        glVertex3f(b->bind_matrix[12], b->bind_matrix[13], b->bind_matrix[14]);
+        glVertex3f(b->bind_matrix[12],
+                   b->bind_matrix[13],
+                   b->bind_matrix[14]);
+
         glEnd();
-        glRasterPos3f(b->bind_matrix[12], b->bind_matrix[13], b->bind_matrix[14]);
+        glRasterPos3f(b->bind_matrix[12],
+                      b->bind_matrix[13],
+                      b->bind_matrix[14]);
+
+        _draw_string(GLUT_BITMAP_HELVETICA_10, b->name);
+    }
+
+    glEnable(GL_DEPTH_TEST);
+}
+
+void
+model_iqm_draw_anim_bones(struct iqm_model *model)
+{
+    int i;
+
+    glDisable(GL_DEPTH_TEST);
+
+    for (i=0; i<model->num_bones; i++)
+    {
+        struct iqm_bone *b = model->bones+i;
+        glBegin(GL_LINES);
+        if (b->parent >= 0)
+        {
+            struct iqm_bone *pb = model->bones + b->parent;
+            glColor3f(0,0.5,0.5);
+            glVertex3f(pb->bind_matrix[12],
+                       pb->bind_matrix[13],
+                       pb->bind_matrix[14]);
+        } else {
+            glColor3f(0,0.5,1);
+            glVertex3f(0,0,0);
+        }
+
+        glVertex3f(b->anim_matrix[12],
+                   b->anim_matrix[13],
+                   b->anim_matrix[14]);
+
+        glEnd();
+
+        glRasterPos3f(b->anim_matrix[12],
+                      b->anim_matrix[13],
+                      b->anim_matrix[14]);
+
         _draw_string(GLUT_BITMAP_HELVETICA_10, b->name);
     }
 
@@ -757,35 +835,31 @@ void
 _get_delta (struct iqm_model *model,
             int frame)
 {
-    struct iqm_bone *bone = model->bones;
-    int first = model->anims[frame].first;
-    int count = model->anims[frame].count;
-    char *name = model->anims[frame].name;
-    int loop = model->anims[frame].loop;
-    float rate = model->anims[frame].rate;
-    struct iqm_pose *pose = model->poses[frame] + first;
     int i;
-    for (i=0; i<count; i++) {
-        if (bone->parent) {
-            float m_pose[16];
-            mat_from_pose (m_pose, pose->translate, pose->rotate, pose->scale);
-            struct iqm_bone *parent = model->bones + bone->parent;
-            mat_mul (bone->bind_matrix, parent->bind_matrix, m_pose);
-        } else {
-            mat_from_pose (bone->bind_matrix, pose->translate, pose->rotate, pose->scale);
-        }
+    for (i=0; i<model->num_bones; i++) {
+        struct iqm_bone *bone = model->bones + i;
+        struct iqm_pose *pose = model->poses[frame] + i;
         
-        bone++;
-        pose++;
+        if (bone->parent >= 0) {
+            float m_pose[16];
+            struct iqm_bone *parent = (struct iqm_bone *)(model->bones + bone->parent);
+            mat_from_pose (m_pose, pose->translate, pose->rotate, pose->scale);
+            mat_mul44(bone->anim_matrix, parent->anim_matrix, m_pose);
+        } else {
+            mat_from_pose (bone->anim_matrix, pose->translate, pose->rotate, pose->scale);
+        }
+        mat_mul44(bone->diff, bone->anim_matrix, bone->inv_bind_matrix);
     }
     
 }
+
 void
 model_iqm_animate (struct iqm_model *model,
                    int a,
                    int f,
                    float t)
 {
+    /*
     int i,j,k,l;
     float v[3];
     unsigned char bi[4];
@@ -802,7 +876,32 @@ model_iqm_animate (struct iqm_model *model,
              anim->name,
              anim->first,
              anim->count);
+    */
+
+    int i;
+    a %= model->num_anims;
+    f %= model->anims[a].count;
+
+    printf ("anim %d frame %d\n", a, f);
+
+    _get_delta (model, model->anims[a].first + f);
+    
+    if (model->dnorm == NULL) {
+        model->dnorm = malloc (model->num_vertices * 3 * sizeof(float));
+    }
+    if (model->dpos == NULL) {
+        model->dpos = malloc (model->num_vertices * 3 * sizeof(float));
+    }
     
     for (i=0; i<model->num_vertices; i++) {
+        unsigned char *bi = &model->blend_index[i*4];
+        unsigned char *bw = &model->blend_weight[i*4];
+        
+        mat_vec_mul (model->dpos + i*3,
+                     model->bones[bi[0]].diff,
+                     model->pos + i*3);
+        mat_vec_mul_n (model->dnorm + i*3,
+                       model->bones[bi[0]].diff,
+                       model->norm + i*3);
     }        
 }

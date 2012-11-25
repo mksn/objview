@@ -59,6 +59,7 @@ struct iqm_bone {
     float bind_matrix[16];
     float diff[16];
     float inv_bind_matrix[16];
+    float anim_matrix[16];
 };
 
 struct iqm_material {
@@ -144,6 +145,7 @@ struct iqm_model *model_iqm_load        (char   *model_fname);
 //void              draw_iqm_model        (struct iqm_model *m);
 void              model_iqm_draw_static (struct iqm_model *m);
 void              model_iqm_draw_bones  (struct iqm_model *m);
+void              model_iqm_draw_anim_bones  (struct iqm_model *m);
 void              model_iqm_animate     (struct iqm_model *m,
                                          int anim,
                                          int frame,

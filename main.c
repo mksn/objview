@@ -14,6 +14,7 @@ int prog;
 struct iqm_model *model;
 struct iqm_model *animation;
 int draw_bones;
+int draw_anim_bones;
 
 float lastx;
 float lasty;
@@ -60,6 +61,7 @@ void init(int argc, char **argv)
   //if (filename == NULL) model= load_iqm_model("gfx/tmp/tr_mo_c03_idle1.iqm");
   //else  model = load_iqm_model(filename);
   draw_bones = 0;
+  draw_anim_bones = 0;
   assert(model != NULL);
 }
 
@@ -94,6 +96,7 @@ void kbdup (unsigned char key, int x, int y)
 void keyboard (unsigned char key, int x, int y)
 {
     if (key == 'b') draw_bones = draw_bones?0:1;
+    if (key == 'a') draw_anim_bones = draw_anim_bones?0:1;
   /*
     x = x;
     y = y;
@@ -198,12 +201,15 @@ void display()
   glUseProgram(prog);
   //draw_iqm_model(model);
   //draw_static_iqm_model(model);
+  model_iqm_animate (model, 0, frame++, 0);
   model_iqm_draw_static (model);
   glUseProgram(0);
   glDisable(GL_TEXTURE_2D);
 
   if (draw_bones)
       model_iqm_draw_bones(model);
+  if (draw_anim_bones)
+      model_iqm_draw_anim_bones (model);
 
   glPopMatrix();
 
