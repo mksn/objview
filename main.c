@@ -65,8 +65,8 @@ void init(int argc, char **argv)
       drawing_unit->model = (struct iqm_model *)model_iqm_load_model (argv[1]);
   } else {
       drawing_unit->anim->num_anims = 1;
-      drawing_unit->model = (struct iqm_model *)model_iqm_load_model ("gfx/tmp/tr_mo_c03_idle1.iqm");
-      drawing_unit->anim->anims  = (struct iqm_anim *)model_iqm_load_animation ("gfx/tmp/tr_mo_c03_idle1.iqm");
+      drawing_unit->model = model_iqm_load_model ("gfx/tmp/tr_mo_c03_idle1.iqm");
+      drawing_unit->anim  = model_iqm_load_animation ("gfx/tmp/tr_mo_c03_idle1.iqm");
   }
 
   draw_bones = 0;        // don't draw the static bones' wireframe 
@@ -216,15 +216,14 @@ void display()
                          0,
                          frame++,
                          0);
-  else 
-      model_iqm_draw_static (drawing_unit->model);
+  model_iqm_draw_static (drawing_unit->model);
   glUseProgram(0);
   glDisable(GL_TEXTURE_2D);
 
   if (draw_bones)
-      model_iqm_draw_bones(model);
+      model_iqm_draw_bones(drawing_unit->model);
   if (draw_anim_bones)
-      model_iqm_draw_anim_bones (model);
+      model_iqm_draw_anim_bones (drawing_unit->model);
 
   glPopMatrix();
 

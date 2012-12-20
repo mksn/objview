@@ -22,7 +22,7 @@ endif
 
 CFLAGS =
 ifeq ($(UNAME), Darwin)
-CFLAGS += -m32 
+CFLAGS += -m32 -Wall
 endif
 CFLAGS += -I. -I/usr/X11/include -I/usr/local/include
 CFLAGS += -ggdb -fno-omit-frame-pointer -I.

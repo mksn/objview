@@ -79,12 +79,19 @@ struct iqm_skeleton {
     struct iqm_bone *bones;
 };
 
+// TODO: Cleanup and refactor the animation data structures.
 struct iqm_anim {
     char                *name;
     int                  first;
     int                  count;
     float                rate;
     int                  loop;
+};
+
+struct iqm_animation_list {
+    char *dir;
+    int num_anims;
+    struct iqm_anims *anims;
 };
 
 struct iqm_animation
@@ -163,4 +170,6 @@ void              model_iqm_animate     (struct iqm_model *m,
                                          int frame,
                                          float t);
 void              model_iqm_draw        (struct iqm_model *m);
+struct iqm_model *model_iqm_load_model  (char *model_fname);
+struct iqm_animation *model_iqm_load_animation (char *animation_fname);
 #endif

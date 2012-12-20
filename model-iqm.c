@@ -310,7 +310,7 @@ _load_bones (struct iqm_skeleton *s,
         char *name = (char *)(data + h->ofs_text + j[i].name);
         
         s->bones[i].parent = j[i].parent;
-        s->bones[i].name = malloc(strlen(name)*sizeof(char));
+        s->bones[i].name = malloc(strlen(name)*sizeof(char)+1);
         strcpy(s->bones[i].name, name);
         read_pose(&s->bones[i].bind_pose, &j[i]);
         mat_from_pose(q,
@@ -530,7 +530,7 @@ _get_delta (struct iqm_model     *model,
         
         if (bone->parent >= 0) {
             float m_pose[16];
-            struct iqm_bone *parent = (struct iqm_bone *)(model->skeleton->bones + bone->parent);
+            struct iqm_bone *parent = model->skeleton->bones + bone->parent;
             mat_from_pose (m_pose, pose->translate, pose->rotate, pose->scale);
             mat_mul44(bone->anim_matrix, parent->anim_matrix, m_pose);
         } else {
@@ -731,9 +731,9 @@ model_iqm_draw_anim_bones(struct iqm_model *model)
         {
             struct iqm_bone *pb = model->skeleton->bones + b->parent;
             glColor3f(0,0.5,0.5);
-            glVertex3f(pb->bind_matrix[12],
-                       pb->bind_matrix[13],
-                       pb->bind_matrix[14]);
+            glVertex3f(pb->anim_matrix[12],
+                       pb->anim_matrix[13],
+                       pb->anim_matrix[14]);
         } else {
             glColor3f(0,0.5,1);
             glVertex3f(0,0,0);
@@ -761,15 +761,16 @@ _match_bones (struct iqm_model *m,
 {
     int p = sizeof (int) * a->skeleton->num_bones;
     int *rc = malloc (p);
-    memset (rc, p, -1);
     int i,j;
     for (i=0; i<a->skeleton->num_bones; i++) {
         struct iqm_bone *ab = a->skeleton->bones + i;
         for (j=0; j<m->skeleton->num_bones; j++) {
-            struct iqm_bone *mb = (struct iqm_bone *)(m->skeleton->bones + j);
+            struct iqm_bone *mb = m->skeleton->bones + j;
             if (strcmp(mb->name, ab->name) == 0) {
                 rc [i] = j;
                 break;
+            } else {
+                rc [i] = -1;
             }
         }
     }
