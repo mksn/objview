@@ -64,9 +64,9 @@ void init(int argc, char **argv)
   if (argc>1) {
       drawing_unit->model = (struct iqm_model *)model_iqm_load_model (argv[1]);
   } else {
-      //drawing_unit->anim->num_anims = 1;
+      drawing_unit->anim->num_anims = 1;
       drawing_unit->model = (struct iqm_model *)model_iqm_load_model ("gfx/tmp/tr_mo_c03_idle1.iqm");
-      //drawing_unit->anim->anims  = (struct iqm_anim *)model_iqm_load_animation ("gfx/tmp/tr_mo_c03_idle1.iqm");
+      drawing_unit->anim->anims  = (struct iqm_anim *)model_iqm_load_animation ("gfx/tmp/tr_mo_c03_idle1.iqm");
   }
 
   draw_bones = 0;        // don't draw the static bones' wireframe 
@@ -212,7 +212,7 @@ void display()
   //draw_static_iqm_model(model);
   if (drawing_unit->anim != NULL) 
       model_iqm_animate (drawing_unit->model,
-                         NULL, //drawing_unit->anim,
+                         drawing_unit->anim,
                          0,
                          frame++,
                          0);
