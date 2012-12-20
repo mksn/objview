@@ -250,7 +250,7 @@ _load_triangles (struct iqm_model *m,
 
 static int
 _load_material (struct iqm_model *m,
-                char *mat_name)
+                char             *mat_name)
 {
     /*
      * TODO: Improve how the materials are searched for
@@ -265,8 +265,8 @@ _load_material (struct iqm_model *m,
 }
 
 static void
-_load_meshes (struct iqm_model *m,
-              unsigned char *data,
+_load_meshes (struct iqm_model   *m,
+              unsigned char      *data,
               struct _iqm_header *h)
 {
     int i;
@@ -285,7 +285,8 @@ _load_meshes (struct iqm_model *m,
     }
 }
 
-static void read_pose(struct iqm_pose *pose, struct _iqm_joint *joint)
+static void read_pose(struct iqm_pose   *pose,
+                      struct _iqm_joint *joint)
 {
     memcpy(pose->translate, joint->translate, 3 * sizeof(float));
     memcpy(pose->rotate, joint->rotate, 4 * sizeof(float));
@@ -295,56 +296,56 @@ static void read_pose(struct iqm_pose *pose, struct _iqm_joint *joint)
 }
 
 static void
-_load_bones (struct iqm_model *m,
-             unsigned char *data,
-             struct _iqm_header *h)
+_load_bones (struct iqm_skeleton *s,
+             unsigned char       *data,
+             struct _iqm_header  *h)
 {
     struct _iqm_joint *j = malloc(h->num_joints * sizeof(struct _iqm_joint));
     memcpy(j, data + h->ofs_joints, h->num_joints * sizeof(struct _iqm_joint));
-    m->num_bones = h->num_joints;
-    m->bones = malloc(h->num_joints * sizeof(struct iqm_bone));
+    s->num_bones = h->num_joints;
+    s->bones = malloc(h->num_joints * sizeof(struct iqm_bone));
     int i;
     for (i=0; i<h->num_joints; i++) {
         float q[16];
         char *name = (char *)(data + h->ofs_text + j[i].name);
         
-        m->bones[i].parent = j[i].parent;
-        m->bones[i].name = malloc(strlen(name)*sizeof(char));
-        strcpy(m->bones[i].name, name);
-        read_pose(&m->bones[i].bind_pose, &j[i]);
+        s->bones[i].parent = j[i].parent;
+        s->bones[i].name = malloc(strlen(name)*sizeof(char));
+        strcpy(s->bones[i].name, name);
+        read_pose(&s->bones[i].bind_pose, &j[i]);
         mat_from_pose(q,
-                      m->bones[i].bind_pose.translate,
-                      m->bones[i].bind_pose.rotate,
-                      m->bones[i].bind_pose.scale);
-        if (m->bones[i].parent >= 0) {
-            struct iqm_bone *parent = &m->bones[m->bones[i].parent];
-            mat_mul44(m->bones[i].bind_matrix, parent->bind_matrix, q);
+                      s->bones[i].bind_pose.translate,
+                      s->bones[i].bind_pose.rotate,
+                      s->bones[i].bind_pose.scale);
+        if (s->bones[i].parent >= 0) {
+            struct iqm_bone *parent = &s->bones[s->bones[i].parent];
+            mat_mul44(s->bones[i].bind_matrix, parent->bind_matrix, q);
         } else {
-            mat_copy(m->bones[i].bind_matrix, q);
+            mat_copy(s->bones[i].bind_matrix, q);
         }
-        mat_invert(m->bones[i].inv_bind_matrix, m->bones[i].bind_matrix);
+        mat_invert(s->bones[i].inv_bind_matrix, s->bones[i].bind_matrix);
     }
     free (j);
 }
 
 static void
-_load_anims (struct iqm_model *m,
-             unsigned char *data,
-             struct _iqm_header *h)
+_load_anims (struct iqm_animation *anim,
+             unsigned char        *data,
+             struct _iqm_header   *h)
 {
     int i;
-    m->num_anims = h->num_anims;
-    m->anims = malloc (h->num_anims * sizeof(struct iqm_anim));
+    anim->num_anims = h->num_anims;
+    anim->anims = malloc (h->num_anims * sizeof(struct iqm_anim));
     struct _iqm_anim *a = malloc(h->num_anims * sizeof(struct _iqm_anim));
     memcpy(a, data + h->ofs_anims, h->num_anims * sizeof(struct _iqm_anim));
     for (i=0; i < h->num_anims; i++) {
         char *name = (char *)data + h->ofs_text + a[i].name;
-        m->anims[i].name = malloc(strlen(name)*sizeof(char));
-        strlcpy(m->anims[i].name, name, strlen(name));
-        m->anims[i].first = a[i].first_frame;
-        m->anims[i].count = a[i].num_frames;
-        m->anims[i].rate  = a[i].framerate;
-        m->anims[i].loop  = a[i].flags;
+        anim->anims[i].name = malloc(strlen(name)*sizeof(char));
+        strlcpy(anim->anims[i].name, name, strlen(name));
+        anim->anims[i].first = a[i].first_frame;
+        anim->anims[i].count = a[i].num_frames;
+        anim->anims[i].rate  = a[i].framerate;
+        anim->anims[i].loop  = a[i].flags;
     }
     free (a);
 }
@@ -356,7 +357,7 @@ struct chan {
 };
 
 static void
-_load_frames (struct iqm_model *mdl,
+_load_frames (struct iqm_animation *anim,
               unsigned char *data,
               struct _iqm_header *h)
 {
@@ -366,9 +367,8 @@ _load_frames (struct iqm_model *mdl,
     struct chan *chans = malloc (h->num_joints * sizeof(struct chan));
     unsigned char *p = data + h->ofs_frames;
 
-    mdl->num_frames = h->num_frames;
-    mdl->bounds = malloc(h->num_frames * h->num_joints * sizeof(struct iqm_bounds));
-    mdl->poses = malloc(h->num_frames * sizeof (struct iqm_pose *));
+    anim->num_frames = h->num_frames;
+    anim->poses = malloc(h->num_frames * sizeof (struct iqm_pose *));
     int ofs_poses = h->ofs_poses;
     for (k=0; k<h->num_joints; k++) {
         chans[k].mask = _read32(data + ofs_poses + 4);
@@ -380,44 +380,44 @@ _load_frames (struct iqm_model *mdl,
     }
 
     for (i=0; i<h->num_frames; i++) {
-        mdl->poses[i] = malloc (h->num_joints * sizeof(struct iqm_pose));
+        anim->poses[i] = malloc (h->num_joints * sizeof(struct iqm_pose));
         for (k=0; k<h->num_joints; k++) {
             for (n=0; n<3; n++) {
-                mdl->poses[i][k].translate[n] = chans[k].offset[n];
-                mdl->poses[i][k].rotate[n] = chans[k].offset[3+n];
-                mdl->poses[i][k].scale[n]     = chans[k].offset[7+n];
+                anim->poses[i][k].translate[n] = chans[k].offset[n];
+                anim->poses[i][k].rotate[n] = chans[k].offset[3+n];
+                anim->poses[i][k].scale[n]     = chans[k].offset[7+n];
             }
-            mdl->poses[i][k].rotate[3] = chans[k].offset[6];
+            anim->poses[i][k].rotate[3] = chans[k].offset[6];
 
 			if (chans[k].mask & 0x01) {
-                mdl->poses[i][k].translate[0] += _read16(p) * chans[k].scale[0]; p += 2;
+                anim->poses[i][k].translate[0] += _read16(p) * chans[k].scale[0]; p += 2;
             }
 			if (chans[k].mask & 0x02) {
-                mdl->poses[i][k].translate[1] += _read16(p) * chans[k].scale[1]; p += 2;
+                anim->poses[i][k].translate[1] += _read16(p) * chans[k].scale[1]; p += 2;
             }
 			if (chans[k].mask & 0x04) {
-                mdl->poses[i][k].translate[2] += _read16(p) * chans[k].scale[2]; p += 2;
+                anim->poses[i][k].translate[2] += _read16(p) * chans[k].scale[2]; p += 2;
             }
 			if (chans[k].mask & 0x08) {
-                mdl->poses[i][k].rotate[0] += _read16(p) * chans[k].scale[3]; p += 2;
+                anim->poses[i][k].rotate[0] += _read16(p) * chans[k].scale[3]; p += 2;
             }
 			if (chans[k].mask & 0x10) {
-                mdl->poses[i][k].rotate[1] += _read16(p) * chans[k].scale[4]; p += 2;
+                anim->poses[i][k].rotate[1] += _read16(p) * chans[k].scale[4]; p += 2;
             }
 			if (chans[k].mask & 0x20) {
-                mdl->poses[i][k].rotate[2] += _read16(p) * chans[k].scale[5]; p += 2;
+                anim->poses[i][k].rotate[2] += _read16(p) * chans[k].scale[5]; p += 2;
             }
 			if (chans[k].mask & 0x40) {
-                mdl->poses[i][k].rotate[3] += _read16(p) * chans[k].scale[6]; p += 2;
+                anim->poses[i][k].rotate[3] += _read16(p) * chans[k].scale[6]; p += 2;
             }
 			if (chans[k].mask & 0x80) {
-                mdl->poses[i][k].scale[0] += _read16(p) * chans[k].scale[7]; p += 2;
+                anim->poses[i][k].scale[0] += _read16(p) * chans[k].scale[7]; p += 2;
             }
 			if (chans[k].mask & 0x100) {
-                mdl->poses[i][k].scale[1] += _read16(p) * chans[k].scale[8]; p += 2;
+                anim->poses[i][k].scale[1] += _read16(p) * chans[k].scale[8]; p += 2;
             }
 			if (chans[k].mask & 0x200) {
-                mdl->poses[i][k].scale[2] += _read16(p) * chans[k].scale[9]; p += 2;
+                anim->poses[i][k].scale[2] += _read16(p) * chans[k].scale[9]; p += 2;
             }
 		}
     }
@@ -431,6 +431,8 @@ _load_model (unsigned char *data,
 {
     struct iqm_model *rc = malloc (sizeof (struct iqm_model));
     memset (rc, 0, sizeof (struct iqm_model));
+    rc->skeleton = malloc (sizeof (struct iqm_skeleton));
+    memset (rc->skeleton, 0, sizeof (struct iqm_skeleton));
     int i=0;
 
     char *p = strrchr(filename,'/') + 1;
@@ -446,15 +448,8 @@ _load_model (unsigned char *data,
         _load_meshes (rc, data, imodel);
     }
     if (imodel->num_joints) {
-        _load_bones (rc, data, imodel);
+        _load_bones (rc->skeleton, data, imodel);
     }
-    if (imodel->num_anims) {
-        _load_anims (rc, data, imodel);
-    }
-    if (imodel->num_frames) {
-        _load_frames (rc, data, imodel);
-    }
-
     rc->min[0] = rc->min[1] = rc->min[2] = 1e10;
     rc->max[1] = rc->max[1] = rc->max[2] = -1e10;
   
@@ -483,6 +478,69 @@ _load_model (unsigned char *data,
     return rc;  
 }
 
+static struct iqm_animation *
+_load_animation (unsigned char *data,
+                 struct _iqm_header *imodel,
+                 char *filename)
+{
+    struct iqm_animation *rc = malloc (sizeof (struct iqm_animation));
+    memset (rc, 0, sizeof (struct iqm_animation));
+    rc->skeleton = malloc (sizeof (struct iqm_skeleton));
+    memset (rc->skeleton, 0, sizeof (struct iqm_skeleton));
+    
+    int i=0;
+
+    char *p = strrchr(filename,'/') + 1;
+    rc->dir = malloc((p - filename + 1) * sizeof(char));
+    strlcpy(rc->dir, filename, p - filename+1);
+  
+
+    if (imodel->num_joints) {
+        _load_bones (rc->skeleton, data, imodel);
+    }
+    if (imodel->num_anims) {
+        _load_anims (rc, data, imodel);
+    }
+
+    if (imodel->num_frames) {
+        _load_frames (rc, data, imodel);
+    }
+  
+    return rc;  
+}
+
+void
+_draw_string(void *font, char *string)
+{
+    while (*string)
+        glutBitmapCharacter(font, *string++);
+}
+
+void
+_get_delta (struct iqm_model     *model,
+            struct iqm_animation *animation,
+            int                  *table,
+            int                   anim,
+            int                   frame)
+{
+    int i;
+    for (i=0; i<model->skeleton->num_bones; i++) {
+        struct iqm_bone *bone = model->skeleton->bones + i;
+        struct iqm_pose *pose = animation->poses[frame] + i;
+        
+        if (bone->parent >= 0) {
+            float m_pose[16];
+            struct iqm_bone *parent = (struct iqm_bone *)(model->skeleton->bones + bone->parent);
+            mat_from_pose (m_pose, pose->translate, pose->rotate, pose->scale);
+            mat_mul44(bone->anim_matrix, parent->anim_matrix, m_pose);
+        } else {
+            mat_from_pose (bone->anim_matrix, pose->translate, pose->rotate, pose->scale);
+        }
+        mat_mul44(bone->diff, bone->anim_matrix, bone->inv_bind_matrix);
+    }
+    
+}
+
 /*
  * Public functions
  */
@@ -491,11 +549,11 @@ _load_model (unsigned char *data,
  * Load IQM model from disc and parse it.
  *
  * @param model_fname - file name of a supposed IQM data file
- * @return NULL if file does not exist, a valid file pointer otherwise
+ * @return NULL if file does not exist, a valid pointer to a model otherwise
  *
  */
 struct iqm_model *
-model_iqm_load(char *model_fname)
+model_iqm_load_model(char *model_fname)
 {
     struct iqm_model *rc = NULL;
     struct _iqm_header *imodel = malloc(sizeof(struct _iqm_header));
@@ -531,181 +589,55 @@ model_iqm_load(char *model_fname)
     return rc;
 }
 
-void
-_animate_iqm_model (struct iqm_model *model,
-                    int anim,
-                    int frame,
-                    float t)
+/*
+ * Load animation data in the IQM format.
+ *
+ * @param animation_fname - name of the file containing the animation
+ *                          data
+ * @return NULL if file doesn't exist, a valid pointer to an animation otherwise
+ *
+ */
+struct iqm_animation *
+model_iqm_load_animation(char *animation_fname)
 {
-	struct iqm_pose *pose0, *pose1;
-	float m[16], q[4], v[3];
-	int frame0, frame1;
-	int i;
-
-	if (!model->num_bones) {
-        fprintf (stderr, "objview: Spineless jelly! No bones here...\n");
-        return;
-    }
-    
-    if (!model->num_anims) {
-        fprintf (stderr, "objview: No animations to run...\n");
-		return;
-    }
-
-	if (!model->outbone) {
-		model->outbone = malloc(model->num_bones * sizeof(float[16]));
-		model->outskin = malloc(model->num_bones * sizeof(float[16]));
-	}
-
-	if (anim < 0) anim = 0;
-	if (anim >= model->num_anims) anim = model->num_anims - 1;
-
-	frame0 = frame % model->anims[anim].count;
-	frame1 = (frame + 1) % model->anims[anim].count;
-	pose0 = model->poses[model->anims[anim].first + frame0];
-	pose1 = model->poses[model->anims[anim].first + frame1];
-
-	for (i = 0; i < model->num_bones; i++) {
-		int parent = model->bones[i].parent;
-		quat_lerp_neighbor_normalize(q, pose0[i].rotate, pose1[i].rotate, t);
-		vec_lerp(v, pose0[i].translate, pose1[i].translate, t);
-		if (parent >= 0) {
-			//mat_from_pose(m, q, v);
-			mat_mul(model->outbone[i], model->outbone[parent], m);
-		} else {
-			//mat_from_pose(model->outbone[i], q, v);
-		}
-		mat_mul(model->outskin[i], model->outbone[i], model->bones[i].inv_bind_matrix);
-	}
-}
-
-static void make_vbo(struct iqm_model *model)
-{
-	int norm_ofs = 0;
-    int texcoord_ofs = 0;
-    //int color_ofs = 0;
-    int blend_index_ofs = 0;
-    int blend_weight_ofs = 0;
-	int n = 12;
+    struct iqm_animation *rc = NULL;
+    struct _iqm_header *imodel = malloc(sizeof(struct _iqm_header));
+    unsigned char *data;
   
-	if (model->norm) { norm_ofs = n; n += 12; }
-	if (model->texcoord) { texcoord_ofs = n; n += 8; }
-	//if (model->color) { color_ofs = n; n += 4; }
-    /*
-	if (model->blend_index && model->blend_weight) {
-        glBufferSubData(GL_ARRAY_BUFFER,
-                        color_ofs * model->num_vertices,
-                        4 * model->num_vertices,
-                        model->color);
+    FILE *file;
+
+    file = fopen (animation_fname, "rb");
+    if (!file) {
+        fprintf (stderr, "cannot open model '%s'\n", animation_fname);
+        return rc;
+    } 
+
+    printf ("loading iqm animation '%s'\n", animation_fname);
+    fread (imodel, 1, sizeof (struct _iqm_header), file);
+    if (strcmp(imodel->magic, IQM_MAGIC) != 0) {
+        fprintf (stderr, "not and IQM file '%s'\n", animation_fname);
+        fclose (file);
+        return rc;
     }
-    */
-        
-    if (model->blend_index && model->blend_weight) {
-        glBufferSubData(GL_ARRAY_BUFFER,
-                        blend_index_ofs * model->num_vertices,
-                        4 * model->num_vertices,
-                        model->blend_index);
-        glBufferSubData(GL_ARRAY_BUFFER,
-                        blend_weight_ofs * model->num_vertices,
-                        4 * model->num_vertices,
-                        model->blend_weight);
+    if (imodel->version != IQM_VERSION) {
+        fprintf (stderr, "unknown IQM version '%s'\n", animation_fname);
+        fclose (file);
+        return NULL;
     }
-    
-    glGenBuffers(1, &model->ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,
-                 model->ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 model->num_triangles * 3 * sizeof(int),
-                 model->triangles, GL_STATIC_DRAW);
-}
 
-static void
-_draw_iqm_instances(struct iqm_model *m,
-                    float *transform,
-                    int count)
-{
-    int i,k,n;
-    int prog, loc, bi_loc, bw_loc;
-
-    glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
-	loc = glGetUniformLocation(prog, "BoneMatrix");
-	bi_loc = glGetAttribLocation(prog, "in_BlendIndex");
-	bw_loc = glGetAttribLocation(prog, "in_BlendWeight");
-
-	if (!m->vbo)
-		make_vbo(m);
-
-	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ibo);
-
-	glVertexPointer(3, GL_FLOAT, 0, 0 );
-	glEnableClientState(GL_VERTEX_ARRAY);
-	n = 12 * m->num_vertices;
-
-	if (m->norm) {
-		glNormalPointer(GL_FLOAT, 0, (char*)n);
-        glEnableClientState(GL_NORMAL_ARRAY);
-		n += 12 * m->num_vertices;
-	}
-	if (m->texcoord) {
-		glTexCoordPointer(2, GL_FLOAT, 0, (char*)n);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		n += 8 * m->num_vertices;
-	}
-	/* if (m->color) { */
-	/* 	glColorPointer(4, GL_UNSIGNED_BYTE, 0, (char*)n); */
-	/* 	glEnableClientState(GL_COLOR_ARRAY); */
-	/* 	n += 4 * m->num_vertices; */
-	/* } */
-
-	if (1 || (loc >= 0 && bi_loc >= 0 && bw_loc >= 0)) {
-		if (m->outskin && m->blend_index && m->blend_weight) {
-			glUniformMatrix4fv(loc, m->num_bones, 0, m->outskin[0]);
-			glVertexAttribPointer(bi_loc, 4, GL_UNSIGNED_BYTE, 0, 0, (char*)n);
-			n += 4 * m->num_vertices;
-			glVertexAttribPointer(bw_loc, 4, GL_UNSIGNED_BYTE, 1, 0, (char*)n);
-			n += 4 * m->num_vertices;
-			glEnableVertexAttribArray(bi_loc);
-			glEnableVertexAttribArray(bw_loc);
-		}
-	}
-
-	for (i = 0; i < m->num_meshes; i++) {
-		struct iqm_mesh *mesh = m->meshes + i;
-		glBindTexture(GL_TEXTURE_2D, mesh->material);
-		for (k = 0; k < count; k++) {
-			// dog slow! should use our own uniforms, or instanced array
-            //	glPushMatrix();
-            //	glMultMatrixf(&transform[k*16]);
-			glDrawElements(GL_TRIANGLES, 3 * mesh->count, GL_UNSIGNED_INT, (char*)(mesh->first*12));
-            //	glPopMatrix();
-		}
-	}
-
-	glDisableVertexAttribArray(ATT_POSITION);
-	glDisableVertexAttribArray(ATT_NORMAL);
-	glDisableVertexAttribArray(ATT_TEXCOORD);
-	glDisableVertexAttribArray(ATT_COLOR);
-	if (loc >= 0 && bi_loc >= 0 && bw_loc >= 0) {
-		glDisableVertexAttribArray(bi_loc);
-		glDisableVertexAttribArray(bw_loc);
-	}
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    data = malloc (imodel->filesize);
+    fseek(file , 0, 0);
+    fread (data, 1, imodel->filesize, file);
+    fclose (file);
+    rc = _load_animation (data, imodel, animation_fname);
+    free (data);
+    return rc;
 }
 
 /*
-void
-draw_iqm_model (struct iqm_model *m)
-{
-    float transform[16];
-
-    mat_identity(transform);
-    _draw_iqm_instances(m, transform, 1);
-}
-*/
-
+ * Draw the static model, no animations, bells or whistles
+ *
+ */
 void
 model_iqm_draw_static (struct iqm_model *model)
 {
@@ -737,13 +669,12 @@ model_iqm_draw_static (struct iqm_model *model)
     glDisableClientState(GL_NORMAL_ARRAY);
 }
 
-void
-_draw_string(void *font, char *string)
-{
-    while (*string)
-        glutBitmapCharacter(font, *string++);
-}
-
+/*
+ * Draw the bones of the static image as a wireframe
+ *
+ * @param model - pointer to an instance of struct iqm_model
+ *
+ */
 void
 model_iqm_draw_bones(struct iqm_model *model)
 {
@@ -751,13 +682,13 @@ model_iqm_draw_bones(struct iqm_model *model)
 
     glDisable(GL_DEPTH_TEST);
 
-    for (i=0; i<model->num_bones; i++)
+    for (i=0; i<model->skeleton->num_bones; i++)
     {
-        struct iqm_bone *b = model->bones+i;
+        struct iqm_bone *b = model->skeleton->bones+i;
         glBegin(GL_LINES);
         if (b->parent >= 0)
         {
-            struct iqm_bone *pb = model->bones + b->parent;
+            struct iqm_bone *pb = model->skeleton->bones + b->parent;
             glColor3f(0,1,0);
             glVertex3f(pb->bind_matrix[12],
                        pb->bind_matrix[13],
@@ -781,6 +712,10 @@ model_iqm_draw_bones(struct iqm_model *model)
     glEnable(GL_DEPTH_TEST);
 }
 
+/*
+ * Draw the animated bones of the model
+ *
+ */
 void
 model_iqm_draw_anim_bones(struct iqm_model *model)
 {
@@ -788,13 +723,13 @@ model_iqm_draw_anim_bones(struct iqm_model *model)
 
     glDisable(GL_DEPTH_TEST);
 
-    for (i=0; i<model->num_bones; i++)
+    for (i=0; i<model->skeleton->num_bones; i++)
     {
-        struct iqm_bone *b = model->bones+i;
+        struct iqm_bone *b = model->skeleton->bones+i;
         glBegin(GL_LINES);
         if (b->parent >= 0)
         {
-            struct iqm_bone *pb = model->bones + b->parent;
+            struct iqm_bone *pb = model->skeleton->bones + b->parent;
             glColor3f(0,0.5,0.5);
             glVertex3f(pb->bind_matrix[12],
                        pb->bind_matrix[13],
@@ -820,71 +755,43 @@ model_iqm_draw_anim_bones(struct iqm_model *model)
     glEnable(GL_DEPTH_TEST);
 }
 
-void
-model_iqm_draw (struct iqm_model *model)
+int *
+_match_bones (struct iqm_model *m,
+              struct iqm_animation *a)
 {
-    
-}
-
-struct iqm_bone *
-_get_bone (struct iqm_model *m ,int index) {
-    return &m->bones[index];
-}
-
-void
-_get_delta (struct iqm_model *model,
-            int frame)
-{
-    int i;
-    for (i=0; i<model->num_bones; i++) {
-        struct iqm_bone *bone = model->bones + i;
-        struct iqm_pose *pose = model->poses[frame] + i;
-        
-        if (bone->parent >= 0) {
-            float m_pose[16];
-            struct iqm_bone *parent = (struct iqm_bone *)(model->bones + bone->parent);
-            mat_from_pose (m_pose, pose->translate, pose->rotate, pose->scale);
-            mat_mul44(bone->anim_matrix, parent->anim_matrix, m_pose);
-        } else {
-            mat_from_pose (bone->anim_matrix, pose->translate, pose->rotate, pose->scale);
+    int p = sizeof (int) * a->skeleton->num_bones;
+    int *rc = malloc (p);
+    memset (rc, p, -1);
+    int i,j;
+    for (i=0; i<a->skeleton->num_bones; i++) {
+        struct iqm_bone *ab = a->skeleton->bones + i;
+        for (j=0; j<m->skeleton->num_bones; j++) {
+            struct iqm_bone *mb = (struct iqm_bone *)(m->skeleton->bones + j);
+            if (strcmp(mb->name, ab->name) == 0) {
+                rc [i] = j;
+                break;
+            }
         }
-        mat_mul44(bone->diff, bone->anim_matrix, bone->inv_bind_matrix);
     }
-    
+    return rc;
 }
 
 void
-model_iqm_animate (struct iqm_model *model,
-                   int a,
-                   int f,
-                   float t)
+model_iqm_animate (struct iqm_model     *model,
+                   struct iqm_animation      *animation,
+                   int                   a,
+                   int                   f,
+                   float                 t)
 {
-    /*
-    int i,j,k,l;
-    float v[3];
-    unsigned char bi[4];
-    struct iqm_anim *anim;
-    struct iqm_bone *bone;
-    
-    _get_delta (model, f);
-    
-    memcpy (v, model->pos+(i*3), 3 * sizeof (float));
-    memcpy (bi, model->blend_index + (4 * i), 4 * sizeof (unsigned char));
-    bone = model->bones + bi[0];
-    anim = model->anims + f;
-    fprintf (stderr, "objview: frame %s, first %d, count %d\n",
-             anim->name,
-             anim->first,
-             anim->count);
-    */
-
     int i;
-    a %= model->num_anims;
-    f %= model->anims[a].count;
+    a %= animation->num_anims;
+    f %= animation->anims[a].count;
 
     printf ("anim %d frame %d\n", a, f);
 
-    _get_delta (model, model->anims[a].first + f);
+    int *table = _match_bones (model, animation);
+    
+    _get_delta (model, animation, table, a, f);
     
     if (model->dnorm == NULL) {
         model->dnorm = malloc (model->num_vertices * 3 * sizeof(float));
@@ -898,10 +805,10 @@ model_iqm_animate (struct iqm_model *model,
         unsigned char *bw = &model->blend_weight[i*4];
         
         mat_vec_mul (model->dpos + i*3,
-                     model->bones[bi[0]].diff,
+                     model->skeleton->bones[bi[0]].diff,
                      model->pos + i*3);
         mat_vec_mul_n (model->dnorm + i*3,
-                       model->bones[bi[0]].diff,
+                       model->skeleton->bones[bi[0]].diff,
                        model->norm + i*3);
-    }        
+    }
 }

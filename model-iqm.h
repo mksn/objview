@@ -74,63 +74,74 @@ struct iqm_bounds {
     float radius;
 };
 
+struct iqm_skeleton {
+    int num_bones;
+    struct iqm_bone *bones;
+};
+
 struct iqm_anim {
-    char *name;
-    int first;
-    int count;
-    float rate;
-    int loop;
+    char                *name;
+    int                  first;
+    int                  count;
+    float                rate;
+    int                  loop;
+};
+
+struct iqm_animation
+{
+    char                *dir;
+    int                  num_anims;
+    int                  num_frames;
+    struct iqm_pose    **poses;
+    struct iqm_anim     *anims;
+    struct iqm_skeleton *skeleton;
 };
 
 struct iqm_mesh {
-    char *name;
-    int material;
-    int first;
-    int count;
+    char                *name;
+    int                  material;
+    int                  first;
+    int                  count;
 };
 
 struct iqm_model {
-    char *dir;
-    int num_vertices;
-    int num_triangles;
-    int num_meshes;
-    int num_bones;
-    int num_frames;
-    int num_anims;
+    char                *dir;
+    int                  num_vertices;
+    int                  num_triangles;
+    int                  num_meshes;
+    int                  num_anims;
     
-    float *pos;
-    float *norm;
-    float *texcoord;
+    float               *pos;
+    float               *norm;
+    float               *texcoord;
     
-    unsigned char *blend_index;
-    unsigned char *blend_weight;
+    unsigned char       *blend_index;
+    unsigned char       *blend_weight;
     
     int *triangles;
-    
-    struct iqm_mesh *meshes;
-    struct iqm_bone *bones;
-    struct iqm_bounds *bounds;
-    struct iqm_pose **poses;
-    struct iqm_anim *anims;
+
+    struct iqm_skeleton *skeleton;
+    struct iqm_mesh     *meshes;
+    struct iqm_bounds   *bounds;
 
     /*
      * The current distorted information
      * for the current animation frame
      *
      */
-    float *dpos;
-    float *dnorm;
+    float               *dpos;
+    float               *dnorm;
     
-    float min[3]; 
-    float max[3];
-    float radius;
+    float                min[3]; 
+    float                max[3];
+    float                radius;
     
-    float (*outbone)[16];
-    float (*outskin)[16];
-    struct iqm_pose *outpose;
+    float              (*outbone)[16];
+    float              (*outskin)[16];
+    struct              iqm_pose *outpose;
     
-    unsigned int vbo;
-    unsigned int ibo;
+    unsigned int        vbo;
+    unsigned int        ibo;
 };
 
 /*
@@ -147,6 +158,7 @@ void              model_iqm_draw_static (struct iqm_model *m);
 void              model_iqm_draw_bones  (struct iqm_model *m);
 void              model_iqm_draw_anim_bones  (struct iqm_model *m);
 void              model_iqm_animate     (struct iqm_model *m,
+                                         struct iqm_animation *a,
                                          int anim,
                                          int frame,
                                          float t);

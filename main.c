@@ -6,6 +6,7 @@
 #include <string.h>
 #include <model-iqm.h>
 #include <assert.h>
+#include <unit.h>
 
 #define NUMTREES 2048
 extern int compile_shader(char *vfile, char *ffile);
@@ -32,6 +33,8 @@ float zrot = 45;
 int leftstate = 0, rightstate = 0, middlestate = 0;
 int frame = 0;
 
+struct ov_unit *drawing_unit;
+
 void move_camera()
 {
 }
@@ -49,20 +52,26 @@ void init(int argc, char **argv)
 {
   prog = compile_shader(("vertex.glsl"),
                         ("fragment.glsl"));
+
+  drawing_unit = malloc (sizeof (struct ov_unit));
+  drawing_unit->anim = malloc (sizeof (struct iqm_animation));
+  drawing_unit->model = NULL;
+  
   if (argc>2) {
-      animation = model_iqm_load(argv[2]);
-      //animation = load_iqm_model(argv[2]);
+      drawing_unit->anim->num_anims = 1;
+      drawing_unit->anim->anims = (struct iqm_anim *)model_iqm_load_animation(argv[2]);
   }
   if (argc>1) {
-      model = model_iqm_load (argv[1]);
+      drawing_unit->model = (struct iqm_model *)model_iqm_load_model (argv[1]);
   } else {
-      model = model_iqm_load ("gfx/tmp/tr_mo_c03_idle1.iqm");
+      //drawing_unit->anim->num_anims = 1;
+      drawing_unit->model = (struct iqm_model *)model_iqm_load_model ("gfx/tmp/tr_mo_c03_idle1.iqm");
+      //drawing_unit->anim->anims  = (struct iqm_anim *)model_iqm_load_animation ("gfx/tmp/tr_mo_c03_idle1.iqm");
   }
-  //if (filename == NULL) model= load_iqm_model("gfx/tmp/tr_mo_c03_idle1.iqm");
-  //else  model = load_iqm_model(filename);
-  draw_bones = 0;
-  draw_anim_bones = 0;
-  assert(model != NULL);
+
+  draw_bones = 0;        // don't draw the static bones' wireframe 
+  draw_anim_bones = 0;   // don't draw the animated bones' wireframe
+  assert(drawing_unit->model != NULL); // "sie ist ein model und sie sieht gut aus"
 }
 
 void reshape(int w, int h)
@@ -201,8 +210,14 @@ void display()
   glUseProgram(prog);
   //draw_iqm_model(model);
   //draw_static_iqm_model(model);
-  model_iqm_animate (model, 0, frame++, 0);
-  model_iqm_draw_static (model);
+  if (drawing_unit->anim != NULL) 
+      model_iqm_animate (drawing_unit->model,
+                         NULL, //drawing_unit->anim,
+                         0,
+                         frame++,
+                         0);
+  else 
+      model_iqm_draw_static (drawing_unit->model);
   glUseProgram(0);
   glDisable(GL_TEXTURE_2D);
 
