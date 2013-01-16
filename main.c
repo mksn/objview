@@ -53,20 +53,18 @@ void init(int argc, char **argv)
   prog = compile_shader(("vertex.glsl"),
                         ("fragment.glsl"));
 
-  drawing_unit = malloc (sizeof (struct ov_unit));
-  drawing_unit->anim = malloc (sizeof (struct iqm_animation));
-  drawing_unit->model = NULL;
+  drawing_unit = ov_create_unit();
   
   if (argc>2) {
-      drawing_unit->anim->num_anims = 1;
-      drawing_unit->anim->anims = (struct iqm_anim *)model_iqm_load_animation(argv[2]);
+      ov_add_animation (drawing_unit,
+                        argv[2],
+                        ANIM_IDLE);
   }
   if (argc>1) {
-      drawing_unit->model = (struct iqm_model *)model_iqm_load_model (argv[1]);
+      ov_set_model(drawing_unit, argv[1]);
   } else {
-      drawing_unit->anim->num_anims = 1;
-      drawing_unit->model = model_iqm_load_model ("gfx/tmp/tr_mo_c03_idle1.iqm");
-      drawing_unit->anim  = model_iqm_load_animation ("gfx/tmp/tr_mo_c03_idle1.iqm");
+      ov_set_model (drawing_unit, "gfx/tmp/tr_mo_c03_idle1.iqm");
+      ov_add_animation (drawing_unit, "gfx/tmp/tr_mo_c03_idle1.iqm", ANIM_IDLE);
   }
 
   draw_bones = 0;        // don't draw the static bones' wireframe 
@@ -210,10 +208,10 @@ void display()
   glUseProgram(prog);
   //draw_iqm_model(model);
   //draw_static_iqm_model(model);
-  if (drawing_unit->anim != NULL) 
+  if (drawing_unit->animations != NULL) 
       model_iqm_animate (drawing_unit->model,
-                         drawing_unit->anim,
-                         0,
+                         drawing_unit->animations,
+                         ANIM_IDLE,
                          frame++,
                          0);
   model_iqm_draw_static (drawing_unit->model);

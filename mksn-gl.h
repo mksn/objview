@@ -13,6 +13,8 @@
 #include <GL/glext.h>
 #include <GL/glut.h>
 #endif
+#include <string.h>
+#include <stdlib.h>
 
 enum {
 	ATT_POSITION,

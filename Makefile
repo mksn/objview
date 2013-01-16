@@ -3,7 +3,8 @@ objects =	main.o \
 			model-iqm.o\
 			shader.o \
 			image.o \
-			vector.o
+			vector.o \
+			unit.o
 
 ifeq ($(UNAME), Linux)
 objects += strlcpy.o
@@ -14,7 +15,8 @@ sources =	main.c \
 			image.c \
 			shader.c \
 			strlcpy.c \
-			vector.c
+			vector.c \
+			unit.c
 
 ifeq ($(UNAME), Linux)
 sources += strlcpy.c

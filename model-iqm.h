@@ -80,28 +80,23 @@ struct iqm_skeleton {
 };
 
 // TODO: Cleanup and refactor the animation data structures.
-struct iqm_anim {
+struct iqm_animation {
+    char                 *dir;
     char                *name;
     int                  first;
     int                  count;
     float                rate;
     int                  loop;
-};
-
-struct iqm_animation_list {
-    char *dir;
-    int num_anims;
-    struct iqm_anims *anims;
-};
-
-struct iqm_animation
-{
-    char                *dir;
-    int                  num_anims;
-    int                  num_frames;
-    struct iqm_pose    **poses;
-    struct iqm_anim     *anims;
     struct iqm_skeleton *skeleton;
+    struct iqm_pose    **poses;
+    int                  num_frames;
+};
+
+struct iqm_animations
+{
+    struct ov_anim_txlate **at_table;
+    int                     num_anims;
+    struct iqm_animation  **anims;
 };
 
 struct iqm_mesh {
@@ -155,21 +150,21 @@ struct iqm_model {
  * public functions
  *
  */
-struct iqm_model *model_iqm_load        (char   *model_fname);
+struct iqm_model    *model_iqm_load            (char   *model_fname);
 /* void              animate_iqm_model     (struct iqm_model *m, */
 /*                                          int anim, */
 /*                                          int frame, */
 /*                                          float t); */
 //void              draw_iqm_model        (struct iqm_model *m);
-void              model_iqm_draw_static (struct iqm_model *m);
-void              model_iqm_draw_bones  (struct iqm_model *m);
-void              model_iqm_draw_anim_bones  (struct iqm_model *m);
-void              model_iqm_animate     (struct iqm_model *m,
-                                         struct iqm_animation *a,
-                                         int anim,
-                                         int frame,
-                                         float t);
-void              model_iqm_draw        (struct iqm_model *m);
-struct iqm_model *model_iqm_load_model  (char *model_fname);
+void                 model_iqm_draw_static     (struct iqm_model *m);
+void                 model_iqm_draw_bones      (struct iqm_model *m);
+void                 model_iqm_draw_anim_bones (struct iqm_model *m);
+void                 model_iqm_animate         (struct iqm_model      *m,
+                                                struct iqm_animations *a,
+                                                int anim,
+                                                int frame,
+                                                float t);
+void                 model_iqm_draw            (struct iqm_model *m);
+struct iqm_model     *model_iqm_load_model     (char *model_fname);
 struct iqm_animation *model_iqm_load_animation (char *animation_fname);
 #endif

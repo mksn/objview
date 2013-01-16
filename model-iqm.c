@@ -214,23 +214,32 @@ _load_vertex_arrays(struct iqm_model *m,
         switch (va->type) {
             case IQM_VAT_POSITION:
                 assert(va->format == IQM_VAF_FLOAT && va->size == 3);
-                m->pos = _load_float_array(data + va->offset, va->size, h->num_vertexes);
+                m->pos = _load_float_array(data + va->offset,
+                                           va->size,
+                                           h->num_vertexes);
                 break;
             case IQM_VAT_TEXCOORD:
                 assert(va->format == IQM_VAF_FLOAT && va->size == 2);
-                m->texcoord = _load_float_array(data + va->offset, va->size, h->num_vertexes);
+                m->texcoord = _load_float_array(data + va->offset,
+                                                va->size,
+                                                h->num_vertexes);
                 break;
             case IQM_VAT_NORMAL:
                 assert(va->format == IQM_VAF_FLOAT && va->size == 3);
-                m->norm = _load_float_array(data + va->offset, va->size, h->num_vertexes);
+                m->norm = _load_float_array(data + va->offset,
+                                            va->size,
+                                            h->num_vertexes);
                 break;
             case IQM_VAT_BLENDINDEXES:
                 assert(va->format == IQM_VAF_UBYTE && va->size == 4);
-                m->blend_index = _load_ubyte_array (data + va->offset, va->size, h->num_vertexes);
+                m->blend_index = _load_ubyte_array (data + va->offset,
+                                                    va->size,
+                                                    h->num_vertexes);
                 break;
             case IQM_VAT_BLENDWEIGHTS:
                 assert(va->format == IQM_VAF_UBYTE && va->size == 4);
-                m->blend_weight = _load_ubyte_array (data + va->offset, va->size, h->num_vertexes);
+                m->blend_weight = _load_ubyte_array (data + va->offset,
+                                                     va->size, h->num_vertexes);
                 break;
 		}
     }
@@ -329,25 +338,24 @@ _load_bones (struct iqm_skeleton *s,
 }
 
 static void
-_load_anims (struct iqm_animation *anim,
+_load_anims (struct iqm_animation *a,
              unsigned char        *data,
              struct _iqm_header   *h)
 {
     int i;
-    anim->num_anims = h->num_anims;
-    anim->anims = malloc (h->num_anims * sizeof(struct iqm_anim));
-    struct _iqm_anim *a = malloc(h->num_anims * sizeof(struct _iqm_anim));
-    memcpy(a, data + h->ofs_anims, h->num_anims * sizeof(struct _iqm_anim));
-    for (i=0; i < h->num_anims; i++) {
-        char *name = (char *)data + h->ofs_text + a[i].name;
-        anim->anims[i].name = malloc(strlen(name)*sizeof(char));
-        strlcpy(anim->anims[i].name, name, strlen(name));
-        anim->anims[i].first = a[i].first_frame;
-        anim->anims[i].count = a[i].num_frames;
-        anim->anims[i].rate  = a[i].framerate;
-        anim->anims[i].loop  = a[i].flags;
-    }
-    free (a);
+    struct _iqm_anim *n = malloc(h->num_anims * sizeof(struct _iqm_anim));
+    memcpy(n, data + h->ofs_anims, h->num_anims * sizeof(struct _iqm_anim));
+    //for (i=0; i < h->num_anims; i++) {
+    i=0;
+    char *name = (char *)data + h->ofs_text + n[i].name;
+    a->name = malloc(strlen(name)*sizeof(char));
+    strlcpy(a->name, name, strlen(name));
+    a->first = n[i].first_frame;
+    a->count = n[i].num_frames;
+    a->rate  = n[i].framerate;
+    a->loop  = n[i].flags;
+    //}
+    //free (a);
 }
 
 struct chan {
@@ -488,8 +496,6 @@ _load_animation (unsigned char *data,
     rc->skeleton = malloc (sizeof (struct iqm_skeleton));
     memset (rc->skeleton, 0, sizeof (struct iqm_skeleton));
     
-    int i=0;
-
     char *p = strrchr(filename,'/') + 1;
     rc->dir = malloc((p - filename + 1) * sizeof(char));
     strlcpy(rc->dir, filename, p - filename+1);
@@ -520,7 +526,6 @@ void
 _get_delta (struct iqm_model     *model,
             struct iqm_animation *animation,
             int                  *table,
-            int                   anim,
             int                   frame)
 {
     int i;
@@ -778,21 +783,21 @@ _match_bones (struct iqm_model *m,
 }
 
 void
-model_iqm_animate (struct iqm_model     *model,
-                   struct iqm_animation      *animation,
-                   int                   a,
-                   int                   f,
-                   float                 t)
+model_iqm_animate (struct iqm_model      *model,
+                   struct iqm_animations *animations,
+                   int                    a,
+                   int                    f,
+                   float                  t)
 {
     int i;
-    a %= animation->num_anims;
-    f %= animation->anims[a].count;
+    a %= animations->num_anims;
+    f %= animations->anims[a]->count;
 
     printf ("anim %d frame %d\n", a, f);
 
-    int *table = _match_bones (model, animation);
+    int *table = _match_bones (model, animations->anims[a]);
     
-    _get_delta (model, animation, table, a, f);
+    _get_delta (model, animations->anims[a], table, f);
     
     if (model->dnorm == NULL) {
         model->dnorm = malloc (model->num_vertices * 3 * sizeof(float));
@@ -803,7 +808,7 @@ model_iqm_animate (struct iqm_model     *model,
     
     for (i=0; i<model->num_vertices; i++) {
         unsigned char *bi = &model->blend_index[i*4];
-        unsigned char *bw = &model->blend_weight[i*4];
+        //unsigned char *bw = &model->blend_weight[i*4];
         
         mat_vec_mul (model->dpos + i*3,
                      model->skeleton->bones[bi[0]].diff,
