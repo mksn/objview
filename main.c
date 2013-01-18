@@ -188,40 +188,29 @@ void mouseMovement(int x, int y)
 void display()
 {
   int i;
-  //animate_iqm_model(model, 0, frame++, 0);
-
-  //GLenum error;
   glClearColor (0.3, 0.3, 0.4, 1.0);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glEnable(GL_CULL_FACE);
-  glFrontFace(GL_CW);
-  glEnable(GL_DEPTH_TEST);
-  
-  camera();
-  //glLightfv (GL_LIGHT0, GL_POSITION, lightpos);	
+  glEnable (GL_CULL_FACE);
+  glFrontFace (GL_CW);
+  glEnable (GL_DEPTH_TEST);
+
+  camera ();
 
   glPushMatrix();
   glRotatef(-90, 1.0, 0.0, 0.0);
-
-  glColor3f(1, 1, 1);
+  glColor3f(1,1,1);
   glEnable(GL_TEXTURE_2D);
   glUseProgram(prog);
-  //draw_iqm_model(model);
-  //draw_static_iqm_model(model);
   if (drawing_unit->animations != NULL) 
-      model_iqm_animate (drawing_unit->model,
-                         drawing_unit->animations,
-                         ANIM_IDLE,
-                         frame++,
-                         0);
-  model_iqm_draw_static (drawing_unit->model);
+      ov_animate (drawing_unit, ANIM_IDLE, frame++, 0);
+  ov_draw_static (drawing_unit);
   glUseProgram(0);
   glDisable(GL_TEXTURE_2D);
 
   if (draw_bones)
-      model_iqm_draw_bones(drawing_unit->model);
+      ov_draw_bones(drawing_unit);
   if (draw_anim_bones)
-      model_iqm_draw_anim_bones (drawing_unit->model);
+      ov_draw_anim_bones (drawing_unit);
 
   glPopMatrix();
 

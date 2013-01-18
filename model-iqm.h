@@ -165,6 +165,6 @@ void                 model_iqm_animate         (struct iqm_model      *m,
                                                 int frame,
                                                 float t);
 void                 model_iqm_draw            (struct iqm_model *m);
-struct iqm_model     *model_iqm_load_model     (char *model_fname);
-struct iqm_animation *model_iqm_load_animation (char *animation_fname);
+struct ov_model     *model_iqm_load_model     (char *model_fname);
+struct ov_animation *model_iqm_load_animation (char *animation_fname);
 #endif

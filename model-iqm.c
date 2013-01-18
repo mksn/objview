@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <image.h>
 #include <vector.h>
+#include <unit.h>
 
 typedef float vec3[3];
 /* 
@@ -200,7 +201,7 @@ _load_ubyte_array(unsigned char *data,
 }
 
 static void
-_load_vertex_arrays(struct iqm_model *m,
+_load_vertex_arrays(struct ov_model *m,
                     unsigned char *data,
                     struct _iqm_header *h)
 {
@@ -247,7 +248,7 @@ _load_vertex_arrays(struct iqm_model *m,
 }
 
 static void
-_load_triangles (struct iqm_model *m,
+_load_triangles (struct ov_model *m,
                  unsigned char *data,
                  struct _iqm_header *h)
 {
@@ -258,7 +259,7 @@ _load_triangles (struct iqm_model *m,
 }
 
 static int
-_load_material (struct iqm_model *m,
+_load_material (struct ov_model *m,
                 char             *mat_name)
 {
     /*
@@ -274,7 +275,7 @@ _load_material (struct iqm_model *m,
 }
 
 static void
-_load_meshes (struct iqm_model   *m,
+_load_meshes (struct ov_model   *m,
               unsigned char      *data,
               struct _iqm_header *h)
 {
@@ -294,7 +295,7 @@ _load_meshes (struct iqm_model   *m,
     }
 }
 
-static void read_pose(struct iqm_pose   *pose,
+static void read_pose(struct ov_pose   *pose,
                       struct _iqm_joint *joint)
 {
     memcpy(pose->translate, joint->translate, 3 * sizeof(float));
@@ -305,7 +306,7 @@ static void read_pose(struct iqm_pose   *pose,
 }
 
 static void
-_load_bones (struct iqm_skeleton *s,
+_load_bones (struct ov_skeleton *s,
              unsigned char       *data,
              struct _iqm_header  *h)
 {
@@ -327,7 +328,7 @@ _load_bones (struct iqm_skeleton *s,
                       s->bones[i].bind_pose.rotate,
                       s->bones[i].bind_pose.scale);
         if (s->bones[i].parent >= 0) {
-            struct iqm_bone *parent = &s->bones[s->bones[i].parent];
+            struct ov_bone *parent = &s->bones[s->bones[i].parent];
             mat_mul44(s->bones[i].bind_matrix, parent->bind_matrix, q);
         } else {
             mat_copy(s->bones[i].bind_matrix, q);
@@ -338,7 +339,7 @@ _load_bones (struct iqm_skeleton *s,
 }
 
 static void
-_load_anims (struct iqm_animation *a,
+_load_anims (struct ov_animation *a,
              unsigned char        *data,
              struct _iqm_header   *h)
 {
@@ -365,7 +366,7 @@ struct chan {
 };
 
 static void
-_load_frames (struct iqm_animation *anim,
+_load_frames (struct ov_animation *anim,
               unsigned char *data,
               struct _iqm_header *h)
 {
@@ -432,15 +433,15 @@ _load_frames (struct iqm_animation *anim,
     free (chans);
 }
 
-static struct iqm_model *
+static struct ov_model *
 _load_model (unsigned char *data,
              struct _iqm_header *imodel,
              char *filename)
 {
-    struct iqm_model *rc = malloc (sizeof (struct iqm_model));
-    memset (rc, 0, sizeof (struct iqm_model));
-    rc->skeleton = malloc (sizeof (struct iqm_skeleton));
-    memset (rc->skeleton, 0, sizeof (struct iqm_skeleton));
+    struct ov_model *rc = malloc (sizeof (struct iqm_model));
+    memset (rc, 0, sizeof (struct ov_model));
+    rc->skeleton = malloc (sizeof (struct ov_skeleton));
+    memset (rc->skeleton, 0, sizeof (struct ov_skeleton));
     int i=0;
 
     char *p = strrchr(filename,'/') + 1;
@@ -486,12 +487,12 @@ _load_model (unsigned char *data,
     return rc;  
 }
 
-static struct iqm_animation *
+static struct ov_animation *
 _load_animation (unsigned char *data,
                  struct _iqm_header *imodel,
                  char *filename)
 {
-    struct iqm_animation *rc = malloc (sizeof (struct iqm_animation));
+    struct ov_animation *rc = malloc (sizeof (struct iqm_animation));
     memset (rc, 0, sizeof (struct iqm_animation));
     rc->skeleton = malloc (sizeof (struct iqm_skeleton));
     memset (rc->skeleton, 0, sizeof (struct iqm_skeleton));
@@ -515,14 +516,14 @@ _load_animation (unsigned char *data,
     return rc;  
 }
 
-void
+static void
 _draw_string(void *font, char *string)
 {
     while (*string)
         glutBitmapCharacter(font, *string++);
 }
 
-void
+static void
 _get_delta (struct iqm_model     *model,
             struct iqm_animation *animation,
             int                  *table,
@@ -557,10 +558,10 @@ _get_delta (struct iqm_model     *model,
  * @return NULL if file does not exist, a valid pointer to a model otherwise
  *
  */
-struct iqm_model *
+struct ov_model *
 model_iqm_load_model(char *model_fname)
 {
-    struct iqm_model *rc = NULL;
+    struct ov_model *rc = NULL;
     struct _iqm_header *imodel = malloc(sizeof(struct _iqm_header));
     unsigned char *data;
   
@@ -602,10 +603,10 @@ model_iqm_load_model(char *model_fname)
  * @return NULL if file doesn't exist, a valid pointer to an animation otherwise
  *
  */
-struct iqm_animation *
+struct ov_animation *
 model_iqm_load_animation(char *animation_fname)
 {
-    struct iqm_animation *rc = NULL;
+    struct ov_animation *rc = NULL;
     struct _iqm_header *imodel = malloc(sizeof(struct _iqm_header));
     unsigned char *data;
   
