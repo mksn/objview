@@ -158,3 +158,40 @@ int load_texture(unsigned int texid, char *filename)
 	free(image);
 	return texid;
 }
+
+unsigned int loadtexture(char *filename)
+{
+  unsigned int texture;
+  unsigned char *image;
+  int w, h, n, intfmt = 0, fmt = 0;
+
+  image = stbi_load(filename, &w, &h, &n, 0);
+  if (!image) {
+    lowerstring(filename);
+    image = stbi_load(filename, &w, &h, &n, 0);
+    if (!image) {
+      fprintf(stderr, "cannot load texture '%s'\n", filename);
+      return 0;
+    }
+  }
+
+  if (n == 1) { intfmt = fmt = GL_LUMINANCE; }
+  if (n == 2) { intfmt = fmt = GL_LUMINANCE_ALPHA; }
+  if (n == 3) { intfmt = fmt = GL_RGB; }
+  if (n == 4) { intfmt = fmt = GL_RGBA; }
+
+  glGenTextures(1, &texture);
+  glBindTexture(GL_TEXTURE_2D, texture);
+  glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexImage2D(GL_TEXTURE_2D, 0, intfmt, w, h, 0, fmt, GL_UNSIGNED_BYTE, image);
+  //glGenerateMipmap(GL_TEXTURE_2D);
+
+  free(image);
+
+  return texture;
+}
+

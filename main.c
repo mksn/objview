@@ -61,10 +61,10 @@ void init(int argc, char **argv)
                         ANIM_IDLE);
   }
   if (argc>1) {
-      ov_set_model(drawing_unit, argv[1]);
+      assert(ov_set_model(drawing_unit, argv[1]));
   } else {
-      ov_set_model (drawing_unit, "gfx/tmp/tr_mo_c03_idle1.iqm");
-      ov_add_animation (drawing_unit, "gfx/tmp/tr_mo_c03_idle1.iqm", ANIM_IDLE);
+      assert(ov_set_model (drawing_unit, "gfx/tmp/tr_mo_c03_idle1.iqm"));
+      assert(ov_add_animation (drawing_unit, "gfx/tmp/tr_mo_c03_idle1.iqm", ANIM_IDLE));
   }
 
   draw_bones = 0;        // don't draw the static bones' wireframe 
@@ -254,8 +254,7 @@ void special (int key, int x , int y) {
 int main (int argc, char **argv)
 {
   glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_RGBA |  GLUT_DOUBLE | GLUT_DEPTH | 
-          GLUT_MULTISAMPLE | GLUT_3_2_CORE_PROFILE);
+  glutInitDisplayMode(MKSN_GLUT_INIT);
   glutInitWindowSize(1024, 768);
   glutCreateWindow("ObjView");
 #ifdef __APPLE__

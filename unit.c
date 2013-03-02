@@ -1,6 +1,7 @@
 #include <mksn-gl.h>
 #include <unit.h>
 #include <model-iqm.h>
+#include <model-iqe.h>
 #include <vector.h>
 
 /*******************************************************************************
@@ -118,11 +119,16 @@ ov_create_unit ()
     return rc;
 }
 
-void
+int
 ov_set_model(struct ov_unit *unit,
              char           *model_fname)
 {
     unit->model = model_iqm_load_model (model_fname);
+    if (unit->model == NULL) { 
+      unit->model = model_iqe_load_model(model_fname);
+    }
+    
+    return unit->model != NULL;
 }
 
     
@@ -133,12 +139,15 @@ ov_get_number_anims(struct ov_unit *unit)
 }
 
 
-void
+int
 ov_add_animation(struct ov_unit *unit,
                  char           *animation_fname,
                  animation_t     key)
 {
     struct ov_animation *a = model_iqm_load_animation (animation_fname);
+    if (a != NULL) {
+      a = model_iqe_load_animation (unit, animation_fname);
+    }
     if (a != NULL) {
         if (unit->animations->anims[key] != NULL) {
             free (unit->animations->anims[key]);
@@ -148,6 +157,7 @@ ov_add_animation(struct ov_unit *unit,
         unit->animations->at_table[key]->anim = unit->animations->num_anims;
         unit->animations->anims[unit->animations->num_anims++] = a;
     }
+    return a != NULL;
 }
 /*
  * Draw the static model, no animations, bells or whistles

@@ -34,6 +34,7 @@ struct ov_bone {
   float  bind_matrix[16];
   float  diff[16];
   float  inv_bind_matrix[16];
+  float  abs_bind_matrix[16];
   float  anim_matrix[16];
 };
 
@@ -76,6 +77,8 @@ struct ov_mesh {
   int   *element;
   int *blendindex;
   int *blendweight;
+  float *aposition;
+  float *anormal;
 };
 
 struct ov_skin {
@@ -130,10 +133,10 @@ struct ov_animation {
 
 struct ov_unit *ov_create_unit      ();
 int             ov_get_number_anims (struct ov_unit *unit);
-void            ov_add_animation    (struct ov_unit *unit,
+int             ov_add_animation    (struct ov_unit *unit,
                                      char           *animation_fname,
                                      animation_t     animation_key);
-void            ov_set_model        (struct ov_unit   *unit,
+int             ov_set_model        (struct ov_unit   *unit,
                                      char             *model_fname);
 void            ov_draw_static      (struct ov_unit *du);
 void            ov_draw_bones       (struct ov_unit *du);

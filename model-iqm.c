@@ -438,8 +438,8 @@ _load_model (unsigned char *data,
              struct _iqm_header *imodel,
              char *filename)
 {
-    struct ov_model *rc = malloc (sizeof (struct iqm_model));
-    memset (rc, 0, sizeof (struct ov_model));
+    struct ov_model *rc = malloc (sizeof *rc);
+    memset (rc, 0, sizeof *rc);
     rc->skeleton = malloc (sizeof (struct ov_skeleton));
     memset (rc->skeleton, 0, sizeof (struct ov_skeleton));
     int i=0;

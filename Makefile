@@ -5,7 +5,8 @@ objects =	main.o \
 			shader.o \
 			image.o \
 			vector.o \
-			unit.o
+			unit.o \
+			utils.o
 
 ifeq ($(UNAME), Linux)
 objects += strlcpy.o
@@ -18,7 +19,8 @@ sources =	main.c \
 			shader.c \
 			strlcpy.c \
 			vector.c \
-			unit.c
+			unit.c \
+			utils.c
 
 ifeq ($(UNAME), Linux)
 sources += strlcpy.c

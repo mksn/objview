@@ -11,7 +11,7 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glext.h>
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 #endif
 #include <string.h>
 #include <stdlib.h>
@@ -26,6 +26,11 @@ enum {
 	ATT_COLOR
 };
 
+#ifdef __APPLE__
+#define MKSN_GLUT_INIT GLUT_RGBA |  GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE | GLUT_3_2_CORE_PROFILE
+#else
+#define MKSN_GLUT_INIT GLUT_RGBA |  GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE | GLUT_CORE_PROFILE
+#endif
 typedef unsigned char uchar;
 
 extern char *xstrsep (char **strinp, const char *delim);
