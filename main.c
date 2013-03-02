@@ -254,7 +254,8 @@ void special (int key, int x , int y) {
 int main (int argc, char **argv)
 {
   glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_RGBA |  GLUT_DOUBLE | GLUT_DEPTH);
+  glutInitDisplayMode(GLUT_RGBA |  GLUT_DOUBLE | GLUT_DEPTH | 
+          GLUT_MULTISAMPLE | GLUT_3_2_CORE_PROFILE);
   glutInitWindowSize(1024, 768);
   glutCreateWindow("ObjView");
 #ifdef __APPLE__

@@ -15,7 +15,7 @@ char *load_source(char *filename)
 	fseek(file, 0, 2);
 	len = ftell(file);
 	fseek(file, 0, 0);
-	data = malloc(len+1);
+	data = (char *)malloc(len+1);
 	fread(data, 1, len, file);
 	data[len] = 0;
 	fclose(file);
