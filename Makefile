@@ -1,6 +1,7 @@
 UNAME = $(shell uname)
 objects =	main.o \
 			model-iqm.o\
+			model-iqe.c\
 			shader.o \
 			image.o \
 			vector.o \
@@ -12,6 +13,7 @@ endif
 
 sources =	main.c \
 			model-iqm.c\
+			model-iqe.c\
 			image.c \
 			shader.c \
 			strlcpy.c \
