@@ -1,4 +1,5 @@
 #include <image.h>
+#include <utils.h>
 #include <mksn-gl.h>
 
 #define STBI_NO_HDR

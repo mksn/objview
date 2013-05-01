@@ -1,7 +1,7 @@
 UNAME = $(shell uname)
 objects =	main.o \
 			model-iqm.o\
-			model-iqe.c\
+			model-iqe.o\
 			shader.o \
 			image.o \
 			vector.o \
@@ -31,7 +31,7 @@ ifeq ($(UNAME), Darwin)
 CFLAGS += -m32 -Wall
 endif
 CFLAGS += -I. -I/usr/X11/include -I/usr/local/include
-CFLAGS += -ggdb -fno-omit-frame-pointer -I.
+CFLAGS += -g -fno-omit-frame-pointer -I.
 
 LDFLAGS = -L/usr/local/lib -L/usr/X11/lib
 ifeq ($(UNAME), Linux) 

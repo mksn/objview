@@ -629,12 +629,12 @@ struct ov_model *model_iqe_load_model(char *filename)
 	int fm = 0;
 	char *s, *sp;
 
-	struct ov_model       *model = malloc(sizeof *model);
+	struct ov_model *model = malloc(sizeof *model);
 	model->skeleton = malloc(sizeof *model->skeleton);
-	model->skeleton->bones = malloc(sizeof(struct ov_bone *) * MAXBONE);
+	model->skeleton->bones = malloc(sizeof (*model->skeleton->bones) * MAXBONE);
 
 	int                  pose_count = 0;
-	struct ov_pose       *pose;
+  struct ov_pose       *pose = malloc(sizeof (*pose) * MAXBONE);
 	struct ov_bone       *bones;
 
 	fprintf(stderr, "loading iqe model '%s'\n", filename);
