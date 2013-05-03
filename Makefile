@@ -1,33 +1,13 @@
-UNAME = $(shell uname)
-objects =	main.o \
-			model-iqm.o\
-			shader.o \
-			image.o \
-			vector.o \
-			unit.o
+UNAME := $(shell uname)
+sources := $(wildcard *.c)
+objects := $(sources:%.c=%.o)
 
-ifeq ($(UNAME), Linux)
-objects += strlcpy.o
-endif
-
-sources =	main.c \
-			model-iqm.c\
-			image.c \
-			shader.c \
-			strlcpy.c \
-			vector.c \
-			unit.c
-
-ifeq ($(UNAME), Linux)
-sources += strlcpy.c
-endif
-
-CFLAGS =
+CFLAGS = -Wall
 ifeq ($(UNAME), Darwin)
-CFLAGS += -m32 -Wall
+CFLAGS += -m32
 endif
 CFLAGS += -I. -I/usr/X11/include -I/usr/local/include
-CFLAGS += -ggdb -fno-omit-frame-pointer -I.
+CFLAGS += -g -fno-omit-frame-pointer -I.
 
 LDFLAGS = -L/usr/local/lib -L/usr/X11/lib
 ifeq ($(UNAME), Linux) 
@@ -41,7 +21,6 @@ all: objview
 
 objview: $(objects)
 	gcc $(CFLAGS) -o objview $(objects) $(LDFLAGS)
-
 
 %.o : %.c $(wildcard *.h)
 	gcc $(CFLAGS) -c $<

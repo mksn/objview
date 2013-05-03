@@ -1,5 +1,5 @@
-#ifndef __IMAGE_H__
-#define __IMAGE_H__
+#ifndef image_h
+#define image_h
 
 unsigned char *load_file(char *filename, int *lenp);
 int make_texture(unsigned int texid, unsigned char *data, int w, int h, int n);

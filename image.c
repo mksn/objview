@@ -1,8 +1,8 @@
-#include <image.h>
-#include <mksn-gl.h>
+#include "objview.h"
+#include "image.h"
 
 #define STBI_NO_HDR
-#include "stb_image.c"
+#include "stb_image.h"
 
 #define MAX(a,b) (a>b?a:b)
 
@@ -37,7 +37,6 @@ int make_texture(unsigned int texid, unsigned char *data, int w, int h, int n)
 
 	glBindTexture(GL_TEXTURE_2D, texid);
 	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
