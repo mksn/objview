@@ -8,6 +8,7 @@ static float pitch = 758;
 static float yaw   = 45;
 static float dist = 5;
 static float time = 0;
+static int anim = ANIM_IDLE;
 
 static float light_position[4] = { -1, 2, 2, 0 };
 
@@ -15,6 +16,8 @@ static struct ov_unit *dog = NULL;
 
 void keyboardFunc(unsigned char key, int x, int y)
 {
+  if (key == 'i') anim = ANIM_IDLE;
+  if (key == 'w') anim = ANIM_WALK;
   if (key == 0x1b) exit(1);
 }
 
@@ -75,7 +78,7 @@ void display()
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_ALPHA_TEST);
 
-  ov_animate_model(dog->model, dog->animations[ANIM_IDLE], time++);
+  ov_animate_model(dog->model, dog->animations[anim], time++);
   ov_draw_model(dog->model);
 
   glutSwapBuffers();
