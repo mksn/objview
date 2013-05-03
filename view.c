@@ -7,10 +7,11 @@ static float lasty;
 static float pitch = 758;
 static float yaw   = 45;
 static float dist = 5;
+static float time = 0;
 
 static float light_position[4] = { -1, 2, 2, 0 };
 
-static struct ov_unit *drawing_unit = NULL;
+static struct ov_unit *dog = NULL;
 
 void keyboardFunc(unsigned char key, int x, int y)
 {
@@ -73,7 +74,9 @@ void display()
 
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_ALPHA_TEST);
-  ov_draw_model(drawing_unit->model);
+
+  ov_animate_model(dog->model, dog->animations[ANIM_IDLE], time++);
+  ov_draw_model(dog->model);
 
   glutSwapBuffers();
   glutPostRedisplay();
@@ -84,8 +87,10 @@ void display()
 
 void init(int argc, char **argv)
 {
-  drawing_unit = ov_create_unit();
-  drawing_unit->model = ov_load_model_iqe("tr_mo_chorani.iqe");
+  dog = ov_create_unit();
+  dog->model = ov_load_model_iqe("tr_mo_chorani.iqe");
+  dog->animations[ANIM_IDLE] = ov_load_animation_iqe("tr_mo_chien_idle.iqe");
+  dog->animations[ANIM_WALK] = ov_load_animation_iqe("tr_mo_chien_marche.iqe");
 }
 
 int main (int argc, char **argv)

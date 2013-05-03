@@ -1,12 +1,12 @@
 #include "objview.h"
 #include "image.h"
 #include "unit.h"
+#include "vector.h"
 
 #include <ctype.h>
 
 unsigned int loadmaterial(char *material)
 {
-  int texture;
   char filename[2000], *s;
   s = strrchr(material, ';');
   if (s) material = s + 1;
@@ -80,6 +80,7 @@ ov_load_model_iqe(const char *filename)
 	char line[256];
 	char *sp;
 	char *s;
+	int i;
 
 	struct ov_model *model = malloc(sizeof *model);
 
@@ -235,5 +236,106 @@ ov_load_model_iqe(const char *filename)
 
 	assert(bone_count == pose_count);
 
+	/* Compute inverse bind matrix */
+
+	float bind_matrix[MAXBONES][16];
+
+	for (i = 0; i < bone_count; i++) {
+		float m[16];
+		mat_from_pose(m,
+			model->bones[i].bind_pose.position,
+			model->bones[i].bind_pose.rotate,
+			model->bones[i].bind_pose.scale);
+		if (model->bones[i].parent != -1) 
+			mat_mul44(bind_matrix[i], bind_matrix[model->bones[i].parent], m);
+		else
+			mat_copy(bind_matrix[i], m);
+		mat_invert(model->bones[i].inv_bind_matrix, bind_matrix[i]);
+	}
+
 	return model;
+}
+
+struct ov_animation *
+ov_load_animation_iqe(const char *filename)
+{
+  	FILE *fp;
+	char line[256];
+	char *sp;
+	char *s;
+
+	struct ov_animation *anim = malloc(sizeof *anim);
+
+	int pq_is_bind_pose = 1;
+
+	int pose_count = 0;
+	int bone_count = 0;
+	int frame_index = -1;
+
+	fp = fopen(filename, "r");
+	if (!fp) {
+		fprintf(stderr, "error: cannot load model '%s'\n", filename);
+		exit(1);
+	}
+
+	if (!fgets(line, sizeof line, fp)) {
+		fprintf(stderr, "cannot load %s: read error\n", filename);
+		exit(1);
+	}
+
+	if (memcmp(line, IQE_MAGIC, strlen(IQE_MAGIC))) {
+		fprintf(stderr, "cannot load %s: bad iqe magic\n", filename);
+		exit(1);
+	}
+
+	while (1) {
+		if (!fgets(line, sizeof line, fp))
+			break;
+
+		sp = line;
+
+		s = parseword(&sp);
+		if (!s)
+			continue;
+
+		else if (s[0] == 'p' && s[1] == 'q' && s[2] == 0) {
+			if (!pq_is_bind_pose) {
+				anim->frames[frame_index][pose_count].position[0] = parsefloat(&sp, 0);
+				anim->frames[frame_index][pose_count].position[1] = parsefloat(&sp, 0);
+				anim->frames[frame_index][pose_count].position[2] = parsefloat(&sp, 0);
+				anim->frames[frame_index][pose_count].rotate[0] = parsefloat(&sp, 0);
+				anim->frames[frame_index][pose_count].rotate[1] = parsefloat(&sp, 0);
+				anim->frames[frame_index][pose_count].rotate[2] = parsefloat(&sp, 0);
+				anim->frames[frame_index][pose_count].rotate[3] = parsefloat(&sp, 1);
+				anim->frames[frame_index][pose_count].scale[0] = parsefloat(&sp, 1);
+				anim->frames[frame_index][pose_count].scale[1] = parsefloat(&sp, 1);
+				anim->frames[frame_index][pose_count].scale[2] = parsefloat(&sp, 1);
+				pose_count++;
+			}
+		}
+
+		else if (!strcmp(s, "joint")) {
+			anim->bones[bone_count].name = strdup(parsestring(&sp));
+			anim->bones[bone_count].parent = parseint(&sp, -1);
+			bone_count++;
+		}
+
+		else if (!strcmp(s, "animation")) {
+			pq_is_bind_pose = 0;
+			anim->name = strdup(parsestring(&sp));
+		}
+
+		else if (!strcmp(s, "frame")) {
+			pq_is_bind_pose = 0;
+			pose_count = 0;
+			frame_index++;
+			anim->frames = realloc(anim->frames, sizeof(struct ov_pose*) * (frame_index + 1));
+			anim->frames[frame_index] = malloc(sizeof(struct ov_pose) * bone_count);
+		}
+	}
+
+	anim->num_bones = bone_count;
+	anim->num_frames = frame_index + 1;
+
+	return anim;
 }
