@@ -7,13 +7,13 @@
 #include <OpenGL/OpenGL.h>
 #include <GLUT/glut.h>
 #include <OpenGL/glext.h>
-#define MKSN_GLUT_INIT GLUT_RGBA |  GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE | GLUT_3_2_CORE_PROFILE
+#define MKSN_GLUT_INIT GLUT_RGBA |  GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE
 #else
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glext.h>
 #include <GL/freeglut.h>
-#define MKSN_GLUT_INIT GLUT_RGBA |  GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE | GLUT_CORE_PROFILE
+#define MKSN_GLUT_INIT GLUT_RGBA |  GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE
 #endif
 
 #include <string.h>

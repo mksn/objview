@@ -265,6 +265,7 @@ ov_load_animation_iqe(const char *filename)
 	char *s;
 
 	struct ov_animation *anim = malloc(sizeof *anim);
+	anim->frames = NULL;
 
 	int pq_is_bind_pose = 1;
 

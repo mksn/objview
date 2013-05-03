@@ -2,9 +2,9 @@
 #include "unit.h"
 
 static int leftstate = 0, rightstate = 0, middlestate = 0;
-static float lastx;
-static float lasty;
-static float pitch = 758;
+static int lastx;
+static int lasty;
+static float pitch = 38;
 static float yaw   = 45;
 static float dist = 5;
 static float time = 0;
@@ -78,7 +78,7 @@ void display()
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_ALPHA_TEST);
 
-  ov_animate_model(dog->model, dog->animations[anim], time++);
+  ov_animate_model(dog->model, dog->animations[anim], time+=0.5);
   ov_draw_model(dog->model);
 
   glutSwapBuffers();
