@@ -1,7 +1,8 @@
-#include <vector.h>
 #include <string.h>
 #include <math.h>
 #include <assert.h>
+
+#include "vector.h"
 
 /* column-major 4x4 matrices, as in opengl */
 
