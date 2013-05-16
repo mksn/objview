@@ -2,6 +2,13 @@
 #include "unit.h"
 #include "vector.h"
 
+static void pose_lerp(struct ov_pose *r, struct ov_pose *a, struct ov_pose *b, float t)
+{
+  vec_lerp(r->position, a->position, b->position, t);
+  quat_lerp_neighbor_normalize(r->rotate, a->rotate, b->rotate, t);
+  vec_lerp(r->scale, a->scale, b->scale, t);
+}
+
 static int find_bone(struct ov_animation *anim, char *name)
 {
   int i;
@@ -12,21 +19,26 @@ static int find_bone(struct ov_animation *anim, char *name)
 }
 
 void
-ov_animate_model(struct ov_model *model, struct ov_animation *anim, int frame_index)
+ov_animate_model(struct ov_model *model, struct ov_animation *anim, float frame_time)
 {
   float skin_matrix[MAXBONES][16];
   float pose_matrix[MAXBONES][16];
+  int frame0 = floor(frame_time);
+  int frame1 = floor(frame_time + 1);
+  float t = frame_time - floor(frame_time);
   int i, a;
 
-  frame_index %= anim->num_frames;
+  frame0 %= anim->num_frames;
+  frame1 %= anim->num_frames;
 
-  struct ov_pose *anim_frame = anim->frames[frame_index];
+  struct ov_pose *anim_frame_0 = anim->frames[frame0];
+  struct ov_pose *anim_frame_1 = anim->frames[frame1];
   struct ov_pose pose[MAXBONES];
 
   for (i = 0; i < model->num_bones; i++) {
     a = find_bone(anim, model->bones[i].name);
     if (a >= 0)
-      pose[i] = anim_frame[a];
+      pose_lerp(&pose[i], &anim_frame_0[a], &anim_frame_1[a], t);
     else
       pose[i] = model->bones[i].bind_pose;
   }

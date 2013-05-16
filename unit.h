@@ -78,6 +78,6 @@ struct ov_unit *ov_create_unit(void);
 struct ov_model *ov_load_model_iqe(const char *filename);
 struct ov_animation *ov_load_animation_iqe(const char *filename);
 void ov_draw_model(struct ov_model *model);
-void ov_animate_model(struct ov_model *model, struct ov_animation *anim, int frame);
+void ov_animate_model(struct ov_model *model, struct ov_animation *anim, float frame);
 
 #endif

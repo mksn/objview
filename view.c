@@ -1,6 +1,8 @@
 #include "objview.h"
 #include "unit.h"
 
+#define ANIM_FPS 30
+
 static int leftstate = 0, rightstate = 0, middlestate = 0;
 static int lastx;
 static int lasty;
@@ -61,6 +63,10 @@ void reshape(int w, int h)
 
 void display()
 {
+  int time_in_millis = glutGet(GLUT_ELAPSED_TIME);
+
+  time = time_in_millis * ANIM_FPS * 0.001;
+
   glClearColor (0.3, 0.3, 0.4, 1.0);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable (GL_DEPTH_TEST);
@@ -78,7 +84,7 @@ void display()
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_ALPHA_TEST);
 
-  ov_animate_model(dog->model, dog->animations[anim], time+=0.5);
+  ov_animate_model(dog->model, dog->animations[anim], time);
   ov_draw_model(dog->model);
 
   glutSwapBuffers();
