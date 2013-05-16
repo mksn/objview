@@ -10,10 +10,10 @@ CFLAGS += -I. -I/usr/X11/include -I/usr/local/include
 CFLAGS += -g -fno-omit-frame-pointer -I.
 
 LDFLAGS = -L/usr/local/lib -L/usr/X11/lib
-ifeq ($(UNAME), Linux) 
-LDFLAGS += -ljpeg -lm -lglut -lGLEW -lGLU -lGL -lc
+ifeq ($(UNAME), Linux)
+LDFLAGS += -lm -lglut -lGLU -lGL
 endif
-ifeq ($(UNAME), Darwin) 
+ifeq ($(UNAME), Darwin)
 LDFLAGS += -framework OpenGL -framework GLUT
 endif
 
