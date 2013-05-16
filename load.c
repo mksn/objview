@@ -226,6 +226,7 @@ ov_load_model_iqe(const char *filename)
 	model->num_vertices = position_count;
 	model->vertices = malloc(sizeof (struct ov_vertex) * position_count);
 	memcpy(model->vertices, vertex_buf, sizeof (struct ov_vertex) * position_count);
+	model->anivertices = NULL;
 
 	model->num_triangles = element_count / 3;
 	model->triangles = malloc(sizeof (int) * element_count);
