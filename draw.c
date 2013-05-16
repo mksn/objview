@@ -26,7 +26,7 @@ ov_animate_model(struct ov_model *model, struct ov_animation *anim, float frame_
   int frame0 = floor(frame_time);
   int frame1 = floor(frame_time + 1);
   float t = frame_time - floor(frame_time);
-  int i, a;
+  int i, k, a;
 
   frame0 %= anim->num_frames;
   frame1 %= anim->num_frames;
@@ -61,11 +61,23 @@ ov_animate_model(struct ov_model *model, struct ov_animation *anim, float frame_
     float *normal = model->vertices[i].normal;
     float *aposition = model->anivertices[i].position;
     float *anormal = model->anivertices[i].normal;
+    float tposition[3];
+    float tnormal[3];
 
-    int b = model->vertices[i].blend_index[0];
+    aposition[0] = aposition[1] = aposition[2] = 0;
+    anormal[0] = anormal[1] = anormal[2] = 0;
 
-    mat_vec_mul(aposition, skin_matrix[b], position);
-    mat_vec_mul_n(anormal, skin_matrix[b], normal);
+    for (k = 0; k < 4; k++) {
+      int b = model->vertices[i].blend_index[k];
+      float w = model->vertices[i].blend_weight[k];
+
+      mat_vec_mul(tposition, skin_matrix[b], position);
+      mat_vec_mul_n(tnormal, skin_matrix[b], normal);
+      vec_scale(tposition, tposition, w);
+      vec_scale(tnormal, tnormal, w);
+      vec_add(aposition, aposition, tposition);
+      vec_add(anormal, anormal, tnormal);
+    }
   }
 }
 
