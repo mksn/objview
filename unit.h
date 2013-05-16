@@ -2,9 +2,9 @@
 #define unit_h
 
 enum {
-	ANIM_IDLE,
-	ANIM_WALK,
-	MAXANIM
+  ANIM_IDLE,
+  ANIM_WALK,
+  MAXANIM
 };
 
 enum {
