@@ -21,7 +21,7 @@ void keyboardFunc(unsigned char key, int x, int y)
   if (key == 0x1b) exit(1);
 }
 
-void mouseFunc(int button, int state, int x, int y) 
+void mouseFunc(int button, int state, int x, int y)
 {
   lastx = x;
   lasty = y;

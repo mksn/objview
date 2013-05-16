@@ -23,7 +23,7 @@ struct ov_vertex {
 struct ov_anivertex {
   float position[3];
   float normal[3];
-};  
+};
 
 struct ov_pose {
   float position[3];

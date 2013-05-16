@@ -247,7 +247,7 @@ ov_load_model_iqe(const char *filename)
 			model->bones[i].bind_pose.position,
 			model->bones[i].bind_pose.rotate,
 			model->bones[i].bind_pose.scale);
-		if (model->bones[i].parent != -1) 
+		if (model->bones[i].parent != -1)
 			mat_mul44(bind_matrix[i], bind_matrix[model->bones[i].parent], m);
 		else
 			mat_copy(bind_matrix[i], m);

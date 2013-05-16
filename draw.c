@@ -34,7 +34,7 @@ ov_animate_model(struct ov_model *model, struct ov_animation *anim, int frame_in
 	for (i = 0; i < model->num_bones; i++) {
 		float m[16];
 		mat_from_pose(m, pose[i].position, pose[i].rotate, pose[i].scale);
-		if (model->bones[i].parent != -1) 
+		if (model->bones[i].parent != -1)
 			mat_mul44(pose_matrix[i], pose_matrix[model->bones[i].parent], m);
 		else
 			mat_copy(pose_matrix[i], m);
@@ -63,7 +63,7 @@ ov_draw_model(struct ov_model *model)
   int i;
 
   glEnableClientState(GL_VERTEX_ARRAY);
-  glEnableClientState(GL_TEXTURE_COORD_ARRAY); 
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glEnableClientState(GL_NORMAL_ARRAY);
 
   if (model->anivertices) {
@@ -74,7 +74,7 @@ ov_draw_model(struct ov_model *model)
     glNormalPointer(GL_FLOAT, sizeof(struct ov_vertex), &model->vertices->normal[0]);
   }
 
-  glTexCoordPointer(2, GL_FLOAT, sizeof(struct ov_vertex), &model->vertices->texcoord[0]); 
+  glTexCoordPointer(2, GL_FLOAT, sizeof(struct ov_vertex), &model->vertices->texcoord[0]);
 
   for (i = 0; i < model->num_meshes; i++) {
     glBindTexture(GL_TEXTURE_2D, model->meshes[i].texture);
