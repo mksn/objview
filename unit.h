@@ -44,32 +44,35 @@ struct ov_mesh {
   int count;
 };
 
+struct ov_skeleton {
+  int num_bones;
+  struct ov_bone bones[MAXBONES];
+};
+
 struct ov_model {
   int num_vertices;
-  struct ov_vertex *vertices;
+  struct ov_vertex    *vertices;
   struct ov_anivertex *anivertices;
+  struct ov_skeleton  *skeleton;
 
   int num_triangles;
   int *triangles;
 
   int num_meshes;
   struct ov_mesh meshes[MAXMESHES];
-
-  int num_bones;
-  struct ov_bone bones[MAXBONES];
 };
 
 struct ov_animation {
   char *name;
-
-  int num_bones;
-  struct ov_bone bones[MAXBONES];
+  struct ov_skeleton *skeleton;
 
   int num_frames;
   struct ov_pose **frames;
+
 };
 
 struct ov_unit {
+  struct ov_skeleton  *skeleton;
   struct ov_model     *model;
   struct ov_animation *animations[MAXANIM];
 };

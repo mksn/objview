@@ -76,13 +76,14 @@ static inline int parseint(char **stringp, int def)
 struct ov_model *
 ov_load_model_iqe(const char *filename)
 {
-    FILE *fp;
+  FILE *fp;
   char line[256];
   char *sp;
   char *s;
   int i;
 
   struct ov_model *model = malloc(sizeof *model);
+  struct ov_skeleton *skeleton = malloc(sizeof *skeleton);
 
   int pq_is_bind_pose = 1;
 
@@ -177,23 +178,23 @@ ov_load_model_iqe(const char *filename)
 
     else if (s[0] == 'p' && s[1] == 'q' && s[2] == 0) {
       if (pq_is_bind_pose) {
-        model->bones[pose_count].bind_pose.position[0] = parsefloat(&sp, 0);
-        model->bones[pose_count].bind_pose.position[1] = parsefloat(&sp, 0);
-        model->bones[pose_count].bind_pose.position[2] = parsefloat(&sp, 0);
-        model->bones[pose_count].bind_pose.rotate[0] = parsefloat(&sp, 0);
-        model->bones[pose_count].bind_pose.rotate[1] = parsefloat(&sp, 0);
-        model->bones[pose_count].bind_pose.rotate[2] = parsefloat(&sp, 0);
-        model->bones[pose_count].bind_pose.rotate[3] = parsefloat(&sp, 1);
-        model->bones[pose_count].bind_pose.scale[0] = parsefloat(&sp, 1);
-        model->bones[pose_count].bind_pose.scale[1] = parsefloat(&sp, 1);
-        model->bones[pose_count].bind_pose.scale[2] = parsefloat(&sp, 1);
+        skeleton->bones[pose_count].bind_pose.position[0] = parsefloat(&sp, 0);
+        skeleton->bones[pose_count].bind_pose.position[1] = parsefloat(&sp, 0);
+        skeleton->bones[pose_count].bind_pose.position[2] = parsefloat(&sp, 0);
+        skeleton->bones[pose_count].bind_pose.rotate[0] = parsefloat(&sp, 0);
+        skeleton->bones[pose_count].bind_pose.rotate[1] = parsefloat(&sp, 0);
+        skeleton->bones[pose_count].bind_pose.rotate[2] = parsefloat(&sp, 0);
+        skeleton->bones[pose_count].bind_pose.rotate[3] = parsefloat(&sp, 1);
+        skeleton->bones[pose_count].bind_pose.scale[0] = parsefloat(&sp, 1);
+        skeleton->bones[pose_count].bind_pose.scale[1] = parsefloat(&sp, 1);
+        skeleton->bones[pose_count].bind_pose.scale[2] = parsefloat(&sp, 1);
         pose_count++;
       }
     }
 
     else if (!strcmp(s, "joint")) {
-      model->bones[bone_count].name = strdup(parsestring(&sp));
-      model->bones[bone_count].parent = parseint(&sp, -1);
+      skeleton->bones[bone_count].name = strdup(parsestring(&sp));
+      skeleton->bones[bone_count].parent = parseint(&sp, -1);
       bone_count++;
     }
 
@@ -233,7 +234,7 @@ ov_load_model_iqe(const char *filename)
   memcpy(model->triangles, element_buf, sizeof(int) * element_count);
 
   model->num_meshes = mesh_count;
-  model->num_bones = bone_count;
+  skeleton->num_bones = bone_count;
 
   assert(bone_count == pose_count);
 
@@ -244,28 +245,30 @@ ov_load_model_iqe(const char *filename)
   for (i = 0; i < bone_count; i++) {
     float m[16];
     mat_from_pose(m,
-      model->bones[i].bind_pose.position,
-      model->bones[i].bind_pose.rotate,
-      model->bones[i].bind_pose.scale);
-    if (model->bones[i].parent != -1)
-      mat_mul44(bind_matrix[i], bind_matrix[model->bones[i].parent], m);
+      skeleton->bones[i].bind_pose.position,
+      skeleton->bones[i].bind_pose.rotate,
+      skeleton->bones[i].bind_pose.scale);
+    if (skeleton->bones[i].parent != -1)
+      mat_mul44(bind_matrix[i], bind_matrix[skeleton->bones[i].parent], m);
     else
       mat_copy(bind_matrix[i], m);
-    mat_invert(model->bones[i].inv_bind_matrix, bind_matrix[i]);
+    mat_invert(skeleton->bones[i].inv_bind_matrix, bind_matrix[i]);
   }
 
+  model->skeleton = skeleton;
   return model;
 }
 
 struct ov_animation *
 ov_load_animation_iqe(const char *filename)
 {
-    FILE *fp;
+  FILE *fp;
   char line[256];
   char *sp;
   char *s;
 
   struct ov_animation *anim = malloc(sizeof *anim);
+  struct ov_skeleton  *skeleton = malloc(sizeof *skeleton);
   anim->frames = NULL;
 
   int pq_is_bind_pose = 1;
@@ -317,8 +320,8 @@ ov_load_animation_iqe(const char *filename)
     }
 
     else if (!strcmp(s, "joint")) {
-      anim->bones[bone_count].name = strdup(parsestring(&sp));
-      anim->bones[bone_count].parent = parseint(&sp, -1);
+      skeleton->bones[bone_count].name = strdup(parsestring(&sp));
+      skeleton->bones[bone_count].parent = parseint(&sp, -1);
       bone_count++;
     }
 
@@ -336,8 +339,9 @@ ov_load_animation_iqe(const char *filename)
     }
   }
 
-  anim->num_bones = bone_count;
+  skeleton->num_bones = bone_count;
   anim->num_frames = frame_index + 1;
 
+  anim->skeleton = skeleton;
   return anim;
 }

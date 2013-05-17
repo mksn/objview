@@ -12,8 +12,8 @@ static void pose_lerp(struct ov_pose *r, struct ov_pose *a, struct ov_pose *b, f
 static int find_bone(struct ov_animation *anim, char *name)
 {
   int i;
-  for (i = 0; i < anim->num_bones; i++)
-    if (!strcmp(anim->bones[i].name, name))
+  for (i = 0; i < anim->skeleton->num_bones; i++)
+    if (!strcmp(anim->skeleton->bones[i].name, name))
       return i;
   return -1;
 }
@@ -35,22 +35,22 @@ ov_animate_model(struct ov_model *model, struct ov_animation *anim, float frame_
   struct ov_pose *anim_frame_1 = anim->frames[frame1];
   struct ov_pose pose[MAXBONES];
 
-  for (i = 0; i < model->num_bones; i++) {
-    a = find_bone(anim, model->bones[i].name);
+  for (i = 0; i < model->skeleton->num_bones; i++) {
+    a = find_bone(anim, model->skeleton->bones[i].name);
     if (a >= 0)
       pose_lerp(&pose[i], &anim_frame_0[a], &anim_frame_1[a], t);
     else
-      pose[i] = model->bones[i].bind_pose;
+      pose[i] = model->skeleton->bones[i].bind_pose;
   }
 
-  for (i = 0; i < model->num_bones; i++) {
+  for (i = 0; i < model->skeleton->num_bones; i++) {
     float m[16];
     mat_from_pose(m, pose[i].position, pose[i].rotate, pose[i].scale);
-    if (model->bones[i].parent != -1)
-      mat_mul44(pose_matrix[i], pose_matrix[model->bones[i].parent], m);
+    if (model->skeleton->bones[i].parent != -1)
+      mat_mul44(pose_matrix[i], pose_matrix[model->skeleton->bones[i].parent], m);
     else
       mat_copy(pose_matrix[i], m);
-    mat_mul44(skin_matrix[i], pose_matrix[i], model->bones[i].inv_bind_matrix);
+    mat_mul44(skin_matrix[i], pose_matrix[i], model->skeleton->bones[i].inv_bind_matrix);
   }
 
   if (!model->anivertices)
