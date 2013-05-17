@@ -88,4 +88,7 @@ struct ov_animation *ov_animation_load(const char *filename);
 void ov_model_draw(struct ov_model *model);
 void ov_model_animate(struct ov_model *model, struct ov_animation *anim, float frame);
 
+void ov_unit_draw(struct ov_unit *unit);
+void ov_unit_animate(struct ov_unit *unit, int anim, float frame);
+
 #endif

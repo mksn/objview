@@ -1,3 +1,6 @@
 *.o
 ref/
 objview
+tarfu
+*.*~
+gfx

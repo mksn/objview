@@ -84,8 +84,8 @@ void display()
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_ALPHA_TEST);
 
-  ov_model_animate(dog->model, dog->animations[anim], time);
-  ov_model_draw(dog->model);
+  ov_unit_animate(dog, anim, time);
+  ov_unit_draw(dog);
 
   glutSwapBuffers();
   glutPostRedisplay();
