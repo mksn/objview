@@ -9,7 +9,8 @@ enum {
 
 enum {
   MAXMESHES = 256,
-  MAXBONES = 256
+  MAXBONES = 256,
+  MAXCOMPONENTS = 16
 };
 
 struct ov_vertex {
@@ -71,24 +72,64 @@ struct ov_animation {
 
 };
 
-struct ov_unit {
-  struct ov_skeleton  *skeleton;
-  struct ov_model     *model;
-  struct ov_animation *animations[MAXANIM];
+struct ov_bone_component {
+    struct ov_model *model;
+    int bone;
 };
 
+struct ov_skin_component {
+  struct ov_model *model;
+};
+
+struct ov_unit {
+  struct ov_skeleton  *skeleton;
+  struct ov_animation *animations[MAXANIM];
+  struct ov_skin_component  skin_components[MAXCOMPONENTS];
+  int                  num_skin_components;
+};
+
+/*
+ * Allocation
+ *
+ */
 struct ov_unit *ov_unit_new(void);
 
-void ov_load_iqe(const char *filename, struct ov_skeleton **skeletonp, struct ov_model **modelp, struct ov_animation **animationp);
+/*
+ * Loading
+ *
+ */
+void ov_load_iqe(const char *filename, 
+        struct ov_skeleton **skeletonp, 
+        struct ov_model **modelp, 
+        struct ov_animation **animationp);
 
 struct ov_skeleton *ov_skeleton_load(const char *filename);
 struct ov_model *ov_model_load(const char *filename);
 struct ov_animation *ov_animation_load(const char *filename);
 
+/*
+ * Drawing
+ *
+ */
 void ov_model_draw(struct ov_model *model);
-void ov_model_animate(struct ov_model *model, struct ov_animation *anim, float frame);
+void ov_model_animate(struct ov_model *model, 
+        struct ov_animation *anim, 
+        float frame);
 
 void ov_unit_draw(struct ov_unit *unit);
 void ov_unit_animate(struct ov_unit *unit, int anim, float frame);
 
+/*
+ * Manipulation
+ *
+ */
+void ov_unit_set_skeleton (struct ov_unit *unit,
+        struct ov_skeleton *skeleton);
+void ov_unit_add_skin_component(struct ov_unit *unit,
+        struct ov_model *model);
+void ov_unit_add_bone_component(struct ov_unit *unit,
+        struct ov_model *model);
+void ov_unit_add_animation(struct ov_unit *unit,
+        struct ov_animation *animation,
+        int animation_type);
 #endif

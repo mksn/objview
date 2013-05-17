@@ -15,6 +15,7 @@ static int anim = ANIM_IDLE;
 static float light_position[4] = { -1, 2, 2, 0 };
 
 static struct ov_unit *dog = NULL;
+static struct ov_unit *humon = NULL;
 
 void keyboardFunc(unsigned char key, int x, int y)
 {
@@ -84,8 +85,10 @@ void display()
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_ALPHA_TEST);
 
-  ov_unit_animate(dog, anim, time);
-  ov_unit_draw(dog);
+  //ov_unit_animate(dog, anim, time);
+  //ov_unit_draw(dog);
+  ov_unit_animate(humon, anim, time);
+  ov_unit_draw(humon);
 
   glutSwapBuffers();
   glutPostRedisplay();
@@ -96,10 +99,26 @@ void display()
 
 void init(int argc, char **argv)
 {
+  /*
   dog = ov_unit_new();
   dog->model = ov_model_load("dog/tr_mo_chorani.iqe");
   dog->animations[ANIM_IDLE] = ov_animation_load("dog/tr_mo_chien_idle.iqe");
   dog->animations[ANIM_WALK] = ov_animation_load("dog/tr_mo_chien_marche.iqe");
+  */
+
+  humon = ov_unit_new();
+  ov_unit_set_skeleton(humon, ov_skeleton_load("human/ge_hom_skel.iqe"));
+  ov_unit_add_animation(humon, ov_animation_load("human/fy_hom_marche.iqe"), 
+      ANIM_WALK);
+  ov_unit_add_animation(humon, ov_animation_load("human/fy_hom_idle.iqe"), 
+      ANIM_IDLE);
+  ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_armor00_armpad.iqe"));
+  ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_armor00_bottes.iqe"));
+  ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_armor00_gilet.iqe"));
+  ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_armor00_hand.iqe"));
+  ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_armor00_pantabottes.iqe"));
+  ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_cheveux_basic01.iqe"));
+  ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_visage.iqe"));
 }
 
 int main (int argc, char **argv)
