@@ -38,6 +38,7 @@ struct ov_bone {
   char *name;
   int parent;
   struct ov_pose bind_pose;
+  float pose_matrix[16];
   float inv_bind_matrix[16];
 };
 
@@ -71,7 +72,6 @@ struct ov_animation {
 
   int num_frames;
   struct ov_pose **frames;
-
 };
 
 struct ov_bone_component {
@@ -81,13 +81,21 @@ struct ov_bone_component {
 
 struct ov_skin_component {
   struct ov_model *model;
+  int bonemap[MAXBONES];
+};
+
+struct ov_action {
+  struct ov_animation *animation;
+  int bonemap[MAXBONES];
 };
 
 struct ov_unit {
-  struct ov_skeleton  *skeleton;
-  struct ov_animation *animations[MAXANIM];
-  struct ov_skin_component  skin_components[MAXCOMPONENTS];
-  int                  num_skin_components;
+  struct ov_skeleton       *skeleton;
+  struct ov_action         actions[MAXANIM];
+  struct ov_skin_component skin_components[MAXCOMPONENTS];
+  int                      num_skin_components;
+  struct ov_bone_component bone_components[MAXCOMPONENTS];
+  int                      num_bone_components;
 };
 
 /*
@@ -113,10 +121,10 @@ struct ov_animation *ov_animation_load(const char *filename);
  * Drawing
  *
  */
+
+void ov_skeleton_animate(struct ov_skeleton *skeleton, struct ov_action *action, float frame_time);
+void ov_model_animate(struct ov_skin_component *component, struct ov_skeleton *skeleton);
 void ov_model_draw(struct ov_model *model);
-void ov_model_animate(struct ov_model *model,
-        struct ov_animation *anim,
-        float frame);
 
 void ov_unit_draw(struct ov_unit *unit);
 void ov_unit_animate(struct ov_unit *unit, int anim, float frame);
@@ -130,7 +138,8 @@ void ov_unit_set_skeleton (struct ov_unit *unit,
 void ov_unit_add_skin_component(struct ov_unit *unit,
         struct ov_model *model);
 void ov_unit_add_bone_component(struct ov_unit *unit,
-        struct ov_model *model);
+        struct ov_model *model,
+        char *bone);
 void ov_unit_add_animation(struct ov_unit *unit,
         struct ov_animation *animation,
         int animation_type);
