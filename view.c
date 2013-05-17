@@ -97,9 +97,9 @@ void display()
 void init(int argc, char **argv)
 {
   dog = ov_unit_new();
-  dog->model = ov_model_load("tr_mo_chorani.iqe");
-  dog->animations[ANIM_IDLE] = ov_animation_load("tr_mo_chien_idle.iqe");
-  dog->animations[ANIM_WALK] = ov_animation_load("tr_mo_chien_marche.iqe");
+  dog->model = ov_model_load("dog/tr_mo_chorani.iqe");
+  dog->animations[ANIM_IDLE] = ov_animation_load("dog/tr_mo_chien_idle.iqe");
+  dog->animations[ANIM_WALK] = ov_animation_load("dog/tr_mo_chien_marche.iqe");
 }
 
 int main (int argc, char **argv)
