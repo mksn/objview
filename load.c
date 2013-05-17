@@ -25,7 +25,7 @@ static struct ov_vertex vertex_buf[MAXVERTEX];
 static int element_buf[MAXELEMENT];
 
 struct ov_unit *
-ov_create_unit(void)
+ov_unit_new(void)
 {
   struct ov_unit *unit = malloc (sizeof(struct ov_unit));
   memset(unit, 0, sizeof *unit);
@@ -73,21 +73,21 @@ static inline int parseint(char **stringp, int def)
   return *s ? atoi(s) : def;
 }
 
-struct ov_skeleton *ov_load_skeleton(const char *filename)
+struct ov_skeleton *ov_skeleton_load(const char *filename)
 {
   struct ov_skeleton *skeleton;
   ov_load_iqe(filename, &skeleton, NULL, NULL);
   return skeleton;
 }
 
-struct ov_model *ov_load_model(const char *filename)
+struct ov_model *ov_model_load(const char *filename)
 {
   struct ov_model *model;
   ov_load_iqe(filename, NULL, &model, NULL);
   return model;
 }
 
-struct ov_animation *ov_load_animation(const char *filename)
+struct ov_animation *ov_animation_load(const char *filename)
 {
   struct ov_animation *animation;
   ov_load_iqe(filename, NULL, NULL, &animation);

@@ -84,8 +84,8 @@ void display()
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_ALPHA_TEST);
 
-  ov_animate_model(dog->model, dog->animations[anim], time);
-  ov_draw_model(dog->model);
+  ov_model_animate(dog->model, dog->animations[anim], time);
+  ov_model_draw(dog->model);
 
   glutSwapBuffers();
   glutPostRedisplay();
@@ -96,10 +96,10 @@ void display()
 
 void init(int argc, char **argv)
 {
-  dog = ov_create_unit();
-  dog->model = ov_load_model("tr_mo_chorani.iqe");
-  dog->animations[ANIM_IDLE] = ov_load_animation("tr_mo_chien_idle.iqe");
-  dog->animations[ANIM_WALK] = ov_load_animation("tr_mo_chien_marche.iqe");
+  dog = ov_unit_new();
+  dog->model = ov_model_load("tr_mo_chorani.iqe");
+  dog->animations[ANIM_IDLE] = ov_animation_load("tr_mo_chien_idle.iqe");
+  dog->animations[ANIM_WALK] = ov_animation_load("tr_mo_chien_marche.iqe");
 }
 
 int main (int argc, char **argv)

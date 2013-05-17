@@ -19,7 +19,7 @@ static int find_bone(struct ov_animation *anim, char *name)
 }
 
 void
-ov_animate_model(struct ov_model *model, struct ov_animation *anim, float frame_time)
+ov_model_animate(struct ov_model *model, struct ov_animation *anim, float frame_time)
 {
   float skin_matrix[MAXBONES][16];
   float pose_matrix[MAXBONES][16];
@@ -82,7 +82,7 @@ ov_animate_model(struct ov_model *model, struct ov_animation *anim, float frame_
 }
 
 void
-ov_draw_model(struct ov_model *model)
+ov_model_draw(struct ov_model *model)
 {
   int i;
 
