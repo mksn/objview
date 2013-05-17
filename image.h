@@ -1,3 +1,5 @@
+// vim: sw=2 sts=2 et
+
 #ifndef image_h
 #define image_h
 

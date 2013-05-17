@@ -1,3 +1,5 @@
+// vim: sw=2 sts=2 et
+
 #ifndef objview_h
 #define objview_h
 

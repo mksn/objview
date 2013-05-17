@@ -1,3 +1,5 @@
+// vim: sw=2 sts=2 et
+
 #include <string.h>
 
 char *
