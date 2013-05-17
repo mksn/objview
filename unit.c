@@ -50,4 +50,3 @@ void ov_unit_add_animation(struct ov_unit *unit,
 {
   unit->animations[animation_type] = animation;
 }
-

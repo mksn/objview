@@ -100,9 +100,9 @@ struct ov_unit *ov_unit_new(void);
  * Loading
  *
  */
-void ov_load_iqe(const char *filename, 
-        struct ov_skeleton **skeletonp, 
-        struct ov_model **modelp, 
+void ov_load_iqe(const char *filename,
+        struct ov_skeleton **skeletonp,
+        struct ov_model **modelp,
         struct ov_animation **animationp);
 
 struct ov_skeleton *ov_skeleton_load(const char *filename);
@@ -114,8 +114,8 @@ struct ov_animation *ov_animation_load(const char *filename);
  *
  */
 void ov_model_draw(struct ov_model *model);
-void ov_model_animate(struct ov_model *model, 
-        struct ov_animation *anim, 
+void ov_model_animate(struct ov_model *model,
+        struct ov_animation *anim,
         float frame);
 
 void ov_unit_draw(struct ov_unit *unit);

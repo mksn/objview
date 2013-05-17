@@ -110,9 +110,9 @@ void init(int argc, char **argv)
 
   humon = ov_unit_new();
   ov_unit_set_skeleton(humon, ov_skeleton_load("human/ge_hom_skel.iqe"));
-  ov_unit_add_animation(humon, ov_animation_load("human/fy_hom_marche.iqe"), 
+  ov_unit_add_animation(humon, ov_animation_load("human/fy_hom_marche.iqe"),
       ANIM_WALK);
-  ov_unit_add_animation(humon, ov_animation_load("human/fy_hom_idle.iqe"), 
+  ov_unit_add_animation(humon, ov_animation_load("human/fy_hom_idle.iqe"),
       ANIM_IDLE);
   ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_armor00_armpad.iqe"));
   ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_armor00_bottes.iqe"));
