@@ -5,12 +5,12 @@
 
 #include <ctype.h>
 
-unsigned int loadmaterial(char *material)
+unsigned int loadmaterial(char *directory, char *material)
 {
   char filename[2000], *s;
   s = strrchr(material, ';');
   if (s) material = s + 1;
-  sprintf(filename, "%s/%s.png", "textures", material);
+  sprintf(filename, "%s/%s/%s.png", directory, "textures", material);
   return load_texture(0, filename);
 }
 
@@ -101,6 +101,7 @@ ov_load_iqe(const char *filename,
   struct ov_animation **outanimation)
 {
   FILE *fp;
+  char directory[256];
   char line[256];
   char *sp;
   char *s;
@@ -128,6 +129,13 @@ ov_load_iqe(const char *filename,
   int fm = 0;
 
   anim->frames = NULL;
+
+  strcpy(directory, filename);
+  s = strrchr(directory, '/');
+  if (s)
+    *s = 0;
+  else
+    strcpy(directory, ".");
 
   fp = fopen(filename, "r");
   if (!fp) {
@@ -250,7 +258,7 @@ ov_load_iqe(const char *filename,
 
     else if (!strcmp(s, "material")) {
       s = parsestring(&sp);
-      texture = loadmaterial(s);
+      texture = loadmaterial(directory, s);
     }
 
     else if (!strcmp(s, "animation")) {
