@@ -22,22 +22,12 @@ static void make_bone_map(int *bonemap, struct ov_skeleton *src, struct ov_skele
 void
 ov_unit_draw(struct ov_unit *unit)
 {
-  int i = 0;
+  int i;
   for (i = 0; i<unit->num_skin_components; i++) {
-    ov_model_draw(unit->skin_components[i].model);
+    ov_skin_component_draw(&unit->skin_components[i], unit->skeleton);
   }
   for (i = 0; i<unit->num_bone_components; i++) {
-    /*
-     * GL magic to render the bone components in their correct
-     * places
-     *
-     */
-    glPushMatrix();
-    int b = unit->bone_components[i].bone; 
-    glMultMatrixf(unit->skeleton->bones[b].pose_matrix);
-    /* except for this */
-    ov_model_draw(unit->bone_components[i].model);
-    glPopMatrix();
+    ov_bone_component_draw(&unit->bone_components[i], unit->skeleton);
   }
 }
 
@@ -46,13 +36,7 @@ ov_unit_animate(struct ov_unit *unit,
     int             anim,
     float           time)
 {
-  int i=0;
-
   ov_skeleton_animate(unit->skeleton, &unit->actions[anim], time);
-
-  for (;i<unit->num_skin_components;i++) {
-    ov_model_animate(&unit->skin_components[i], unit->skeleton);
-  }
 }
 
 void ov_unit_set_skeleton (struct ov_unit *unit,

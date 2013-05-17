@@ -123,8 +123,8 @@ struct ov_animation *ov_animation_load(const char *filename);
  */
 
 void ov_skeleton_animate(struct ov_skeleton *skeleton, struct ov_action *action, float frame_time);
-void ov_model_animate(struct ov_skin_component *component, struct ov_skeleton *skeleton);
-void ov_model_draw(struct ov_model *model);
+void ov_skin_component_draw(struct ov_skin_component *component, struct ov_skeleton *skeleton);
+void ov_bone_component_draw(struct ov_bone_component *component, struct ov_skeleton *skeleton);
 
 void ov_unit_draw(struct ov_unit *unit);
 void ov_unit_animate(struct ov_unit *unit, int anim, float frame);

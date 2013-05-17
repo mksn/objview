@@ -4,6 +4,35 @@
 #include "unit.h"
 #include "vector.h"
 
+static void
+ov_model_draw(struct ov_model *model)
+{
+  int i;
+
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glEnableClientState(GL_NORMAL_ARRAY);
+
+  if (model->anivertices) {
+    glVertexPointer(3, GL_FLOAT, sizeof(struct ov_anivertex), &model->anivertices->position[0]);
+    glNormalPointer(GL_FLOAT, sizeof(struct ov_anivertex), &model->anivertices->normal[0]);
+  } else {
+    glVertexPointer(3, GL_FLOAT, sizeof(struct ov_vertex), &model->vertices->position[0]);
+    glNormalPointer(GL_FLOAT, sizeof(struct ov_vertex), &model->vertices->normal[0]);
+  }
+
+  glTexCoordPointer(2, GL_FLOAT, sizeof(struct ov_vertex), &model->vertices->texcoord[0]);
+
+  for (i = 0; i < model->num_meshes; i++) {
+    glBindTexture(GL_TEXTURE_2D, model->meshes[i].texture);
+    glDrawElements(GL_TRIANGLES, model->meshes[i].count, GL_UNSIGNED_INT, &model->triangles[model->meshes[i].first]);
+  }
+
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  glDisableClientState(GL_NORMAL_ARRAY);
+}
+
 static void pose_lerp(struct ov_pose *r, struct ov_pose *a, struct ov_pose *b, float t)
 {
   vec_lerp(r->position, a->position, b->position, t);
@@ -50,7 +79,7 @@ ov_skeleton_animate(struct ov_skeleton *skeleton, struct ov_action *action, floa
 }
 
 void
-ov_model_animate(struct ov_skin_component *component, struct ov_skeleton *skeleton)
+ov_skin_component_draw(struct ov_skin_component *component, struct ov_skeleton *skeleton)
 {
   struct ov_model *model = component->model;
   int *bonemap = component->bonemap;
@@ -90,33 +119,15 @@ ov_model_animate(struct ov_skin_component *component, struct ov_skeleton *skelet
       vec_add(anormal, anormal, tnormal);
     }
   }
+
+  ov_model_draw(model);
 }
 
-void
-ov_model_draw(struct ov_model *model)
+void ov_bone_component_draw(struct ov_bone_component *component, struct ov_skeleton *skeleton)
 {
-  int i;
-
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  glEnableClientState(GL_NORMAL_ARRAY);
-
-  if (model->anivertices) {
-    glVertexPointer(3, GL_FLOAT, sizeof(struct ov_anivertex), &model->anivertices->position[0]);
-    glNormalPointer(GL_FLOAT, sizeof(struct ov_anivertex), &model->anivertices->normal[0]);
-  } else {
-    glVertexPointer(3, GL_FLOAT, sizeof(struct ov_vertex), &model->vertices->position[0]);
-    glNormalPointer(GL_FLOAT, sizeof(struct ov_vertex), &model->vertices->normal[0]);
-  }
-
-  glTexCoordPointer(2, GL_FLOAT, sizeof(struct ov_vertex), &model->vertices->texcoord[0]);
-
-  for (i = 0; i < model->num_meshes; i++) {
-    glBindTexture(GL_TEXTURE_2D, model->meshes[i].texture);
-    glDrawElements(GL_TRIANGLES, model->meshes[i].count, GL_UNSIGNED_INT, &model->triangles[model->meshes[i].first]);
-  }
-
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-  glDisableClientState(GL_NORMAL_ARRAY);
+  /* Concatenate the transform of the bone that the component is attached to: */
+  glPushMatrix();
+  glMultMatrixf(skeleton->bones[component->bone].pose_matrix);
+  ov_model_draw(component->model);
+  glPopMatrix();
 }
