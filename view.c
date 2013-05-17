@@ -16,7 +16,6 @@ static int anim = ANIM_IDLE;
 
 static float light_position[4] = { -1, 2, 2, 0 };
 
-static struct ov_unit *dog = NULL;
 static struct ov_unit *humon = NULL;
 
 void keyboardFunc(unsigned char key, int x, int y)
@@ -121,6 +120,8 @@ void init(int argc, char **argv)
   ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_armor00_pantabottes.iqe"));
   ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_cheveux_basic01.iqe"));
   ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_visage.iqe"));
+  ov_unit_add_bone_component(humon, ov_model_load("human/fy_wea_dague.iqe"), "box_arme");
+  ov_unit_add_bone_component(humon, ov_model_load("human/fy_wea_grand_bouclier.iqe"), "box_bouclier");
 }
 
 int main (int argc, char **argv)

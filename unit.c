@@ -23,8 +23,21 @@ void
 ov_unit_draw(struct ov_unit *unit)
 {
   int i = 0;
-  for (; i<unit->num_skin_components; i++) {
+  for (i = 0; i<unit->num_skin_components; i++) {
     ov_model_draw(unit->skin_components[i].model);
+  }
+  for (i = 0; i<unit->num_bone_components; i++) {
+    /*
+     * GL magic to render the bone components in their correct
+     * places
+     *
+     */
+    glPushMatrix();
+    int b = unit->bone_components[i].bone; 
+    glMultMatrixf(unit->skeleton->bones[b].pose_matrix);
+    /* except for this */
+    ov_model_draw(unit->bone_components[i].model);
+    glPopMatrix();
   }
 }
 
