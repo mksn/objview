@@ -1,5 +1,3 @@
-// vim: sw=2 sts=2 et
-
 #ifndef unit_h
 #define unit_h
 

@@ -1,5 +1,3 @@
-// vim: sw=2 sts=2 et
-
 #ifndef __VECTOR_H__
 #define __VECTOR_H__
 
