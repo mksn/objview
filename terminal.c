@@ -62,9 +62,20 @@ void terminal_display()
     draw_string(20, 20*i+16, terminal_command_lines[current_command_line]);
 }
 
+static void debug_command_line_history(void)
+{
+  int i;
+  printf("current history = %d\n", current_command_line);
+  for (i = 0; i < CLHISTORY; i++) {
+    if (terminal_command_lines[i])
+      printf("history %d: '%s'\n", i, terminal_command_lines[i]);
+  }
+}
+
 int terminal_special(const char special) 
 {
   int last_pos = strlen(terminal_command_lines[current_command_line]);
+  int candidate;
   switch(special) {
     case GLUT_KEY_LEFT:
       cursor_pos = cursor_pos - 1 < 0 ? 0 : cursor_pos - 1;
@@ -79,15 +90,17 @@ int terminal_special(const char special)
       cursor_pos = last_pos;
       break;
     case GLUT_KEY_DOWN:
-      do {
-        current_command_line = (current_command_line - 1 < 0)? (CLHISTORY-1):current_command_line-1;
-      } while (terminal_command_lines[current_command_line] == NULL);
+      debug_command_line_history();
+      candidate = current_command_line - 1;
+      if (candidate >= 0 && terminal_command_lines[candidate] != NULL)
+        current_command_line = candidate;
       cursor_pos = strlen(terminal_command_lines[current_command_line]);
       break;
     case GLUT_KEY_UP:
-      do {
-        current_command_line = (current_command_line + 1 > (CLHISTORY-1)) ? (CLHISTORY-1):current_command_line + 1;
-      } while (terminal_command_lines[current_command_line] == NULL);
+      debug_command_line_history();
+      candidate = current_command_line + 1;
+      if (candidate < CLHISTORY && terminal_command_lines[candidate] != NULL)
+        current_command_line = candidate;
       cursor_pos = strlen(terminal_command_lines[current_command_line]);
       break;
     default:
@@ -104,10 +117,10 @@ int terminal_keyboard(const char key)
   if (key == 0x1b || key == '\r')
   {
     // return 0 and print string;
-    fprintf(stderr, "Time to bail!");
+    fprintf(stderr, "Time to bail!\n");
     terminal_puts(terminal_command_lines[current_command_line]);
     free(terminal_command_lines[(CLHISTORY-1)]);
-    memmove(terminal_command_lines+1, terminal_command_lines,(CLHISTORY-1));
+    memmove(terminal_command_lines+1, terminal_command_lines, sizeof(char*)*(CLHISTORY-1));
     current_command_line = 0;
     terminal_command_lines[current_command_line] = malloc(1);
     terminal_command_lines[current_command_line][0] = '\0';
