@@ -9,16 +9,17 @@
 #define LASTLINE (NOLINES-1)
 
 static char *terminal_buf[NOLINES];
-static char *terminal_command_lines[CLHISTORY];
+static char *command_history[CLHISTORY];
+static char *command_line;
 static int cursor_pos = 0;
-static int current_command_line = 0;
+static int history_pos = 0;
 
 void terminal_init()
 {
   memset(terminal_buf,0,sizeof(char*) * NOLINES);
-  memset(terminal_command_lines,0,sizeof(char*) * CLHISTORY);
-  terminal_command_lines[current_command_line] = malloc(1);
-  terminal_command_lines[current_command_line][0] = '\0';
+  memset(command_history,0,sizeof(char*) * CLHISTORY);
+  command_line = malloc(1);
+  command_line[0] = '\0';
 }
 
 void terminal_puts(const char *s)
@@ -58,23 +59,23 @@ void terminal_display()
     }
   }
   glColor3f(.8,.9,1);
-  if (terminal_command_lines[current_command_line])
-    draw_string(20, 20*i+16, terminal_command_lines[current_command_line]);
+  if (command_line)
+    draw_string(20, 20*i+16, command_line);
 }
 
 static void debug_command_line_history(void)
 {
   int i;
-  printf("current history = %d\n", current_command_line);
+  printf("current history = %d\n", history_pos);
   for (i = 0; i < CLHISTORY; i++) {
-    if (terminal_command_lines[i])
-      printf("history %d: '%s'\n", i, terminal_command_lines[i]);
+    if (command_history[i])
+      printf("history %d: '%s'\n", i, command_history[i]);
   }
 }
 
 int terminal_special(const char special) 
 {
-  int last_pos = strlen(terminal_command_lines[current_command_line]);
+  int last_pos = strlen(command_line);
   int candidate;
   switch(special) {
     case GLUT_KEY_LEFT:
@@ -91,17 +92,32 @@ int terminal_special(const char special)
       break;
     case GLUT_KEY_DOWN:
       debug_command_line_history();
-      candidate = current_command_line - 1;
-      if (candidate >= 0 && terminal_command_lines[candidate] != NULL)
-        current_command_line = candidate;
-      cursor_pos = strlen(terminal_command_lines[current_command_line]);
+      candidate = history_pos - 1;
+      if (candidate == -1)
+      {
+        history_pos = candidate;
+        free(command_line);
+        command_line = strdup("");
+        cursor_pos = strlen(command_line);
+      }
+      else if (candidate >= 0 && command_history[candidate] != NULL)
+      {
+        history_pos = candidate;
+        free(command_line);
+        command_line = strdup(command_history[history_pos]);
+        cursor_pos = strlen(command_line);
+      }
       break;
     case GLUT_KEY_UP:
       debug_command_line_history();
-      candidate = current_command_line + 1;
-      if (candidate < CLHISTORY && terminal_command_lines[candidate] != NULL)
-        current_command_line = candidate;
-      cursor_pos = strlen(terminal_command_lines[current_command_line]);
+      candidate = history_pos + 1;
+      if (candidate < CLHISTORY && command_history[candidate] != NULL)
+      {
+        history_pos = candidate;
+        free(command_line);
+        command_line = strdup(command_history[history_pos]);
+        cursor_pos = strlen(command_line);
+      }
       break;
     default:
       return 0;
@@ -112,34 +128,35 @@ int terminal_special(const char special)
 
 int terminal_keyboard(const char key)
 {
-  fprintf(stderr, "terminal_command_lines = %s\n", terminal_command_lines[current_command_line]);
+  fprintf(stderr, "command_line = %s\n", command_line);
 
   if (key == 0x1b || key == '\r')
   {
     // return 0 and print string;
     fprintf(stderr, "Time to bail!\n");
-    terminal_puts(terminal_command_lines[current_command_line]);
-    free(terminal_command_lines[(CLHISTORY-1)]);
-    memmove(terminal_command_lines+1, terminal_command_lines, sizeof(char*)*(CLHISTORY-1));
-    current_command_line = 0;
-    terminal_command_lines[current_command_line] = malloc(1);
-    terminal_command_lines[current_command_line][0] = '\0';
+    terminal_puts(command_line);
+    free(command_history[(CLHISTORY-1)]);
+    memmove(command_history+1, command_history, sizeof(char*)*(CLHISTORY-1));
+    command_history[0] = strdup(command_line);
+    history_pos = -1;
+    command_line = malloc(1);
+    command_line[0] = '\0';
     cursor_pos = 0;
     return 0;
   }
 
-  int last_pos = strlen(terminal_command_lines[current_command_line]);
+  int last_pos = strlen(command_line);
 
   if (isprint(key)) {
-    terminal_command_lines[current_command_line] = realloc(terminal_command_lines[current_command_line], last_pos+2);
+    command_line = realloc(command_line, last_pos+2);
     if (cursor_pos == last_pos) {
-      terminal_command_lines[current_command_line][cursor_pos++] = key;
-      terminal_command_lines[current_command_line][cursor_pos] = 0;
+      command_line[cursor_pos++] = key;
+      command_line[cursor_pos] = 0;
     } else {
-      memmove (terminal_command_lines[current_command_line]+cursor_pos+1,
-          terminal_command_lines[current_command_line]+cursor_pos, 
+      memmove (command_line+cursor_pos+1,
+          command_line+cursor_pos, 
           last_pos-cursor_pos+1);
-      terminal_command_lines[current_command_line][cursor_pos++] = key;
+      command_line[cursor_pos++] = key;
     }
     return 1;
   }
