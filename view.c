@@ -2,6 +2,7 @@
 
 #include "objview.h"
 #include "unit.h"
+#include "terminal.h"
 
 #define ANIM_FPS 30
 
@@ -14,15 +15,46 @@ static float dist = 5;
 static float time = 0;
 static int anim = ANIM_IDLE;
 
+static float swidth;
+static float sheight;
+
 static float light_position[4] = { -1, 2, 2, 0 };
 
 static struct ov_unit *humon = NULL;
 
 void keyboardFunc(unsigned char key, int x, int y)
 {
-  if (key == 'i') anim = ANIM_IDLE;
-  if (key == 'w') anim = ANIM_WALK;
-  if (key == 0x1b) exit(1);
+  switch (key) {
+    case 'i':
+      anim = ANIM_IDLE;
+      break;
+    case 'w':
+      anim = ANIM_WALK;
+      break;
+    case 'r':
+      anim = ANIM_RUN;
+      break;
+    case 'a':
+      anim = ANIM_TURN_LEFT;
+      break;
+    case 'd':
+      anim = ANIM_TURN_RIGHT;
+      break;
+    case 'q':
+      anim = ANIM_STRAFE_LEFT;
+      break;
+    case 'e':
+      anim = ANIM_STRAFE_RIGHT;
+      break;
+    case 'z':
+      anim = ANIM_DEATH;
+      break;
+    case 0x1b:
+      exit(1);
+      break;
+    default:
+      break;
+  }
 }
 
 void mouseFunc(int button, int state, int x, int y)
@@ -58,9 +90,8 @@ void motionFunc(int x, int y)
 void reshape(int w, int h)
 {
   glViewport (0, 0, (GLsizei)w, (GLsizei)h);
-  glMatrixMode (GL_PROJECTION);
-  glLoadIdentity ();
-  gluPerspective (60, (GLfloat)w / (GLfloat)h, 0.05, 7000.0);
+  swidth = w;
+  sheight = h;
 }
 
 void display()
@@ -72,6 +103,10 @@ void display()
   glClearColor (0.3, 0.3, 0.4, 1.0);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable (GL_DEPTH_TEST);
+
+  glMatrixMode (GL_PROJECTION);
+  glLoadIdentity ();
+  gluPerspective (60, swidth / sheight, 0.05, 7000.0);
 
   glMatrixMode (GL_MODELVIEW);
   glLoadIdentity();
@@ -91,6 +126,15 @@ void display()
   ov_unit_animate(humon, anim, time);
   ov_unit_draw(humon);
 
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(0, swidth, sheight, 0, -1, 1);
+
+  glMatrixMode (GL_MODELVIEW);
+  glLoadIdentity();
+
+  terminal_display();
+
   glutSwapBuffers();
   glutPostRedisplay();
 
@@ -101,18 +145,18 @@ void display()
 void init(int argc, char **argv)
 {
   /*
-  dog = ov_unit_new();
-  dog->model = ov_model_load("dog/tr_mo_chorani.iqe");
-  dog->animations[ANIM_IDLE] = ov_animation_load("dog/tr_mo_chien_idle.iqe");
-  dog->animations[ANIM_WALK] = ov_animation_load("dog/tr_mo_chien_marche.iqe");
+    dog = ov_unit_new();
+    dog->model = ov_model_load("dog/tr_mo_chorani.iqe");
+    dog->animations[ANIM_IDLE] = ov_animation_load("dog/tr_mo_chien_idle.iqe");
+    dog->animations[ANIM_WALK] = ov_animation_load("dog/tr_mo_chien_marche.iqe");
   */
 
   humon = ov_unit_new();
   ov_unit_set_skeleton(humon, ov_skeleton_load("human/ge_hom_skel.iqe"));
   ov_unit_add_animation(humon, ov_animation_load("human/fy_hom_ab_marche.iqe"),
-      ANIM_WALK);
+                        ANIM_WALK);
   ov_unit_add_animation(humon, ov_animation_load("human/fy_hom_ab_idle.iqe"),
-      ANIM_IDLE);
+                        ANIM_IDLE);
   ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_armor00_armpad.iqe"));
   ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_armor00_bottes.iqe"));
   ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_armor00_gilet.iqe"));
@@ -126,6 +170,10 @@ void init(int argc, char **argv)
 
 int main (int argc, char **argv)
 {
+  terminal_init();
+  terminal_puts("Mika was here!");
+  terminal_puts("Kilroy... go home!");
+  terminal_puts("Veni vidi vici!");
   glutInit(&argc, argv);
   glutInitDisplayMode(MKSN_GLUT_INIT);
   glutInitWindowSize(1024, 768);

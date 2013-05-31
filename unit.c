@@ -33,9 +33,10 @@ ov_unit_draw(struct ov_unit *unit)
 
 void
 ov_unit_animate(struct ov_unit *unit,
-    int             anim,
-    float           time)
+                int             anim,
+                float           time)
 {
+  if (unit->actions[anim].animation == 0) anim = ANIM_IDLE; // Fall back to idle 
   ov_skeleton_animate(unit->skeleton, &unit->actions[anim], time);
 }
 
