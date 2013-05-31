@@ -5,6 +5,6 @@ void terminal_puts(const char *s);
 void terminal_printf(const char *fmt, ...);
 void terminal_display(void);
 void terminal_init(void);
-void terminal_keyboard(void *keyEvent);
+int terminal_keyboard(const char key);
 
 #endif

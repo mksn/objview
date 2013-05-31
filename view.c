@@ -22,36 +22,46 @@ static struct ov_unit *humon = NULL;
 
 void keyboardFunc(unsigned char key, int x, int y)
 {
-  switch (key) {
-    case 'i':
-      anim = ANIM_IDLE;
-      break;
-    case 'w':
-      anim = ANIM_WALK;
-      break;
-    case 'r':
-      anim = ANIM_RUN;
-      break;
-    case 'a':
-      anim = ANIM_TURN_LEFT;
-      break;
-    case 'd':
-      anim = ANIM_TURN_RIGHT;
-      break;
-    case 'q':
-      anim = ANIM_STRAFE_LEFT;
-      break;
-    case 'e':
-      anim = ANIM_STRAFE_RIGHT;
-      break;
-    case 'z':
-      anim = ANIM_DEATH;
-      break;
-    case 0x1b:
-      exit(1);
-      break;
-    default:
-      break;
+  static int terminal_input = 1;
+
+  if (!terminal_input) {
+    switch (key) {
+      case 'i':
+        anim = ANIM_IDLE;
+        break;
+      case 'w':
+        anim = ANIM_WALK;
+        break;
+      case 'r':
+        anim = ANIM_RUN;
+        break;
+      case 'a':
+        anim = ANIM_TURN_LEFT;
+        break;
+      case 'd':
+        anim = ANIM_TURN_RIGHT;
+        break;
+      case 'q':
+        anim = ANIM_STRAFE_LEFT;
+        break;
+      case 'e':
+        anim = ANIM_STRAFE_RIGHT;
+        break;
+      case 'z':
+        anim = ANIM_DEATH;
+        break;
+      case 0x1b:
+        exit(1);
+        break;
+      case 0xd:
+        terminal_input = 1;
+      default:
+        break;
+    }
+  }
+  else
+  {
+    terminal_input = terminal_keyboard(key);
   }
 }
 
