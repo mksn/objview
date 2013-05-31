@@ -13,8 +13,8 @@ static float dist = 5;
 static float time = 0;
 static int anim = ANIM_IDLE;
 
-static float swidth;
-static float sheight;
+static float swidth = 1;
+static float sheight = 1;
 
 static float light_position[4] = { -1, 2, 2, 0 };
 
@@ -124,6 +124,9 @@ void display()
   ov_unit_animate(humon, anim, time);
   ov_unit_draw(humon);
 
+  glDisable(GL_ALPHA_TEST);
+  glDisable(GL_TEXTURE_2D);
+
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glOrtho(0, swidth, sheight, 0, -1, 1);
@@ -168,10 +171,6 @@ void init(int argc, char **argv)
 
 int main (int argc, char **argv)
 {
-  terminal_init();
-  terminal_puts("Mika was here!");
-  terminal_puts("Kilroy... go home!");
-  terminal_puts("Veni vidi vici!");
   glutInit(&argc, argv);
   glutInitDisplayMode(MKSN_GLUT_INIT);
   glutInitWindowSize(1024, 768);
@@ -182,15 +181,20 @@ int main (int argc, char **argv)
   glEnable(GL_LIGHT0);
   glAlphaFunc(GL_GREATER, 0.2);
 
+  terminal_init();
+
   /*
    * Initiate the model with the argument, otherwise
    * just go with the default selection
    */
   init (argc, argv);
 
-  glutDisplayFunc(display);
-  glutIdleFunc(display);
+  terminal_puts("Mika was here!");
+  terminal_puts("Kilroy... go home!");
+  terminal_puts("Veni vidi vici!");
+
   glutReshapeFunc(reshape);
+  glutDisplayFunc(display);
   glutKeyboardFunc(keyboardFunc);
   glutMouseFunc(mouseFunc);
   glutMotionFunc(motionFunc);
