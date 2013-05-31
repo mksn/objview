@@ -15,6 +15,7 @@ static int anim = ANIM_IDLE;
 
 static float swidth = 1;
 static float sheight = 1;
+static int terminal_input = 0;
 
 static float light_position[4] = { -1, 2, 2, 0 };
 
@@ -22,8 +23,6 @@ static struct ov_unit *humon = NULL;
 
 void keyboardFunc(unsigned char key, int x, int y)
 {
-  static int terminal_input = 1;
-
   if (!terminal_input) {
     switch (key) {
       case 'i':
@@ -62,6 +61,13 @@ void keyboardFunc(unsigned char key, int x, int y)
   else
   {
     terminal_input = terminal_keyboard(key);
+  }
+}
+
+void specialKeyboardFunc(int key, int x, int y)
+{
+  if(terminal_input) {
+    terminal_input = terminal_special((const char)key);
   }
 }
 
@@ -119,6 +125,9 @@ void display()
   glMatrixMode (GL_MODELVIEW);
   glLoadIdentity();
 
+  glEnable(GL_COLOR_MATERIAL);
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT0);
   glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
   glTranslatef(0, 0, -dist);
@@ -136,7 +145,10 @@ void display()
 
   glDisable(GL_ALPHA_TEST);
   glDisable(GL_TEXTURE_2D);
-
+  glDisable(GL_COLOR_MATERIAL);
+  glDisable(GL_LIGHTING);
+  glDisable(GL_LIGHT0);
+ 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glOrtho(0, swidth, sheight, 0, -1, 1);
@@ -186,10 +198,7 @@ int main (int argc, char **argv)
   glutInitWindowSize(1024, 768);
   glutCreateWindow("ObjView");
 
-  glEnable(GL_COLOR_MATERIAL);
-  glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);
-  glAlphaFunc(GL_GREATER, 0.2);
+ glAlphaFunc(GL_GREATER, 0.2);
 
   terminal_init();
 
@@ -206,6 +215,7 @@ int main (int argc, char **argv)
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboardFunc);
+  glutSpecialFunc(specialKeyboardFunc);
   glutMouseFunc(mouseFunc);
   glutMotionFunc(motionFunc);
   glutMainLoop();
