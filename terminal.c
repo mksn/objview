@@ -94,9 +94,10 @@ int terminal_keyboard(const char key)
   }
 
   if (isalnum(key)) {
-    terminal_command_line = realloc(terminal_command_line, last_pos+1);
-    if (cursor_pos == strlen(terminal_command_line)) {
+    terminal_command_line = realloc(terminal_command_line, last_pos+2);
+    if (cursor_pos == last_pos) {
       terminal_command_line[cursor_pos++] = key;
+      terminal_command_line[cursor_pos] = 0;
     } else {
       memmove (terminal_command_line+cursor_pos+1,
           terminal_command_line+cursor_pos, 
