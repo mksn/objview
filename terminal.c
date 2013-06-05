@@ -13,6 +13,8 @@ static char *command_history[CLHISTORY];
 static char *command_line;
 static int cursor_pos = 0;
 static int history_pos = 0;
+static int visible = 0;
+static int input_state = 0;
 
 void terminal_init()
 {
@@ -24,7 +26,7 @@ void terminal_init()
 
 void terminal_puts(const char *s)
 {
-  //todo: DEM DEre newlines... remember
+  //TODO: dem dere newlines... remember
   free(terminal_buf[0]);
   memmove(terminal_buf, terminal_buf+1, sizeof(char*) * (NOLINES-1));
   terminal_buf[LASTLINE] = strdup(s);
@@ -49,18 +51,41 @@ static void draw_string(float x, float y, const char *s)
     glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *s++);
 }
 
-void terminal_display()
+static int measure_cursor_pos (void) 
+{
+  int i = 0;
+  int rc = 0;
+
+  while (i < cursor_pos && command_line[i]) 
+  {
+    rc += glutBitmapWidth(GLUT_BITMAP_8_BY_13, command_line[i]);
+    i += 1;
+  }
+
+  return rc;
+}
+
+void terminal_display(void)
 {
   int i;
+  static int offset = 0;
+  
   glColor3f(1,1,1);
   for(i=0; i<NOLINES; i++) {
     if (terminal_buf[i] != NULL) {
       draw_string(20, 20*i+16, terminal_buf[i]);
     }
   }
-  glColor3f(.8,.9,1);
-  if (command_line)
+  glColor3f(1,.9,0.86);
+  if (input_state) {
     draw_string(20, 20*i+16, command_line);
+    offset = measure_cursor_pos();
+    if (visible) { 
+      glColor3f(1.0,0.5,0.5);
+      glRectf(20+offset, 20*(i-1)+16+7, 20+offset+2, 20*i+16);
+    }
+    visible = !visible;
+  }
 }
 
 static void debug_command_line_history(void)
@@ -77,19 +102,24 @@ int terminal_special(const char special)
 {
   int last_pos = strlen(command_line);
   int candidate;
+
   switch(special) {
     case GLUT_KEY_LEFT:
       cursor_pos = cursor_pos - 1 < 0 ? 0 : cursor_pos - 1;
       break;
+      
     case GLUT_KEY_RIGHT:
       cursor_pos = cursor_pos + 1 > last_pos ? last_pos : cursor_pos + 1;
       break;
+      
     case GLUT_KEY_HOME:
       cursor_pos = 0;
       break;
+      
     case GLUT_KEY_END:
       cursor_pos = last_pos;
       break;
+      
     case GLUT_KEY_DOWN:
       debug_command_line_history();
       candidate = history_pos - 1;
@@ -108,6 +138,7 @@ int terminal_special(const char special)
         cursor_pos = strlen(command_line);
       }
       break;
+      
     case GLUT_KEY_UP:
       debug_command_line_history();
       candidate = history_pos + 1;
@@ -119,16 +150,38 @@ int terminal_special(const char special)
         cursor_pos = strlen(command_line);
       }
       break;
-    default:
-      return 0;
+      
+    case 0x6:
+      if (cursor_pos < last_pos) {
+         memmove(command_line + cursor_pos, 
+            command_line + cursor_pos + 1, 
+            last_pos - cursor_pos - 1);
+        command_line = realloc(command_line, last_pos);
+        command_line[last_pos-1] = 0;
+      }
+      break;
+      
+   default:
+      return (input_state = 0);
       break;
   }
-  return 1;
+  
+  return (input_state = 1);
+}
+
+void terminal_open (void) 
+{
+  input_state = 1;
+}
+
+void terminal_close (void) 
+{
+  input_state = 0;
 }
 
 int terminal_keyboard(const char key)
 {
-  fprintf(stderr, "command_line = %s\n", command_line);
+  fprintf(stderr, "command_line = %s, key: %x\n", command_line, key);
 
   if (key == 0x1b || key == '\r')
   {
@@ -136,16 +189,39 @@ int terminal_keyboard(const char key)
     fprintf(stderr, "Time to bail!\n");
     terminal_puts(command_line);
     free(command_history[(CLHISTORY-1)]);
-    memmove(command_history+1, command_history, sizeof(char*)*(CLHISTORY-1));
+    memmove(command_history+1, 
+        command_history, 
+        sizeof(char*)*(CLHISTORY-1));
     command_history[0] = strdup(command_line);
     history_pos = -1;
     command_line = malloc(1);
     command_line[0] = '\0';
     cursor_pos = 0;
-    return 0;
+    visible = 0;
+    return (input_state = 0);
   }
 
   int last_pos = strlen(command_line);
+
+  if (key == 0x7f) { // backspace
+    if (cursor_pos - 1 > 0) {
+      cursor_pos -= 1;
+      memmove(command_line + cursor_pos, 
+          command_line + cursor_pos + 1, 
+          last_pos - cursor_pos - 1);
+      command_line = realloc(command_line, last_pos);
+      command_line[last_pos-1] = 0;
+    }
+    return (input_state = 1);
+  }
+  else if (key == 8) { // || key == 127) { // delete ... we hope
+    memmove(command_line + cursor_pos, 
+        command_line + cursor_pos + 1, 
+        last_pos - cursor_pos - 1);
+    command_line = realloc(command_line, last_pos);
+    command_line[last_pos-1] = 0;
+    return (input_state = 1);
+  }
 
   if (isprint(key)) {
     command_line = realloc(command_line, last_pos+2);
@@ -158,7 +234,7 @@ int terminal_keyboard(const char key)
           last_pos-cursor_pos+1);
       command_line[cursor_pos++] = key;
     }
-    return 1;
+    return (input_state = 1);
   }
-  return 0;
+  return (input_state = 0);
 }

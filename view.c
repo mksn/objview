@@ -54,6 +54,7 @@ void keyboardFunc(unsigned char key, int x, int y)
         break;
       case 0xd:
         terminal_input = 1;
+        terminal_open();
       default:
         break;
     }
@@ -108,7 +109,7 @@ void reshape(int w, int h)
   sheight = h;
 }
 
-void display()
+void display(void)
 {
   int time_in_millis = glutGet(GLUT_ELAPSED_TIME);
 
