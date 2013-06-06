@@ -252,9 +252,9 @@ int terminal_keyboard(const char key)
         return (input_state = 1);
         break;
 
-      case 0xf:
+      case 0xe:
         debug_command_line_history();
-        candidate = history_pos + 1;
+        candidate = history_pos - 1;
         if (candidate < CLHISTORY && command_history[candidate] != NULL)
         {
           history_pos = candidate;
@@ -264,7 +264,7 @@ int terminal_keyboard(const char key)
         }
         break;
 
-      case 0x11:
+      case 0x10:
         debug_command_line_history();
         candidate = history_pos + 1;
         if (candidate < CLHISTORY && command_history[candidate] != NULL)
