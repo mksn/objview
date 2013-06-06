@@ -1,5 +1,6 @@
 #include "objview.h"
 #include "terminal.h"
+#include "parser.h"
 #include "ctype.h"
 
 #include <stdarg.h>
@@ -189,6 +190,7 @@ int terminal_keyboard(const char key)
     // return 0 and print string;
     fprintf(stderr, "Time to bail!\n");
     terminal_puts(command_line);
+    parser_main(command_line);
     free(command_history[(CLHISTORY-1)]);
     memmove(command_history+1, 
         command_history, 
