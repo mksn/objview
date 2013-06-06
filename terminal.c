@@ -280,20 +280,60 @@ int terminal_keyboard(const char key)
     };
     return (input_state = 1);
   } else if (glutGetModifiers() == GLUT_ACTIVE_ALT) {
-    fprintf(stderr, "%s: alt active\n", __func__);
+    fprintf(stderr, "%s: ALT active, cursor_pos: %d\n", 
+        __func__, cursor_pos);
+    int p;
+
     switch(key) {
       case 'b':
+        p = cursor_pos - 1; 
+        fprintf(stderr, "%s: cursor_pos: %d, p: %d, last_pos: %d\n", 
+            __func__, cursor_pos, p, last_pos);
+        while (p >= 0) {
+          if (command_line[p] == ' ') {
+            break;
+          }
+          p--;
+          fprintf(stderr, "%s: cursor_pos: %d, p: %d\n", 
+              __func__, cursor_pos, p);
+        }
+        cursor_pos = p;
         break;
 
       case 'd':
+        p = cursor_pos + 1;
+        while (p<=last_pos) {
+          if (command_line[p] == ' ')  {
+            break; 
+          }
+          p++;
+          fprintf(stderr, "%s: cursor_pos: %d, p: %d\n", 
+              __func__, cursor_pos, p);
+        }
+        p = p > last_pos ? last_pos : p;
+        memmove(command_line+cursor_pos, 
+            command_line+p, last_pos - p);
+        command_line = realloc(command_line,
+            last_pos - p + cursor_pos + 1);
+        command_line[last_pos - p + cursor_pos] = 0;
         break;
 
       case 'f':
+        p = cursor_pos + 1; 
+        while (p<=last_pos) {
+          if (command_line[p] == ' ')
+            break;
+          p++;
+          fprintf(stderr, "%s: cursor_pos: %d, p: %d\n", 
+              __func__, cursor_pos, p);
+        }
+        cursor_pos = p;
         break;
 
       default:
         break;
     };
+
     return (input_state = 1);
   }
 
