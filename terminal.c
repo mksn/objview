@@ -108,19 +108,19 @@ int terminal_special(const char special)
     case GLUT_KEY_LEFT:
       cursor_pos = cursor_pos - 1 < 0 ? 0 : cursor_pos - 1;
       break;
-      
+
     case GLUT_KEY_RIGHT:
       cursor_pos = cursor_pos + 1 > last_pos ? last_pos : cursor_pos + 1;
       break;
-      
+
     case GLUT_KEY_HOME:
       cursor_pos = 0;
       break;
-      
+
     case GLUT_KEY_END:
       cursor_pos = last_pos;
       break;
-      
+
     case GLUT_KEY_DOWN:
       debug_command_line_history();
       candidate = history_pos - 1;
@@ -139,7 +139,7 @@ int terminal_special(const char special)
         cursor_pos = strlen(command_line);
       }
       break;
-      
+
     case GLUT_KEY_UP:
       debug_command_line_history();
       candidate = history_pos + 1;
@@ -151,7 +151,7 @@ int terminal_special(const char special)
         cursor_pos = strlen(command_line);
       }
       break;
-      
+
     case 0x6:
       if (cursor_pos < last_pos) {
          memmove(command_line + cursor_pos, 
@@ -161,12 +161,12 @@ int terminal_special(const char special)
         command_line[last_pos-1] = 0;
       }
       break;
-      
+
    default:
       return (input_state = 0);
       break;
   }
-  
+
   return (input_state = 1);
 }
 
@@ -206,28 +206,10 @@ int terminal_keyboard(const char key)
 
   int last_pos = strlen(command_line);
 
-  if (key == 0x7f) { // backspace
-    if (cursor_pos - 1 >= 0) {
-      cursor_pos -= 1;
-      memmove(command_line + cursor_pos, 
-          command_line + cursor_pos + 1, 
-          last_pos - cursor_pos - 1);
-      command_line = realloc(command_line, last_pos);
-      command_line[last_pos-1] = 0;
-    }
-    return (input_state = 1);
-  }
-  else if (key == 8) { // || key == 127) { // delete ... we hope
-    memmove(command_line + cursor_pos, 
-        command_line + cursor_pos + 1, 
-        last_pos - cursor_pos - 1);
-    command_line = realloc(command_line, last_pos);
-    command_line[last_pos-1] = 0;
-    return (input_state = 1);
-  }
-
   if (glutGetModifiers() == GLUT_ACTIVE_CTRL) {
-    fprintf(stderr, "%s: Ctrl active\n", __func__);
+    fprintf(stderr, "%s: Ctrl active, key:%d\n", __func__, key);
+    int p;
+
     switch(key) { 
       case 0x1:
         cursor_pos = 0;
@@ -235,6 +217,17 @@ int terminal_keyboard(const char key)
 
       case 0x2:
         cursor_pos = cursor_pos - 1 < 0 ? 0 : cursor_pos - 1;
+        break;
+
+      case 0x4:
+        if (cursor_pos < last_pos) {
+          memmove(command_line + cursor_pos,
+              command_line + cursor_pos + 1,
+              last_pos - cursor_pos - 1);
+          command_line = realloc(command_line, last_pos);
+          command_line[last_pos-1] = 0;
+        }
+        return (input_state = 1);
         break;
 
       case 0x5:
@@ -245,13 +238,28 @@ int terminal_keyboard(const char key)
         cursor_pos = cursor_pos + 1 > last_pos ? last_pos : cursor_pos + 1;
         break;
 
-      case 0x4:
-        memmove(command_line + cursor_pos, 
-            command_line + cursor_pos + 1, 
-            last_pos - cursor_pos - 1);
-        command_line = realloc(command_line, last_pos);
-        command_line[last_pos-1] = 0;
-        return (input_state = 1);
+      case 0x8:
+      case 0x17:
+        debug_command_line_history();
+        p = cursor_pos - 1;
+        fprintf(stderr, "%s: last_pos: %d, cursor_pos: %d, command_line: %s\n",
+            __func__, last_pos, cursor_pos, command_line);
+        while (p >= 0) {
+          if (command_line[p] == ' ') {
+            break;
+          }
+          fprintf(stderr, "%s: cursor_pos: %d, p:%d\n",
+              __func__, cursor_pos, p);
+          p--;
+        }
+        p = p<0?0:p;
+        memmove(command_line + p,
+            command_line + cursor_pos,
+            last_pos - cursor_pos);
+        command_line = realloc(command_line,
+           last_pos - cursor_pos + p + 1);
+        command_line[last_pos - cursor_pos + p] = 0;
+        cursor_pos = p;
         break;
 
       case 0xe:
@@ -277,6 +285,14 @@ int terminal_keyboard(const char key)
           cursor_pos = strlen(command_line);
         }
         break;
+
+      case 0x15:
+        debug_command_line_history();
+        free(command_line);
+        command_line = strdup("");
+        cursor_pos = strlen(command_line);
+        break;
+
       default:
         break;
     };
@@ -338,6 +354,29 @@ int terminal_keyboard(const char key)
 
     return (input_state = 1);
   }
+
+  if (key == BACKSPACE) {
+    if (cursor_pos - 1 >= 0) {
+      cursor_pos -= 1;
+      memmove(command_line + cursor_pos, 
+          command_line + cursor_pos + 1, 
+          last_pos - cursor_pos - 1);
+      command_line = realloc(command_line, last_pos);
+      command_line[last_pos-1] = 0;
+    }
+    return (input_state = 1);
+  }
+  else if (key == DELETE) {
+    if (cursor_pos < last_pos) {
+      memmove(command_line + cursor_pos, 
+          command_line + cursor_pos + 1, 
+          last_pos - cursor_pos - 1);
+      command_line = realloc(command_line, last_pos);
+      command_line[last_pos-1] = 0;
+    }
+    return (input_state = 1);
+  }
+
 
   if (isprint(key)) {
     command_line = realloc(command_line, last_pos+2);
