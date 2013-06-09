@@ -238,7 +238,7 @@ int terminal_keyboard(const char key)
         cursor_pos = cursor_pos + 1 > last_pos ? last_pos : cursor_pos + 1;
         break;
 
-      case 0x8:
+      case BACKSPACE:
       case 0x17:
         debug_command_line_history();
         p = cursor_pos - 1;
