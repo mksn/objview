@@ -245,18 +245,21 @@ int terminal_keyboard(const char key)
         cursor_pos = cursor_pos + 1 > last_pos ? last_pos : cursor_pos + 1;
         break;
 
+      case 0xb:
+        command_line = realloc(command_line, cursor_pos+1);
+        command_line[cursor_pos] = 0;
+        break;
+
       case BACKSPACE:
       case 0x17:
         debug_command_line_history();
         p = cursor_pos - 1;
-        fprintf(stderr, "%s: last_pos: %d, cursor_pos: %d, command_line: %s\n",
-            __func__, last_pos, cursor_pos, command_line);
+        D(fprintf(stderr, "%s: last_pos: %d, cursor_pos: %d, command_line: %s\n",
+            __func__, last_pos, cursor_pos, command_line));
         while (p >= 0) {
           if (command_line[p] == ' ') {
             break;
           }
-          fprintf(stderr, "%s: cursor_pos: %d, p:%d\n",
-              __func__, cursor_pos, p);
           p--;
         }
         p = p<0?0:p;
