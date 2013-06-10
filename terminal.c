@@ -9,6 +9,12 @@
 #define NOLINES 20
 #define LASTLINE (NOLINES-1)
 
+#ifdef DEBUG
+#define D(x) x
+#else
+#define D(x)
+#endif
+
 static char *terminal_buf[NOLINES];
 static char *command_history[CLHISTORY];
 static char *command_line;
@@ -70,7 +76,7 @@ void terminal_display(void)
 {
   int i;
   static int offset = 0;
-  
+
   glColor3f(1,1,1);
   for(i=0; i<NOLINES; i++) {
     if (terminal_buf[i] != NULL) {
@@ -81,8 +87,7 @@ void terminal_display(void)
   if (input_state) {
     draw_string(20, 20*i+16, command_line);
     offset = measure_cursor_pos();
-    if (visible) { 
-      glColor3f(1.0,0.5,0.5);
+    if (visible) {
       glRectf(20+offset, 20*(i-1)+16+7, 20+offset+2, 20*i+16);
     }
     visible = !visible;
@@ -91,12 +96,14 @@ void terminal_display(void)
 
 static void debug_command_line_history(void)
 {
+#if DEBUG
   int i;
   printf("current history = %d\n", history_pos);
   for (i = 0; i < CLHISTORY; i++) {
     if (command_history[i])
       printf("history %d: '%s'\n", i, command_history[i]);
   }
+#endif
 }
 
 int terminal_special(const char special) 
@@ -182,13 +189,13 @@ void terminal_close (void)
 
 int terminal_keyboard(const char key)
 {
-  fprintf(stderr, "command_line = %s, key: %x\n", command_line, key);
+  D(fprintf(stderr, "command_line = %s, key: %x\n", command_line, key));
   int candidate;
 
   if (key == 0x1b || key == '\r')
   {
     // return 0 and print string;
-    fprintf(stderr, "Time to bail!\n");
+    D(fprintf(stderr, "Done! process command line\n"));
     terminal_puts(command_line);
     parser_main(command_line);
     free(command_history[(CLHISTORY-1)]);
@@ -207,7 +214,7 @@ int terminal_keyboard(const char key)
   int last_pos = strlen(command_line);
 
   if (glutGetModifiers() == GLUT_ACTIVE_CTRL) {
-    fprintf(stderr, "%s: Ctrl active, key:%d\n", __func__, key);
+    D(fprintf(stderr, "%s: Ctrl active, key:%d\n", __func__, key));
     int p;
 
     switch(key) { 
@@ -298,22 +305,20 @@ int terminal_keyboard(const char key)
     };
     return (input_state = 1);
   } else if (glutGetModifiers() == GLUT_ACTIVE_ALT) {
-    fprintf(stderr, "%s: ALT active, cursor_pos: %d\n", 
-        __func__, cursor_pos);
+    D(fprintf(stderr, "%s: ALT active, key: %d, cursor_pos: %d\n", 
+        __func__, key, cursor_pos));
     int p;
 
     switch(key) {
       case 'b':
         p = cursor_pos - 1; 
-        fprintf(stderr, "%s: cursor_pos: %d, p: %d, last_pos: %d\n", 
-            __func__, cursor_pos, p, last_pos);
+        D(fprintf(stderr, "%s: cursor_pos: %d, p: %d, last_pos: %d\n", 
+            __func__, cursor_pos, p, last_pos));
         while (p >= 0) {
           if (command_line[p] == ' ') {
             break;
           }
           p--;
-          fprintf(stderr, "%s: cursor_pos: %d, p: %d\n", 
-              __func__, cursor_pos, p);
         }
         cursor_pos = p;
         break;
@@ -325,8 +330,6 @@ int terminal_keyboard(const char key)
             break; 
           }
           p++;
-          fprintf(stderr, "%s: cursor_pos: %d, p: %d\n", 
-              __func__, cursor_pos, p);
         }
         p = p > last_pos ? last_pos : p;
         memmove(command_line+cursor_pos, 
@@ -342,8 +345,6 @@ int terminal_keyboard(const char key)
           if (command_line[p] == ' ')
             break;
           p++;
-          fprintf(stderr, "%s: cursor_pos: %d, p: %d\n", 
-              __func__, cursor_pos, p);
         }
         cursor_pos = p;
         break;
