@@ -72,25 +72,31 @@ static int measure_cursor_pos (void)
   return rc;
 }
 
-void terminal_display(void)
+void terminal_display(int w, int h)
 {
   int i;
   static int offset = 0;
 
-  glColor3f(1,1,1);
-  for(i=0; i<NOLINES; i++) {
-    if (terminal_buf[i] != NULL) {
-      draw_string(20, 20*i+16, terminal_buf[i]);
-    }
-  }
-  glColor3f(1,.9,0.86);
   if (input_state) {
+    glEnable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+    glColor4f(0.2,0.2,0.2,0.5);
+    glRectf(10,0,w-10,20*NOLINES+30);
+    glColor3f(1,1,1);
+    for(i=0; i<NOLINES; i++) {
+      if (terminal_buf[i] != NULL) {
+        draw_string(20, 20*i+16, terminal_buf[i]);
+      }
+    }
+    glColor3f(1,.9,0.86);
     draw_string(20, 20*i+16, command_line);
     offset = measure_cursor_pos();
-    if (visible) {
-      glRectf(20+offset, 20*(i-1)+16+7, 20+offset+2, 20*i+16);
-    }
+    glColor3f(1,0.1,0.1);
+    glRectf(20+offset, 20*(i-1)+16+7, 20+offset+2, 20*i+16);
     visible = !visible;
+    glColor3f(1,1,1);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
   }
 }
 

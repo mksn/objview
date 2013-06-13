@@ -169,7 +169,7 @@ void display(void)
   glMatrixMode (GL_MODELVIEW);
   glLoadIdentity();
 
-  terminal_display();
+  terminal_display(swidth, sheight);
 
   glutSwapBuffers();
   glutPostRedisplay();
@@ -211,7 +211,8 @@ int main (int argc, char **argv)
   glutInitWindowSize(1024, 768);
   glutCreateWindow("ObjView");
 
- glAlphaFunc(GL_GREATER, 0.2);
+  glAlphaFunc(GL_GREATER, 0.2);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   terminal_init();
   parser_init();

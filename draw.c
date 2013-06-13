@@ -12,18 +12,24 @@ ov_model_draw(struct ov_model *model)
   glEnableClientState(GL_NORMAL_ARRAY);
 
   if (model->anivertices) {
-    glVertexPointer(3, GL_FLOAT, sizeof(struct ov_anivertex), &model->anivertices->position[0]);
-    glNormalPointer(GL_FLOAT, sizeof(struct ov_anivertex), &model->anivertices->normal[0]);
+    glVertexPointer(3, GL_FLOAT, sizeof(struct ov_anivertex), 
+        &model->anivertices->position[0]);
+    glNormalPointer(GL_FLOAT, sizeof(struct ov_anivertex), 
+        &model->anivertices->normal[0]);
   } else {
-    glVertexPointer(3, GL_FLOAT, sizeof(struct ov_vertex), &model->vertices->position[0]);
-    glNormalPointer(GL_FLOAT, sizeof(struct ov_vertex), &model->vertices->normal[0]);
+    glVertexPointer(3, GL_FLOAT, sizeof(struct ov_vertex), 
+        &model->vertices->position[0]);
+    glNormalPointer(GL_FLOAT, sizeof(struct ov_vertex), 
+        &model->vertices->normal[0]);
   }
 
-  glTexCoordPointer(2, GL_FLOAT, sizeof(struct ov_vertex), &model->vertices->texcoord[0]);
+  glTexCoordPointer(2, GL_FLOAT, sizeof(struct ov_vertex), 
+      &model->vertices->texcoord[0]);
 
   for (i = 0; i < model->num_meshes; i++) {
     glBindTexture(GL_TEXTURE_2D, model->meshes[i].texture);
-    glDrawElements(GL_TRIANGLES, model->meshes[i].count, GL_UNSIGNED_INT, &model->triangles[model->meshes[i].first]);
+    glDrawElements(GL_TRIANGLES, model->meshes[i].count, 
+        GL_UNSIGNED_INT, &model->triangles[model->meshes[i].first]);
   }
 
   glDisableClientState(GL_VERTEX_ARRAY);
