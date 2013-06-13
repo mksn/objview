@@ -1,4 +1,59 @@
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 #include "parser.h"
+#include <glob.h>
+
+
+static int parser_print (lua_State *ctx) 
+{
+  int n = lua_gettop(ctx);  /* number of arguments */
+  int i;
+  lua_getglobal(ctx, "tostring");
+  for (i=1; i<=n; i++) {
+    const char *s;
+    lua_pushvalue(ctx, -1);  /* function to be called */
+    lua_pushvalue(ctx, i);   /* value to print */
+    lua_call(ctx, 1, 1);
+    s = lua_tostring(ctx, -1);  /* get result */
+    if (s == NULL)
+      return luaL_error(ctx,
+         "'tostring' must return a string to 'print'");
+    if (i>1) terminal_puts(" ");
+    terminal_puts(s);
+    lua_pop(ctx, 1);  /* pop result */
+  }
+  terminal_puts("");
+  return 0;
+}
+
+lua_State *ctx;
+
+void parser_init() 
+{
+  int i;
+  glob_t g;
+
+  glob("*.lua", 0, NULL, &g);
+  ctx = luaL_newstate();
+  luaL_openlibs(ctx);
+  lua_register(ctx, "print", parser_print);
+
+  for (i = 0; i < g.gl_pathc; i++) {
+    int err = luaL_dofile(ctx, g.gl_pathv[i]);
+    if (err) {
+      terminal_puts(lua_tostring(ctx, -1));
+      lua_pop(ctx,1);
+    }
+  }
+
+  globfree(&g);
+}
+
+void parser_finalize() 
+{
+  lua_close(ctx);
+}
 
 void parser_main(const char *s) 
 {
@@ -15,5 +70,13 @@ void parser_main(const char *s)
     char t[256]; 
     sprintf(t, "objview:%s", s+3);
     terminal_puts(t);
+  }
+  else {
+    int err = luaL_dostring(ctx, s);
+
+    if (err) {
+      terminal_puts(lua_tostring(ctx, -1));
+      lua_pop(ctx,1);
+    }
   }
 }

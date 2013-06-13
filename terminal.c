@@ -192,7 +192,11 @@ int terminal_keyboard(const char key)
   D(fprintf(stderr, "command_line = %s, key: %x\n", command_line, key));
   int candidate;
 
-  if (key == 0x1b || key == '\r')
+  if (key == 0x1b) {
+    // den string löschen und return 0
+    return (input_state = 0); 
+  }
+  if (key == '\r')
   {
     // return 0 and print string;
     D(fprintf(stderr, "Done! process command line\n"));
@@ -208,7 +212,7 @@ int terminal_keyboard(const char key)
     command_line[0] = '\0';
     cursor_pos = 0;
     visible = 0;
-    return (input_state = 0);
+    return (input_state = 1);
   }
 
   int last_pos = strlen(command_line);

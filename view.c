@@ -1,6 +1,7 @@
 #include "objview.h"
 #include "unit.h"
 #include "terminal.h"
+#include "parser.h"
 
 #define ANIM_FPS 30
 
@@ -58,6 +59,7 @@ void keyboardFunc(unsigned char key, int x, int y)
         break;
 
       case 0x1b:
+        parser_finalize();
         exit(1);
         break;
 
@@ -212,6 +214,7 @@ int main (int argc, char **argv)
  glAlphaFunc(GL_GREATER, 0.2);
 
   terminal_init();
+  parser_init();
 
   /*
    * Initiate the model with the argument, otherwise
