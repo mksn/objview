@@ -1,5 +1,6 @@
 #include "objview.h"
 #include "image.h"
+#include "cache.h"
 
 #define STBI_NO_HDR
 #include "stb_image.h"
@@ -167,6 +168,10 @@ int load_texture(unsigned int texid, char *filename)
   unsigned char *image;
   int w, h, n;
 
+  intptr_t cached = (intptr_t)cache_find(filename);
+  if (cached)
+    return cached;
+
   if (strstr(filename, ".dds"))
     return load_dds_from_file(texid, filename);
 
@@ -177,5 +182,8 @@ int load_texture(unsigned int texid, char *filename)
   }
   texid = make_texture(0, image, w, h, n);
   free(image);
+
+  cache_insert(filename, (void*)(intptr_t)texid);
+
   return texid;
 }

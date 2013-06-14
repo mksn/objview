@@ -2,6 +2,7 @@
 #include "unit.h"
 #include "terminal.h"
 #include "parser.h"
+#include "cache.h"
 
 #define ANIM_FPS 30
 
@@ -214,6 +215,7 @@ int main (int argc, char **argv)
   glAlphaFunc(GL_GREATER, 0.2);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+  cache_init();
   terminal_init();
   parser_init();
 

@@ -2,6 +2,7 @@
 #include "image.h"
 #include "unit.h"
 #include "vector.h"
+#include "cache.h"
 
 #include <ctype.h>
 
@@ -113,6 +114,20 @@ ov_load_iqe(const char *filename,
   char *sp;
   char *s;
   int i;
+
+  struct iqe {
+    struct ov_skeleton *skeleton;
+    struct ov_model *model;
+    struct ov_animation *anim;
+  } *iqe;
+
+  iqe = cache_find(filename);
+  if (iqe) {
+    if (outskeleton) *outskeleton = iqe->skeleton;
+    if (outmodel) *outmodel = iqe->model;
+    if (outanimation) *outanimation = iqe->anim;
+    return;
+  }
 
   struct ov_skeleton *skeleton = malloc(sizeof *skeleton);
   struct ov_model *model = malloc(sizeof *model);
@@ -333,4 +348,10 @@ ov_load_iqe(const char *filename,
   if (outskeleton) *outskeleton = skeleton;
   if (outmodel) *outmodel = model;
   if (outanimation) *outanimation = anim;
+
+  iqe = malloc(sizeof *iqe);
+  iqe->skeleton = skeleton;
+  iqe->model = model;
+  iqe->anim = anim;
+  cache_insert(filename, iqe);
 }
