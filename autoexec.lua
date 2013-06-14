@@ -52,3 +52,15 @@ function draw()
     ov.unit_draw(u.unit)
   end
 end
+
+function light()
+  gl.light_disable(0)
+  gl.light_enable(1)
+  gl.light_set_position(1,0,0,0)
+  gl.light_set_color(1,0,0,1)
+end
+
+function dark()
+  gl.light_disable(1)
+end
+

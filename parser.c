@@ -109,6 +109,15 @@ static int wraps_unit_draw(lua_State *ctx)
   return 0;
 }
 
+static int wraps_unit_get_position(lua_State *ctx)
+{
+  struct ov_unit *unit = lua_touserdata(ctx, 1);
+  lua_pushnumber(ctx, unit->position[0]);
+  lua_pushnumber(ctx, unit->position[1]);
+  lua_pushnumber(ctx, unit->position[2]);
+  return 3;
+}
+
 const struct luaL_Reg the_register[] = {
   {"unit_new", wraps_unit_new},
   {"skeleton_load", wraps_skeleton_load},
@@ -122,8 +131,64 @@ const struct luaL_Reg the_register[] = {
   {"unit_set_rotation", wraps_unit_set_rotation},
   {"unit_animate", wraps_unit_animate},
   {"unit_draw", wraps_unit_draw},
+  {"unit_get_position", wraps_unit_get_position},
   {NULL, NULL}
 };
+
+/*
+ * Some basic gl functions that are nice to wrap
+ *
+ */
+
+static int gl_light_enable(lua_State *ctx)
+{
+  float lno = luaL_checknumber(ctx, 1);
+  glEnable(GL_LIGHT0+lno);
+  return 0;
+}
+
+static int gl_light_disable(lua_State *ctx)
+{
+  int lno = luaL_checknumber(ctx, 1);
+  glDisable(GL_LIGHT0+lno);
+  return 0;
+}
+
+static int gl_light_set_postition(lua_State *ctx)
+{
+  int lno = luaL_checknumber(ctx, 1);
+  float x = luaL_checknumber(ctx, 2);
+  float y = luaL_checknumber(ctx, 3);
+  float z = luaL_checknumber(ctx, 4);
+
+  float light_position[] = {x,y,z,1.0};
+  glLightfv(GL_LIGHT0+lno,GL_POSITION, light_position);
+
+  return 0;
+}
+
+static int gl_light_set_color(lua_State *ctx)
+{
+  int lno = luaL_checknumber(ctx, 1);
+  float r = luaL_checknumber(ctx, 2);
+  float g = luaL_checknumber(ctx, 3);
+  float b = luaL_checknumber(ctx, 4);
+
+  float foo[] = {r,g,b,1.0};
+  glLightfv(GL_LIGHT0+lno, GL_DIFFUSE, foo);
+
+  return 0;
+}
+
+const struct luaL_Reg gl_wrappers[] = {
+  {"light_enable", gl_light_enable},
+  {"light_disable", gl_light_disable},
+  {"light_set_position", gl_light_set_postition},
+  {"light_set_color", gl_light_set_color},
+  {NULL, NULL}
+};
+
+static lua_State *ctx;
 
 static int parser_print (lua_State *ctx)
 {
@@ -146,7 +211,6 @@ static int parser_print (lua_State *ctx)
   return 0;
 }
 
-static lua_State *ctx;
 
 void parser_init()
 {
@@ -160,6 +224,9 @@ void parser_init()
 
   luaL_newlib (ctx, the_register);
   lua_setglobal(ctx, "ov");
+
+  luaL_newlib (ctx, gl_wrappers);
+  lua_setglobal(ctx, "gl");
 
   for (i = 0; i < g.gl_pathc; i++) {
     int err = luaL_dofile(ctx, g.gl_pathv[i]);

@@ -145,6 +145,7 @@ void display(void)
   glEnable(GL_LIGHT0);
   glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
+  parser_main("light()");
   glTranslatef(0, 0, -dist);
   glRotatef(pitch, 1.0, 0.0, 0.0);
   glRotatef(yaw, 0.0, 1.0, 0.0);
@@ -163,6 +164,7 @@ void display(void)
   glDisable(GL_COLOR_MATERIAL);
   glDisable(GL_LIGHTING);
   glDisable(GL_LIGHT0);
+  parser_main("dark()");
  
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
