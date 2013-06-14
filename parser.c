@@ -160,9 +160,10 @@ static int gl_light_set_postition(lua_State *ctx)
   float x = luaL_checknumber(ctx, 2);
   float y = luaL_checknumber(ctx, 3);
   float z = luaL_checknumber(ctx, 4);
+  float w = luaL_checknumber(ctx, 5);
 
-  float light_position[] = {x,y,z,1.0};
-  glLightfv(GL_LIGHT0+lno,GL_POSITION, light_position);
+  float light_position[] = {x,y,z,w};
+  glLightfv(GL_LIGHT0+lno, GL_POSITION, light_position);
 
   return 0;
 }
@@ -180,11 +181,27 @@ static int gl_light_set_color(lua_State *ctx)
   return 0;
 }
 
+static int gl_light_set_attenuation(lua_State *ctx)
+{
+  int lno = luaL_checknumber(ctx, 1);
+  float a = luaL_checknumber(ctx, 2);
+  float b = luaL_checknumber(ctx, 3);
+  float c = luaL_checknumber(ctx, 4);
+
+  glLightf(GL_LIGHT0+lno, GL_CONSTANT_ATTENUATION, a);
+  glLightf(GL_LIGHT0+lno, GL_LINEAR_ATTENUATION, b);
+  glLightf(GL_LIGHT0+lno, GL_QUADRATIC_ATTENUATION, c);
+
+  return 0;
+}
+
+
 const struct luaL_Reg gl_wrappers[] = {
   {"light_enable", gl_light_enable},
   {"light_disable", gl_light_disable},
   {"light_set_position", gl_light_set_postition},
   {"light_set_color", gl_light_set_color},
+  {"light_set_attenuation", gl_light_set_attenuation},
   {NULL, NULL}
 };
 

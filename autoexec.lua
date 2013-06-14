@@ -1,5 +1,19 @@
 -- test
 
+sun = {
+  position = {-1, -2, 2, 0},
+  color = {0.3, 0.3, 0.3},
+  attenuation = {1, 0, 0}
+}
+
+highlight = {
+  position = {0, 0, 0, 1},
+  color = {0.5, 1, 0.5},
+  attenuation = {1, 0, 1}
+}
+
+light_list = { sun, highlight }
+
 unit_list = {}
 
 function make_human()
@@ -41,26 +55,29 @@ function set_current_action(action)
 end
 
 function update(time)
+  local x, y, z = ov.unit_get_position(unit_list[current_unit].unit)
+  highlight.position = {x, y, z + 2, 1}
+
   for i,u in ipairs(unit_list) do
     ov.unit_animate(u.unit, u.action, time)
   end
+
   ov.unit_set_rotation(h2.unit, time)
 end
 
 function draw()
+  for i,light in ipairs(light_list) do
+    gl.light_enable(i)
+    gl.light_set_position(i, table.unpack(light.position))
+    gl.light_set_color(i, table.unpack(light.color))
+    gl.light_set_attenuation(i, table.unpack(light.attenuation))
+  end
+
   for i,u in ipairs(unit_list) do
     ov.unit_draw(u.unit)
   end
-end
 
-function light()
-  gl.light_disable(0)
-  gl.light_enable(1)
-  gl.light_set_position(1,0,0,0)
-  gl.light_set_color(1,0,0,1)
+  for i,light in ipairs(light_list) do
+    gl.light_disable(i)
+  end
 end
-
-function dark()
-  gl.light_disable(1)
-end
-

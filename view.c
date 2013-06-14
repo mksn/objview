@@ -18,8 +18,6 @@ static float swidth = 1;
 static float sheight = 1;
 static int terminal_input = 0;
 
-static float light_position[4] = { -1, 2, 2, 0 };
-
 void keyboardFunc(unsigned char key, int x, int y)
 {
   if (!terminal_input) {
@@ -142,10 +140,7 @@ void display(void)
 
   glEnable(GL_COLOR_MATERIAL);
   glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);
-  glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-  parser_main("light()");
   glTranslatef(0, 0, -dist);
   glRotatef(pitch, 1.0, 0.0, 0.0);
   glRotatef(yaw, 0.0, 1.0, 0.0);
@@ -163,9 +158,7 @@ void display(void)
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_COLOR_MATERIAL);
   glDisable(GL_LIGHTING);
-  glDisable(GL_LIGHT0);
-  parser_main("dark()");
- 
+
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glOrtho(0, swidth, sheight, 0, -1, 1);
@@ -182,34 +175,6 @@ void display(void)
   if (e != GL_NO_ERROR) fprintf (stderr, "display: e: %s\n", gluErrorString(e));
 }
 
-void init(int argc, char **argv)
-{
-  /*
-    dog = ov_unit_new();
-    dog->model = ov_model_load("dog/tr_mo_chorani.iqe");
-    dog->animations[ANIM_IDLE] = ov_animation_load("dog/tr_mo_chien_idle.iqe");
-    dog->animations[ANIM_WALK] = ov_animation_load("dog/tr_mo_chien_marche.iqe");
-  */
-
-  /*
-  humon = ov_unit_new();
-  ov_unit_set_skeleton(humon, ov_skeleton_load("human/ge_hom_skel.iqe"));
-  ov_unit_add_animation(humon, ov_animation_load("human/fy_hom_ab_marche.iqe"),
-                        ANIM_WALK);
-  ov_unit_add_animation(humon, ov_animation_load("human/fy_hom_ab_idle.iqe"),
-                        ANIM_IDLE);
-  ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_armor00_armpad.iqe"));
-  ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_armor00_bottes.iqe"));
-  ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_armor00_gilet.iqe"));
-  ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_armor00_hand.iqe"));
-  ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_armor00_pantabottes.iqe"));
-  ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_cheveux_basic01.iqe"));
-  ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_visage.iqe"));
-  ov_unit_add_bone_component(humon, ov_model_load("human/fy_wea_dague.iqe"), "box_arme");
-  ov_unit_add_bone_component(humon, ov_model_load("human/fy_wea_grand_bouclier.iqe"), "box_bouclier");
-  */
-}
-
 int main (int argc, char **argv)
 {
   glutInit(&argc, argv);
@@ -223,16 +188,6 @@ int main (int argc, char **argv)
   cache_init();
   terminal_init();
   parser_init();
-
-  /*
-   * Initiate the model with the argument, otherwise
-   * just go with the default selection
-   */
-  init (argc, argv);
-
-  terminal_puts("Mika was here!");
-  terminal_puts("Kilroy... go home!");
-  terminal_puts("Veni vidi vici!");
 
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
