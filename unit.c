@@ -58,7 +58,8 @@ ov_unit_animate(struct ov_unit *unit,
 void ov_unit_set_skeleton (struct ov_unit *unit,
     struct ov_skeleton *skeleton)
 {
-  unit->skeleton = skeleton;
+  unit->skeleton = malloc(sizeof *skeleton);
+  memcpy(unit->skeleton, skeleton, sizeof *skeleton);
 }
 
 void ov_unit_add_skin_component(struct ov_unit *unit,
