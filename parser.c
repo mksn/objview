@@ -4,6 +4,44 @@
 #include "parser.h"
 #include <glob.h>
 
+/*
+ * Wraps functions for lua
+ *
+ */
+
+static int wraps_new_unit (lua_State *ctx)
+{
+  return-1;
+}
+
+static int wraps_set_skeleton (lua_State *ctx)
+{
+  return 1;
+}
+
+static int wraps_add_skin_component (lua_State *ctx)
+{
+  return 1;
+}
+
+static int wraps_add_bone_component (lua_State *ctx)
+{
+  return 1;
+}
+
+static int wraps_add_animation(lua_State *ctx)
+{
+  return 1;
+}
+
+const struct luaL_Reg the_register[] = {
+  {"new_unit", wraps_new_unit},
+  {"set_skeleton", wraps_set_skeleton},
+  {"add_animation", wraps_add_animation},
+  {"add_skin_component", wraps_add_skin_component},
+  {"add_bone_component", wraps_add_bone_component},
+  {NULL, NULL}
+};
 
 static int parser_print (lua_State *ctx)
 {
@@ -39,6 +77,9 @@ void parser_init()
   luaL_openlibs(ctx);
   lua_register(ctx, "print", parser_print);
 
+  luaL_newlib (ctx, the_register);
+  lua_setglobal(ctx, "ov");
+
   for (i = 0; i < g.gl_pathc; i++) {
     int err = luaL_dofile(ctx, g.gl_pathv[i]);
     if (err) {
@@ -59,7 +100,7 @@ void parser_main(const char *s)
 {
   if (strcmp(s, "test") == 0) {
     terminal_puts("1 2 3 testing");
-  } 
+  }
   else if (strcmp(s, "quit") == 0 ||
       strcmp(s, "exit") == 0 ||
       strncmp(s, "q", 1) == 0 ||
