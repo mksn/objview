@@ -1,6 +1,7 @@
 #ifndef UNIT_H
 #define UNIT_H
 
+/* NOTE: must match list in unit.c */
 enum {
   ANIM_IDLE,
   ANIM_WALK,
@@ -12,6 +13,8 @@ enum {
   ANIM_DEATH,
   MAXANIM
 };
+
+extern const char *anim_name_list[];
 
 enum {
   MAXMESHES = 256,
@@ -149,7 +152,7 @@ void ov_unit_add_skin_component(struct ov_unit *unit,
         struct ov_model *model);
 void ov_unit_add_bone_component(struct ov_unit *unit,
         struct ov_model *model,
-        char *bone);
+        const char *bone);
 void ov_unit_add_animation(struct ov_unit *unit,
         struct ov_animation *animation,
         int animation_type);

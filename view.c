@@ -13,7 +13,6 @@ static float pitch = 38;
 static float yaw   = 45;
 static float dist = 5;
 static float time = 0;
-static int anim = ANIM_IDLE;
 
 static float swidth = 1;
 static float sheight = 1;
@@ -21,42 +20,40 @@ static int terminal_input = 0;
 
 static float light_position[4] = { -1, 2, 2, 0 };
 
-static struct ov_unit *humon = NULL;
-
 void keyboardFunc(unsigned char key, int x, int y)
 {
   if (!terminal_input) {
     switch (key) {
       case 'i':
-        anim = ANIM_IDLE;
+        parser_main("current_animation = 'IDLE'");
         break;
 
       case 'w':
-        anim = ANIM_WALK;
+        parser_main("current_animation = 'WALK'");
         break;
 
       case 'r':
-        anim = ANIM_RUN;
+        parser_main("current_animation = 'RUN'");
         break;
 
       case 'a':
-        anim = ANIM_TURN_LEFT;
+        parser_main("current_animation = 'TURN_LEFT'");
         break;
 
       case 'd':
-        anim = ANIM_TURN_RIGHT;
+        parser_main("current_animation = 'TURN_RIGHT'");
         break;
 
       case 'q':
-        anim = ANIM_STRAFE_LEFT;
+        parser_main("current_animation = 'STRAFE_LEFT'");
         break;
 
       case 'e':
-        anim = ANIM_STRAFE_RIGHT;
+        parser_main("current_animation = 'STRAFE_RIGHT'");
         break;
 
       case 'z':
-        anim = ANIM_DEATH;
+        parser_main("current_animation = 'DEATH'");
         break;
 
       case 0x1b:
@@ -152,10 +149,10 @@ void display(void)
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_ALPHA_TEST);
 
-  //ov_unit_animate(dog, anim, time);
-  //ov_unit_draw(dog);
-  ov_unit_animate(humon, anim, time);
-  ov_unit_draw(humon);
+  char cmd[200];
+  sprintf(cmd, "update(%g)", time);
+  parser_main(cmd);
+  parser_main("draw()");
 
   glDisable(GL_ALPHA_TEST);
   glDisable(GL_TEXTURE_2D);
@@ -188,6 +185,7 @@ void init(int argc, char **argv)
     dog->animations[ANIM_WALK] = ov_animation_load("dog/tr_mo_chien_marche.iqe");
   */
 
+  /*
   humon = ov_unit_new();
   ov_unit_set_skeleton(humon, ov_skeleton_load("human/ge_hom_skel.iqe"));
   ov_unit_add_animation(humon, ov_animation_load("human/fy_hom_ab_marche.iqe"),
@@ -203,6 +201,7 @@ void init(int argc, char **argv)
   ov_unit_add_skin_component(humon, ov_model_load("human/fy_hom_visage.iqe"));
   ov_unit_add_bone_component(humon, ov_model_load("human/fy_wea_dague.iqe"), "box_arme");
   ov_unit_add_bone_component(humon, ov_model_load("human/fy_wea_grand_bouclier.iqe"), "box_bouclier");
+  */
 }
 
 int main (int argc, char **argv)

@@ -1,7 +1,20 @@
 #include "objview.h"
 #include "unit.h"
 
-static int find_bone(struct ov_skeleton *skel, char *name)
+/* NOTE: must match enums in unit.h */
+const char *anim_name_list[MAXANIM+1] = {
+  "IDLE",
+  "WALK",
+  "RUN",
+  "TURN_LEFT",
+  "TURN_RIGHT",
+  "STRAFE_LEFT",
+  "STRAFE_RIGHT",
+  "DEATH",
+  NULL
+};
+
+static int find_bone(struct ov_skeleton *skel, const char *name)
 {
   int i;
   for (i = 0; i < skel->num_bones; i++)
@@ -60,7 +73,7 @@ void ov_unit_add_skin_component(struct ov_unit *unit,
 
 void ov_unit_add_bone_component(struct ov_unit *unit,
     struct ov_model *model,
-    char *bone)
+    const char *bone)
 {
   unit->bone_components[unit->num_bone_components].model = model;
   unit->bone_components[unit->num_bone_components].bone = find_bone(unit->skeleton, bone);

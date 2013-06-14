@@ -1,6 +1,9 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
+
+#include "objview.h"
+#include "unit.h"
 #include "parser.h"
 #include <glob.h>
 
@@ -9,37 +12,98 @@
  *
  */
 
-static int wraps_new_unit (lua_State *ctx)
+static int wraps_unit_new (lua_State *ctx)
 {
-  return-1;
-}
-
-static int wraps_set_skeleton (lua_State *ctx)
-{
+  struct ov_unit *unit = ov_unit_new();
+  lua_pushlightuserdata(ctx, unit);
   return 1;
 }
 
-static int wraps_add_skin_component (lua_State *ctx)
+static int wraps_skeleton_load(lua_State *ctx)
 {
+  const char *filename = luaL_checkstring(ctx, 1);
+  struct ov_skeleton *skel = ov_skeleton_load(filename);
+  lua_pushlightuserdata(ctx, skel);
   return 1;
 }
 
-static int wraps_add_bone_component (lua_State *ctx)
+static int wraps_model_load(lua_State *ctx)
 {
+  const char *filename = luaL_checkstring(ctx, 1);
+  struct ov_model *model = ov_model_load(filename);
+  lua_pushlightuserdata(ctx, model);
   return 1;
 }
 
-static int wraps_add_animation(lua_State *ctx)
+static int wraps_animation_load(lua_State *ctx)
 {
+  const char *filename = luaL_checkstring(ctx, 1);
+  struct ov_animation *anim = ov_animation_load(filename);
+  lua_pushlightuserdata(ctx, anim);
   return 1;
+}
+
+static int wraps_unit_set_skeleton (lua_State *ctx)
+{
+  struct ov_unit *unit = lua_touserdata(ctx, 1);
+  struct ov_skeleton *skel = lua_touserdata(ctx, 2);
+  ov_unit_set_skeleton(unit, skel);
+  return 0;
+}
+
+static int wraps_unit_add_skin_component (lua_State *ctx)
+{
+  struct ov_unit *unit = lua_touserdata(ctx, 1);
+  struct ov_model *model = lua_touserdata(ctx, 2);
+  ov_unit_add_skin_component(unit, model);
+  return 0;
+}
+
+static int wraps_unit_add_bone_component (lua_State *ctx)
+{
+  struct ov_unit *unit = lua_touserdata(ctx, 1);
+  struct ov_model *model = lua_touserdata(ctx, 2);
+  const char *bone = luaL_checkstring(ctx, 3);
+  ov_unit_add_bone_component(unit, model, bone);
+  return 0;
+}
+
+static int wraps_unit_add_animation(lua_State *ctx)
+{
+  struct ov_unit *unit = lua_touserdata(ctx, 1);
+  struct ov_animation *anim = lua_touserdata(ctx, 2);
+  int action = luaL_checkoption(ctx, 3, "IDLE", anim_name_list);
+  ov_unit_add_animation(unit, anim, action);
+  return 0;
+}
+
+static int wraps_unit_animate(lua_State *ctx)
+{
+  struct ov_unit *unit = lua_touserdata(ctx, 1);
+  int action = luaL_checkoption(ctx, 2, "IDLE", anim_name_list);
+  float time = luaL_checknumber(ctx, 3);
+  ov_unit_animate(unit, action, time);
+  return 0;
+}
+
+static int wraps_unit_draw(lua_State *ctx)
+{
+  struct ov_unit *unit = lua_touserdata(ctx, 1);
+  ov_unit_draw(unit);
+  return 0;
 }
 
 const struct luaL_Reg the_register[] = {
-  {"new_unit", wraps_new_unit},
-  {"set_skeleton", wraps_set_skeleton},
-  {"add_animation", wraps_add_animation},
-  {"add_skin_component", wraps_add_skin_component},
-  {"add_bone_component", wraps_add_bone_component},
+  {"unit_new", wraps_unit_new},
+  {"skeleton_load", wraps_skeleton_load},
+  {"model_load", wraps_model_load},
+  {"animation_load", wraps_animation_load},
+  {"unit_set_skeleton", wraps_unit_set_skeleton},
+  {"unit_add_animation", wraps_unit_add_animation},
+  {"unit_add_skin_component", wraps_unit_add_skin_component},
+  {"unit_add_bone_component", wraps_unit_add_bone_component},
+  {"unit_animate", wraps_unit_animate},
+  {"unit_draw", wraps_unit_draw},
   {NULL, NULL}
 };
 
@@ -61,11 +125,10 @@ static int parser_print (lua_State *ctx)
     terminal_puts(s);
     lua_pop(ctx, 1);  /* pop result */
   }
-  terminal_puts("");
   return 0;
 }
 
-lua_State *ctx;
+static lua_State *ctx;
 
 void parser_init()
 {
