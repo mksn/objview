@@ -37,6 +37,7 @@ void terminal_puts(const char *s)
   free(terminal_buf[0]);
   memmove(terminal_buf, terminal_buf+1, sizeof(char*) * (NOLINES-1));
   terminal_buf[LASTLINE] = strdup(s);
+  puts(s);
 }
 
 void terminal_printf(const char *fmt, ...)

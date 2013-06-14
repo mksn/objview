@@ -24,36 +24,40 @@ void keyboardFunc(unsigned char key, int x, int y)
 {
   if (!terminal_input) {
     switch (key) {
+      case ' ':
+        parser_main("select_next_unit()");
+        break;
+
       case 'i':
-        parser_main("current_animation = 'IDLE'");
+        parser_main("set_current_action 'IDLE'");
         break;
 
       case 'w':
-        parser_main("current_animation = 'WALK'");
+        parser_main("set_current_action 'WALK'");
         break;
 
       case 'r':
-        parser_main("current_animation = 'RUN'");
+        parser_main("set_current_action 'RUN'");
         break;
 
       case 'a':
-        parser_main("current_animation = 'TURN_LEFT'");
+        parser_main("set_current_action 'TURN_LEFT'");
         break;
 
       case 'd':
-        parser_main("current_animation = 'TURN_RIGHT'");
+        parser_main("set_current_action 'TURN_RIGHT'");
         break;
 
       case 'q':
-        parser_main("current_animation = 'STRAFE_LEFT'");
+        parser_main("set_current_action 'STRAFE_LEFT'");
         break;
 
       case 'e':
-        parser_main("current_animation = 'STRAFE_RIGHT'");
+        parser_main("set_current_action 'STRAFE_RIGHT'");
         break;
 
       case 'z':
-        parser_main("current_animation = 'DEATH'");
+        parser_main("set_current_action 'DEATH'");
         break;
 
       case 0x1b:

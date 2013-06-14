@@ -36,12 +36,16 @@ void
 ov_unit_draw(struct ov_unit *unit)
 {
   int i;
+  glPushMatrix();
+  glTranslatef(unit->position[0], unit->position[1], unit->position[2]);
+  glRotatef(unit->rotation, 0, 0, 1);
   for (i = 0; i<unit->num_skin_components; i++) {
     ov_skin_component_draw(&unit->skin_components[i], unit->skeleton);
   }
   for (i = 0; i<unit->num_bone_components; i++) {
     ov_bone_component_draw(&unit->bone_components[i], unit->skeleton);
   }
+  glPopMatrix();
 }
 
 void

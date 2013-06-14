@@ -77,6 +77,22 @@ static int wraps_unit_add_animation(lua_State *ctx)
   return 0;
 }
 
+static int wraps_unit_set_position(lua_State *ctx)
+{
+  struct ov_unit *unit = lua_touserdata(ctx, 1);
+  unit->position[0] = luaL_checknumber(ctx, 2);
+  unit->position[1] = luaL_checknumber(ctx, 3);
+  unit->position[2] = luaL_checknumber(ctx, 4);
+  return 0;
+}
+
+static int wraps_unit_set_rotation(lua_State *ctx)
+{
+  struct ov_unit *unit = lua_touserdata(ctx, 1);
+  unit->rotation = luaL_checknumber(ctx, 2);
+  return 0;
+}
+
 static int wraps_unit_animate(lua_State *ctx)
 {
   struct ov_unit *unit = lua_touserdata(ctx, 1);
@@ -102,6 +118,8 @@ const struct luaL_Reg the_register[] = {
   {"unit_add_animation", wraps_unit_add_animation},
   {"unit_add_skin_component", wraps_unit_add_skin_component},
   {"unit_add_bone_component", wraps_unit_add_bone_component},
+  {"unit_set_position", wraps_unit_set_position},
+  {"unit_set_rotation", wraps_unit_set_rotation},
   {"unit_animate", wraps_unit_animate},
   {"unit_draw", wraps_unit_draw},
   {NULL, NULL}

@@ -103,6 +103,8 @@ struct ov_unit {
   int                      num_skin_components;
   struct ov_bone_component bone_components[MAXCOMPONENTS];
   int                      num_bone_components;
+  float                    position[3];
+  float                    rotation;
 };
 
 /*
