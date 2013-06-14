@@ -1,5 +1,5 @@
-#ifndef unit_h
-#define unit_h
+#ifndef UNIT_H
+#define UNIT_H
 
 enum {
   ANIM_IDLE,
@@ -126,12 +126,18 @@ struct ov_animation *ov_animation_load(const char *filename);
  *
  */
 
-void ov_skeleton_animate(struct ov_skeleton *skeleton, struct ov_action *action, float frame_time);
-void ov_skin_component_draw(struct ov_skin_component *component, struct ov_skeleton *skeleton);
-void ov_bone_component_draw(struct ov_bone_component *component, struct ov_skeleton *skeleton);
+void ov_skeleton_animate(struct ov_skeleton *skeleton,
+    struct ov_action *action,
+    float frame_time);
+void ov_skin_component_draw(struct ov_skin_component *component,
+    struct ov_skeleton *skeleton);
+void ov_bone_component_draw(struct ov_bone_component *component,
+    struct ov_skeleton *skeleton);
 
 void ov_unit_draw(struct ov_unit *unit);
-void ov_unit_animate(struct ov_unit *unit, int anim, float frame);
+void ov_unit_animate(struct ov_unit *unit,
+    int anim,
+    float frame);
 
 /*
  * Manipulation

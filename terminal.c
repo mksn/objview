@@ -58,12 +58,12 @@ static void draw_string(float x, float y, const char *s)
     glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *s++);
 }
 
-static int measure_cursor_pos (void) 
+static int measure_cursor_pos (void)
 {
   int i = 0;
   int rc = 0;
 
-  while (i < cursor_pos && command_line[i]) 
+  while (i < cursor_pos && command_line[i])
   {
     rc += glutBitmapWidth(GLUT_BITMAP_8_BY_13, command_line[i]);
     i += 1;
@@ -112,7 +112,7 @@ static void debug_command_line_history(void)
 #endif
 }
 
-int terminal_special(const char special) 
+int terminal_special(const char special)
 {
   int last_pos = strlen(command_line);
   int candidate;
@@ -167,8 +167,8 @@ int terminal_special(const char special)
 
     case 0x6:
       if (cursor_pos < last_pos) {
-         memmove(command_line + cursor_pos, 
-            command_line + cursor_pos + 1, 
+         memmove(command_line + cursor_pos,
+            command_line + cursor_pos + 1,
             last_pos - cursor_pos - 1);
         command_line = realloc(command_line, last_pos);
         command_line[last_pos-1] = 0;
@@ -183,12 +183,12 @@ int terminal_special(const char special)
   return (input_state = 1);
 }
 
-void terminal_open (void) 
+void terminal_open (void)
 {
   input_state = 1;
 }
 
-void terminal_close (void) 
+void terminal_close (void)
 {
   input_state = 0;
 }
@@ -199,8 +199,9 @@ int terminal_keyboard(const char key)
   int candidate;
 
   if (key == 0x1b) {
-    // den string löschen und return 0
-    return (input_state = 0); 
+    // Hold the command line in it's current state
+    // and just make the terminal go away
+    return (input_state = 0);
   }
   if (key == '\r')
   {
@@ -209,8 +210,8 @@ int terminal_keyboard(const char key)
     terminal_puts(command_line);
     parser_main(command_line);
     free(command_history[(CLHISTORY-1)]);
-    memmove(command_history+1, 
-        command_history, 
+    memmove(command_history+1,
+        command_history,
         sizeof(char*)*(CLHISTORY-1));
     command_history[0] = strdup(command_line);
     history_pos = -1;
@@ -227,7 +228,7 @@ int terminal_keyboard(const char key)
     D(fprintf(stderr, "%s: Ctrl active, key:%d\n", __func__, key));
     int p;
 
-    switch(key) { 
+    switch(key) {
       case 0x1:
         cursor_pos = 0;
         break;
@@ -318,14 +319,14 @@ int terminal_keyboard(const char key)
     };
     return (input_state = 1);
   } else if (glutGetModifiers() == GLUT_ACTIVE_ALT) {
-    D(fprintf(stderr, "%s: ALT active, key: %d, cursor_pos: %d\n", 
+    D(fprintf(stderr, "%s: ALT active, key: %d, cursor_pos: %d\n",
         __func__, key, cursor_pos));
     int p;
 
     switch(key) {
       case 'b':
-        p = cursor_pos - 1; 
-        D(fprintf(stderr, "%s: cursor_pos: %d, p: %d, last_pos: %d\n", 
+        p = cursor_pos - 1;
+        D(fprintf(stderr, "%s: cursor_pos: %d, p: %d, last_pos: %d\n",
             __func__, cursor_pos, p, last_pos));
         while (p >= 0) {
           if (command_line[p] == ' ') {
@@ -340,12 +341,12 @@ int terminal_keyboard(const char key)
         p = cursor_pos + 1;
         while (p<=last_pos) {
           if (command_line[p] == ' ')  {
-            break; 
+            break;
           }
           p++;
         }
         p = p > last_pos ? last_pos : p;
-        memmove(command_line+cursor_pos, 
+        memmove(command_line+cursor_pos,
             command_line+p, last_pos - p);
         command_line = realloc(command_line,
             last_pos - p + cursor_pos + 1);
@@ -353,7 +354,7 @@ int terminal_keyboard(const char key)
         break;
 
       case 'f':
-        p = cursor_pos + 1; 
+        p = cursor_pos + 1;
         while (p<=last_pos) {
           if (command_line[p] == ' ')
             break;
@@ -372,8 +373,8 @@ int terminal_keyboard(const char key)
   if (key == BACKSPACE) {
     if (cursor_pos - 1 >= 0) {
       cursor_pos -= 1;
-      memmove(command_line + cursor_pos, 
-          command_line + cursor_pos + 1, 
+      memmove(command_line + cursor_pos,
+          command_line + cursor_pos + 1,
           last_pos - cursor_pos - 1);
       command_line = realloc(command_line, last_pos);
       command_line[last_pos-1] = 0;
@@ -382,8 +383,8 @@ int terminal_keyboard(const char key)
   }
   else if (key == DELETE) {
     if (cursor_pos < last_pos) {
-      memmove(command_line + cursor_pos, 
-          command_line + cursor_pos + 1, 
+      memmove(command_line + cursor_pos,
+          command_line + cursor_pos + 1,
           last_pos - cursor_pos - 1);
       command_line = realloc(command_line, last_pos);
       command_line[last_pos-1] = 0;
@@ -399,7 +400,7 @@ int terminal_keyboard(const char key)
       command_line[cursor_pos] = 0;
     } else {
       memmove (command_line+cursor_pos+1,
-          command_line+cursor_pos, 
+          command_line+cursor_pos,
           last_pos-cursor_pos+1);
       command_line[cursor_pos++] = key;
     }

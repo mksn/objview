@@ -5,12 +5,19 @@
 
 #include <ctype.h>
 
-unsigned int loadmaterial(char *directory, char *material)
+unsigned int loadmaterial(char *directory,
+    char *material)
 {
   char filename[2000], *s;
   s = strrchr(material, ';');
   if (s) material = s + 1;
-  sprintf(filename, "%s/%s/%s.png", directory, "textures", material);
+
+  sprintf(filename,
+      "%s/%s/%s.png",
+      directory,
+      "textures",
+      material);
+
   return load_texture(0, filename);
 }
 
@@ -287,7 +294,9 @@ ov_load_iqe(const char *filename,
 
   model->num_vertices = position_count;
   model->vertices = malloc(sizeof (struct ov_vertex) * position_count);
-  memcpy(model->vertices, vertex_buf, sizeof (struct ov_vertex) * position_count);
+  memcpy(model->vertices,
+      vertex_buf,
+      sizeof (struct ov_vertex) * position_count);
   model->anivertices = NULL;
 
   model->num_triangles = element_count / 3;
@@ -310,7 +319,9 @@ ov_load_iqe(const char *filename,
       skeleton->bones[i].bind_pose.rotate,
       skeleton->bones[i].bind_pose.scale);
     if (skeleton->bones[i].parent != -1)
-      mat_mul44(bind_matrix[i], bind_matrix[skeleton->bones[i].parent], m);
+      mat_mul44(bind_matrix[i],
+          bind_matrix[skeleton->bones[i].parent],
+          m);
     else
       mat_copy(bind_matrix[i], m);
     mat_invert(skeleton->bones[i].inv_bind_matrix, bind_matrix[i]);

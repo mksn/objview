@@ -12,23 +12,23 @@ ov_model_draw(struct ov_model *model)
   glEnableClientState(GL_NORMAL_ARRAY);
 
   if (model->anivertices) {
-    glVertexPointer(3, GL_FLOAT, sizeof(struct ov_anivertex), 
+    glVertexPointer(3, GL_FLOAT, sizeof(struct ov_anivertex),
         &model->anivertices->position[0]);
-    glNormalPointer(GL_FLOAT, sizeof(struct ov_anivertex), 
+    glNormalPointer(GL_FLOAT, sizeof(struct ov_anivertex),
         &model->anivertices->normal[0]);
   } else {
-    glVertexPointer(3, GL_FLOAT, sizeof(struct ov_vertex), 
+    glVertexPointer(3, GL_FLOAT, sizeof(struct ov_vertex),
         &model->vertices->position[0]);
     glNormalPointer(GL_FLOAT, sizeof(struct ov_vertex), 
         &model->vertices->normal[0]);
   }
 
-  glTexCoordPointer(2, GL_FLOAT, sizeof(struct ov_vertex), 
+  glTexCoordPointer(2, GL_FLOAT, sizeof(struct ov_vertex),
       &model->vertices->texcoord[0]);
 
   for (i = 0; i < model->num_meshes; i++) {
     glBindTexture(GL_TEXTURE_2D, model->meshes[i].texture);
-    glDrawElements(GL_TRIANGLES, model->meshes[i].count, 
+    glDrawElements(GL_TRIANGLES, model->meshes[i].count,
         GL_UNSIGNED_INT, &model->triangles[model->meshes[i].first]);
   }
 
@@ -37,7 +37,10 @@ ov_model_draw(struct ov_model *model)
   glDisableClientState(GL_NORMAL_ARRAY);
 }
 
-static void pose_lerp(struct ov_pose *r, struct ov_pose *a, struct ov_pose *b, float t)
+static void pose_lerp(struct ov_pose *r,
+    struct ov_pose *a,
+    struct ov_pose *b,
+    float t)
 {
   vec_lerp(r->position, a->position, b->position, t);
   quat_lerp_neighbor_normalize(r->rotate, a->rotate, b->rotate, t);
@@ -72,7 +75,10 @@ ov_skeleton_animate(struct ov_skeleton *skeleton, struct ov_action *action, floa
 
   for (i = 0; i < skeleton->num_bones; i++) {
     float m[16];
-    mat_from_pose(m, pose[i].position, pose[i].rotate, pose[i].scale);
+    mat_from_pose(m,
+        pose[i].position,
+        pose[i].rotate,
+        pose[i].scale);
     if (skeleton->bones[i].parent != -1)
       mat_mul44(skeleton->bones[i].pose_matrix,
           skeleton->bones[skeleton->bones[i].parent].pose_matrix,
@@ -83,7 +89,8 @@ ov_skeleton_animate(struct ov_skeleton *skeleton, struct ov_action *action, floa
 }
 
 void
-ov_skin_component_draw(struct ov_skin_component *component, struct ov_skeleton *skeleton)
+ov_skin_component_draw(struct ov_skin_component *component,
+    struct ov_skeleton *skeleton)
 {
   struct ov_model *model = component->model;
   int *bonemap = component->bonemap;
@@ -94,7 +101,9 @@ ov_skin_component_draw(struct ov_skin_component *component, struct ov_skeleton *
   for (i = 0; i < model->skeleton->num_bones; i++) {
     int a = bonemap[i];
     assert(a != -1);
-    mat_mul44(skin_matrix[i], skeleton->bones[a].pose_matrix, model->skeleton->bones[i].inv_bind_matrix);
+    mat_mul44(skin_matrix[i],
+        skeleton->bones[a].pose_matrix,
+        model->skeleton->bones[i].inv_bind_matrix);
   }
 
   if (!model->anivertices)
@@ -127,9 +136,14 @@ ov_skin_component_draw(struct ov_skin_component *component, struct ov_skeleton *
   ov_model_draw(model);
 }
 
-void ov_bone_component_draw(struct ov_bone_component *component, struct ov_skeleton *skeleton)
+void ov_bone_component_draw(struct ov_bone_component *component,
+    struct ov_skeleton *skeleton)
 {
-  /* Concatenate the transform of the bone that the component is attached to: */
+  /*
+   * Concatenate the transform of the bone that the 
+   * component is attached to: 
+   *
+   */
   glPushMatrix();
   glMultMatrixf(skeleton->bones[component->bone].pose_matrix);
   ov_model_draw(component->model);

@@ -5,7 +5,7 @@
 #include <glob.h>
 
 
-static int parser_print (lua_State *ctx) 
+static int parser_print (lua_State *ctx)
 {
   int n = lua_gettop(ctx);  /* number of arguments */
   int i;
@@ -29,7 +29,7 @@ static int parser_print (lua_State *ctx)
 
 lua_State *ctx;
 
-void parser_init() 
+void parser_init()
 {
   int i;
   glob_t g;
@@ -50,12 +50,12 @@ void parser_init()
   globfree(&g);
 }
 
-void parser_finalize() 
+void parser_finalize()
 {
   lua_close(ctx);
 }
 
-void parser_main(const char *s) 
+void parser_main(const char *s)
 {
   if (strcmp(s, "test") == 0) {
     terminal_puts("1 2 3 testing");
@@ -67,7 +67,7 @@ void parser_main(const char *s)
     exit(1);
   }
   else if (strncmp(s, "say", 3) == 0) {
-    char t[256]; 
+    char t[256];
     sprintf(t, "objview:%s", s+3);
     terminal_puts(t);
   }

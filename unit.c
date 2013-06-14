@@ -10,7 +10,9 @@ static int find_bone(struct ov_skeleton *skel, char *name)
   return -1;
 }
 
-static void make_bone_map(int *bonemap, struct ov_skeleton *src, struct ov_skeleton *dst)
+static void make_bone_map(int *bonemap,
+    struct ov_skeleton *src,
+    struct ov_skeleton *dst)
 {
   int i;
   for (i = 0; i < src->num_bones; i++)
@@ -34,7 +36,9 @@ ov_unit_animate(struct ov_unit *unit,
                 int             anim,
                 float           time)
 {
-  if (unit->actions[anim].animation == 0) anim = ANIM_IDLE; // Fall back to idle 
+  // Fall back to idle
+  if (unit->actions[anim].animation == 0)
+    anim = ANIM_IDLE;
   ov_skeleton_animate(unit->skeleton, &unit->actions[anim], time);
 }
 
@@ -55,7 +59,8 @@ void ov_unit_add_skin_component(struct ov_unit *unit,
 }
 
 void ov_unit_add_bone_component(struct ov_unit *unit,
-    struct ov_model *model, char *bone)
+    struct ov_model *model,
+    char *bone)
 {
   unit->bone_components[unit->num_bone_components].model = model;
   unit->bone_components[unit->num_bone_components].bone = find_bone(unit->skeleton, bone);

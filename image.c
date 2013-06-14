@@ -25,7 +25,11 @@ unsigned char *load_file(char *filename, int *lenp)
   return data;
 }
 
-int make_texture(unsigned int texid, unsigned char *data, int w, int h, int n)
+int make_texture(unsigned int texid,
+    unsigned char *data,
+    int w,
+    int h,
+    int n)
 {
   int format;
 
@@ -36,16 +40,30 @@ int make_texture(unsigned int texid, unsigned char *data, int w, int h, int n)
     glGenTextures(1, &texid);
 
   glBindTexture(GL_TEXTURE_2D, texid);
-  glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D,
+      GL_GENERATE_MIPMAP,
+      GL_TRUE);
+  glTexParameteri(GL_TEXTURE_2D,
+      GL_TEXTURE_MAG_FILTER,
+      GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D,
+      GL_TEXTURE_MIN_FILTER,
+      GL_LINEAR_MIPMAP_LINEAR);
 
   if (n == 1) format = GL_LUMINANCE;
   if (n == 2) format = GL_LUMINANCE_ALPHA;
   if (n == 3) format = GL_RGB;
   if (n == 4) format = GL_RGBA;
 
-  glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, GL_UNSIGNED_BYTE, data);
+  glTexImage2D(GL_TEXTURE_2D,
+      0,
+      format,
+      w,
+      h,
+      0,
+      format,
+      GL_UNSIGNED_BYTE,
+      data);
 
   return texid;
 }
@@ -55,7 +73,8 @@ static inline int getint(unsigned char *p)
   return p[0] | p[1] << 8 | p[2] << 16 | p[3] << 24;
 }
 
-static int load_dds_from_memory(unsigned int texid, unsigned char *data)
+static int load_dds_from_memory(unsigned int texid,
+    unsigned char *data)
 {
   int h, w, mips, flags, size, bs, fmt, i;
   unsigned char *four;
@@ -70,7 +89,10 @@ static int load_dds_from_memory(unsigned int texid, unsigned char *data)
   mips = getint(data + 7*4);
 
   if ((w & (w-1)) || (h & (h-1)))
-    fprintf(stderr, "warning: non-power-of-two DDS texture size (%dx%d)!\n", w, h);
+    fprintf(stderr,
+        "warning: non-power-of-two DDS texture size (%dx%d)!\n",
+        w,
+        h);
 
   flags = getint(data + 2*4);
   four = data + 21*4;
