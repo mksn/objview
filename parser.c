@@ -207,7 +207,7 @@ const struct luaL_Reg gl_wrappers[] = {
 
 static lua_State *ctx;
 
-static int parser_print (lua_State *ctx)
+static int parser_print_subst (lua_State *ctx)
 {
   int n = lua_gettop(ctx);  /* number of arguments */
   int i;
@@ -237,7 +237,7 @@ void parser_init()
   glob("*.lua", 0, NULL, &g);
   ctx = luaL_newstate();
   luaL_openlibs(ctx);
-  lua_register(ctx, "print", parser_print);
+  lua_register(ctx, "print", parser_print_subst);
 
   luaL_newlib (ctx, the_register);
   lua_setglobal(ctx, "ov");
