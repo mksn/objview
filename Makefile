@@ -21,12 +21,16 @@ all: objview
 
 headers := $(wildcard *.h)
 sources := $(wildcard *.c)
-objects := $(sources:%.c=%.o)
+objects := $(sources:%.c=build/%.o)
 
-$(objects): $(headers)
+build:
+	mkdir -p build
 
 objview: $(objects)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
+build/%.o: %.c $(headers) | build
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	rm -f objview *.o
+	rm -f objview build/*
