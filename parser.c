@@ -263,21 +263,44 @@ void parser_finalize()
 
 void parser_main(const char *s)
 {
+  glob_t g;
   if (strcmp(s, "test") == 0) {
     terminal_puts("1 2 3 testing");
-  }
-  else if (strcmp(s, "quit") == 0 ||
+  } else if (strcmp(s, "quit") == 0 ||
       strcmp(s, "exit") == 0 ||
       strncmp(s, "q", 1) == 0 ||
       strncmp(s, "x", 1) == 0) {
     exit(1);
-  }
-  else if (strncmp(s, "say", 3) == 0) {
+  } else if (strncmp(s, "say", 3) == 0) {
     char t[256];
     sprintf(t, "objview:%s", s+3);
     terminal_puts(t);
-  }
-  else {
+  } else if (strncmp(s, "ls", 2) == 0) {
+    int i;
+    char t[256];
+    memset(t, 0, 256);
+    if (strlen(s) > 2)
+      sprintf(t, "%s", s+3);
+    else
+      t[0] = '*';
+    char *o = malloc(80*sizeof(char));
+    memset(o, 0, 80);
+    glob(t, GLOB_MARK, NULL, &g);
+    for (i=0; i<(int)g.gl_pathc; i++) {
+      int olen = strlen(o);
+      int glen = strlen(g.gl_pathv[i]);
+      if (olen + glen + 1 <= 80)
+        sprintf(o, "%s %s", o, g.gl_pathv[i]);
+      else {
+        terminal_puts(o);
+        o = malloc(80*sizeof(char));
+        sprintf(o, "%s", g.gl_pathv[i]);
+      }
+    }
+    terminal_puts(o);
+    free(o);
+    globfree(&g);
+  } else {
     int err = luaL_dostring(ctx, s);
 
     if (err) {
