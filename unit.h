@@ -56,11 +56,13 @@ struct ov_mesh {
 };
 
 struct ov_skeleton {
+  char *name;
   int num_bones;
   struct ov_bone bones[MAXBONES];
 };
 
 struct ov_model {
+  char *name;
   int num_vertices;
   struct ov_vertex    *vertices;
   struct ov_anivertex *anivertices;
@@ -88,6 +90,7 @@ struct ov_bone_component {
 
 struct ov_skin_component {
   struct ov_model *model;
+  char *name;
   int bonemap[MAXBONES];
 };
 

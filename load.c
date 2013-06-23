@@ -85,6 +85,9 @@ struct ov_skeleton *ov_skeleton_load(const char *filename)
 {
   struct ov_skeleton *skeleton;
   ov_load_iqe(filename, &skeleton, NULL, NULL);
+  skeleton->name = malloc(strlen(filename)+1);
+  memset(skeleton->name, 0, sizeof(*skeleton->name));
+  strcpy(skeleton->name, filename);
   return skeleton;
 }
 
@@ -92,6 +95,9 @@ struct ov_model *ov_model_load(const char *filename)
 {
   struct ov_model *model;
   ov_load_iqe(filename, NULL, &model, NULL);
+  model->name = malloc(strlen(filename)+1);
+  memset(model->name, 0, sizeof(*model->name));
+  strcpy(model->name, filename);
   return model;
 }
 
@@ -99,6 +105,9 @@ struct ov_animation *ov_animation_load(const char *filename)
 {
   struct ov_animation *animation;
   ov_load_iqe(filename, NULL, NULL, &animation);
+  animation->name = malloc(strlen(filename)+1);
+  memset(animation->name, 0, sizeof(*animation->name));
+  strcpy(animation->name, filename);
   return animation;
 }
 
