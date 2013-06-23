@@ -4,6 +4,7 @@
 #include "ctype.h"
 
 #include <stdarg.h>
+#include <glob.h>
 
 #define CLHISTORY 20
 #define NOLINES 20
@@ -19,6 +20,7 @@ static char *terminal_buf[NOLINES];
 static char *command_history[CLHISTORY];
 static char *command_line;
 static int cursor_pos = 0;
+static int tp;
 static int history_pos = 0;
 static int visible = 0;
 static int input_state = 0;
@@ -196,9 +198,63 @@ void terminal_close (void)
 
 int terminal_keyboard(const char key)
 {
-  D(fprintf(stderr, "command_line = %s, key: %x\n", command_line, key));
+  D(fprintf(stderr, "command_line = [%s], #command_line = %d, cursor_pos: %d, key: %x\n",
+        command_line, (int)strlen(command_line), cursor_pos, key));
   int candidate;
+  char *t;
+  int delta;
 
+  if (key == 0x9) {
+    // find the first previous ws
+    int i;
+    for (i = cursor_pos-1; i>=0; i--) {
+      if (command_line[i] == ' ') {
+        tp = i + 1;
+        break;
+      }
+    }
+
+    delta = cursor_pos - tp;
+    if (delta > 0) {
+      t = malloc (delta + 2);
+      memset(t,0, delta + 2);
+      strncpy(t, command_line + tp, delta);
+      fprintf(stderr, "%s\n", command_line + tp);
+      t[delta] = '*';
+    } else {
+      t = malloc(2);
+      t[0] = '*';
+      t[1] = 0x0;
+    }
+
+    char *o = malloc(80*sizeof(char));
+    memset(o, 0, 80);
+    glob_t g;
+    D(fprintf(stderr,"finding tab completion for: %s\n", t));
+    glob(t, GLOB_MARK, NULL, &g);
+    if (g.gl_pathc == 1) {
+      command_line = realloc(command_line, tp + (int)strlen(g.gl_pathv[0]) + 1);
+      strcpy(&command_line[tp], g.gl_pathv[0]);
+      cursor_pos = strlen(command_line);
+      return (input_state = 1);
+    }
+    for (i=0; i<(int)g.gl_pathc; i++) {
+      int olen = strlen(o);
+      int glen = strlen(g.gl_pathv[i]);
+      if (olen + glen + 1 <= 80)
+        sprintf(o, "%s %s", o, g.gl_pathv[i]);
+      else {
+        terminal_puts(o);
+        o = malloc(80*sizeof(char));
+        sprintf(o, "%s", g.gl_pathv[i]);
+      }
+    }
+    if (o && strlen(o))
+      terminal_puts(o);
+    free(t);
+    fprintf(stderr, "tab completion!\n");
+    return (input_state = 1);
+  }
   if (key == 0x1b) {
     // Hold the command line in it's current state
     // and just make the terminal go away
@@ -308,6 +364,7 @@ int terminal_keyboard(const char key)
         }
         break;
 
+      case 0x3:
       case 0x15:
         debug_command_line_history();
         free(command_line);
