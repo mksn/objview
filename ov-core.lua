@@ -49,6 +49,18 @@ function make_unit()
   return setmetatable(t, unit_mt)
 end
 
+function make_unit_with_data(data)
+  local u = make_unit()
+  u:set_skeleton(data.skeleton)
+  for action, anim in pairs(data.animations) do
+    u:add_animation(anim, action)
+  end
+  for i,model in ipairs(data.skin_components) do
+    u:add_skin_component(model)
+  end
+  return u
+end
+
 function select_next_unit()
   current_unit = current_unit + 1
   if current_unit > #unit_list then
