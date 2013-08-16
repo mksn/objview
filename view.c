@@ -187,7 +187,7 @@ int main (int argc, char **argv)
 
   cache_init();
   terminal_init();
-  parser_init();
+  parser_init(argc, argv);
 
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);

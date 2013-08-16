@@ -229,12 +229,10 @@ static int parser_print_subst (lua_State *ctx)
 }
 
 
-void parser_init()
+void parser_init(int count, char **strings)
 {
   int i;
-  glob_t g;
 
-  glob("*.lua", 0, NULL, &g);
   ctx = luaL_newstate();
   luaL_openlibs(ctx);
   lua_register(ctx, "print", parser_print_subst);
@@ -245,15 +243,23 @@ void parser_init()
   luaL_newlib (ctx, gl_wrappers);
   lua_setglobal(ctx, "gl");
 
-  for (i = 0; i < g.gl_pathc; i++) {
-    int err = luaL_dofile(ctx, g.gl_pathv[i]);
-    if (err) {
-      terminal_puts(lua_tostring(ctx, -1));
-      lua_pop(ctx,1);
-    }
+  int err = luaL_dofile(ctx, "init.lua");
+  if (err) {
+    terminal_puts(lua_tostring(ctx, -1));
+    lua_pop(ctx,1);
   }
 
-  globfree(&g);
+  // Execute, ie load, all the models given on the command line
+  for (i=1; i<count; i++) {
+    // Future proofing argument handling
+    if (strstr(strings[i], ".lua")) {
+      err = luaL_dofile(ctx, strings[i]);
+      if (err) {
+        terminal_puts(lua_tostring(ctx, -1));
+        lua_pop(ctx,1);
+      }
+    }
+  }
 }
 
 void parser_finalize()
