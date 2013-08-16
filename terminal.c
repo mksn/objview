@@ -45,12 +45,30 @@ void terminal_init()
   command_line[0] = '\0';
 }
 
-void terminal_puts(const char *s)
+void terminal_put_raw(const char *input)
 {
-  //TODO: dem dere newlines... remember
+  char *s = strdup(input);
   free(terminal_buf[0]);
   memmove(terminal_buf, terminal_buf+1, sizeof(char*) * (NOLINES-1));
-  terminal_buf[LASTLINE] = strdup(s);
+  terminal_buf[LASTLINE] = s;
+  while (*s)
+  {
+    if (*s == '\t') *s = ' ';
+    s++;
+  }
+}
+
+void terminal_puts(const char *input)
+{
+  char *buf = strdup(input);
+  char *line = buf;
+  line = strtok(buf, "\n");
+  while (line)
+  {
+    terminal_put_raw(line);
+    line = strtok(NULL, "\n");
+  }
+  free(buf);
 }
 
 void terminal_printf(const char *fmt, ...)
@@ -277,11 +295,13 @@ int terminal_keyboard(const char key)
     fprintf(stderr, "tab completion!\n");
     return (input_state = 1);
   }
+
   if (key == 0x1b) {
     // Hold the command line in it's current state
     // and just make the terminal go away
     return (input_state = 0);
   }
+
   if (key == '\r')
   {
     // return 0 and print string;
