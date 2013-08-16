@@ -14,6 +14,8 @@
 #define PADDING_X 10
 #define PADDING_Y 10
 
+#define PROMPT "> "
+
 #define LEADING 2
 #define FONTSIZE 13
 #define FONT GLUT_BITMAP_8_BY_13
@@ -49,7 +51,6 @@ void terminal_puts(const char *s)
   free(terminal_buf[0]);
   memmove(terminal_buf, terminal_buf+1, sizeof(char*) * (NOLINES-1));
   terminal_buf[LASTLINE] = strdup(s);
-  puts(s);
 }
 
 void terminal_printf(const char *fmt, ...)
@@ -71,18 +72,15 @@ static void draw_string(float x, float y, const char *s)
     glutBitmapCharacter(FONT, *s++);
 }
 
-static int measure_cursor_pos (void)
+static int measure_string(const char *s, int n)
 {
-  int i = 0;
-  int rc = 0;
-
-  while (i < cursor_pos && command_line[i])
-  {
-    rc += glutBitmapWidth(FONT, command_line[i]);
-    i += 1;
-  }
-
-  return rc;
+  int i;
+  int w = 0;
+  if (n < 0)
+    n = strlen(s);
+  for (i=0; i < n; i++)
+    w += glutBitmapWidth(FONT, s[i]);
+  return w;
 }
 
 void terminal_display(int w, int h)
@@ -111,10 +109,12 @@ void terminal_display(int w, int h)
 
     /* Draw input buffer */
     glColor3f(1,.9,0.86);
-    draw_string(x, y, command_line);
+    offset = measure_string(PROMPT, -1);
+    draw_string(x, y, PROMPT);
+    draw_string(x + offset, y, command_line);
 
     /* Draw caret */
-    offset = measure_cursor_pos();
+    offset += measure_string(command_line, cursor_pos);
     glColor3f(1,1,1);
     glRectf(x+offset, y-BASELINE, x+offset+1, y+(FONTSIZE-BASELINE));
 
@@ -285,8 +285,11 @@ int terminal_keyboard(const char key)
   if (key == '\r')
   {
     // return 0 and print string;
-    D(fprintf(stderr, "Done! process command line\n"));
-    terminal_puts(command_line);
+    char *buf = malloc(strlen(PROMPT) + strlen(command_line) + 1);
+    strcpy(buf, PROMPT);
+    strcat(buf, command_line);
+    terminal_puts(buf);
+    free(buf);
     parser_main(command_line);
     free(command_history[(CLHISTORY-1)]);
     memmove(command_history+1,
