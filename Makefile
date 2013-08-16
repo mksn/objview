@@ -32,5 +32,8 @@ objview: $(objects)
 build/%.o: %.c $(headers) | build
 	$(CC) $(CFLAGS) -c $< -o $@
 
+run: objview
+	./objview
+
 clean:
 	rm -f objview build/*
