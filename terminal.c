@@ -69,6 +69,7 @@ void terminal_puts(const char *input)
     line = strtok(NULL, "\n");
   }
   free(buf);
+  puts(input);
 }
 
 void terminal_printf(const char *fmt, ...)

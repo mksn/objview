@@ -1,14 +1,8 @@
 function make_dog()
-  local u = ov.unit_new();
-  ov.unit_set_skeleton(u, ov.skeleton_load("dog/tr_mo_chorani.iqe"));
-  ov.unit_add_animation(u, ov.animation_load("dog/tr_mo_chien_idle.iqe"), "IDLE");
-  ov.unit_add_animation(u, ov.animation_load("dog/tr_mo_chien_marche.iqe"), "WALK");
-  ov.unit_add_skin_component(u, ov.model_load("dog/tr_mo_chorani.iqe"));
-  local t = {unit=u, action='IDLE'}
-  table.insert(unit_list, t)
-  return t
+  local u = make_unit()
+  u:set_skeleton("dog/tr_mo_chorani.iqe")
+  u:add_animation("dog/tr_mo_chien_idle.iqe", "IDLE")
+  u:add_animation("dog/tr_mo_chien_marche.iqe", "WALK")
+  u:add_skin_component("dog/tr_mo_chorani.iqe")
+  return u
 end
-
-d1 = make_dog()
-
-ov.unit_set_position(d1.unit, 1, 0, 0)

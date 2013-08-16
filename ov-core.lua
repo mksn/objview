@@ -1,5 +1,54 @@
 -- core functions for objview lua implementation
 
+unit_mt = {}
+
+unit_mt.__index = unit_mt
+
+function unit_mt:set_skeleton(skel)
+  ov.unit_set_skeleton(self.unit, ov.skeleton_load(skel))
+end
+
+function unit_mt:add_animation(anim, action)
+  ov.unit_add_animation(self.unit, ov.animation_load(anim), action)
+end
+
+function unit_mt:add_skin_component(model)
+  ov.unit_add_skin_component(self.unit, ov.model_load(model))
+end
+
+function unit_mt:add_bone_component(model, bone)
+  ov.unit_add_bone_component(self.unit, ov.model_load(model), bone)
+end
+
+function unit_mt:set_position(x, y, z)
+  ov.unit_set_position(self.unit, x, y, z)
+end
+
+function unit_mt:set_rotation(a)
+  ov.unit_set_rotation(self.unit, a)
+end
+
+function unit_mt:get_position(x, y, z)
+  return ov.unit_get_position(self.unit)
+end
+
+function unit_mt:animate(time)
+  ov.unit_animate(self.unit, self.action, time)
+end
+
+function unit_mt:draw(x, y, z)
+  ov.unit_draw(self.unit)
+end
+
+function make_unit()
+  local t = {
+    unit = ov.unit_new(),
+    action = 'IDLE',
+  }
+  table.insert(unit_list, t)
+  return setmetatable(t, unit_mt)
+end
+
 function select_next_unit()
   current_unit = current_unit + 1
   if current_unit > #unit_list then
@@ -18,7 +67,7 @@ function update(time)
   end
 
   for i,u in ipairs(unit_list) do
-    ov.unit_animate(u.unit, u.action, time)
+    u:animate(time)
   end
 end
 
@@ -31,7 +80,7 @@ function draw()
   end
 
   for i,u in ipairs(unit_list) do
-    ov.unit_draw(u.unit)
+    u:draw()
   end
 
   for i,light in ipairs(light_list) do
