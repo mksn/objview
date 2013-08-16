@@ -290,11 +290,11 @@ void parser_main(const char *s)
       int olen = strlen(o);
       int glen = strlen(g.gl_pathv[i]);
       if (olen + glen + 1 <= 80)
-        sprintf(o, "%s %s", o, g.gl_pathv[i]);
+        sprintf(o, "%s%s ", o, g.gl_pathv[i]);
       else {
         terminal_puts(o);
         o = malloc(80*sizeof(char));
-        sprintf(o, "%s", g.gl_pathv[i]);
+        sprintf(o, "%s ", g.gl_pathv[i]);
       }
     }
     terminal_puts(o);
