@@ -10,6 +10,16 @@
 #define NOLINES 20
 #define LASTLINE (NOLINES-1)
 
+#define MARGIN_X 15
+#define PADDING_X 10
+#define PADDING_Y 10
+
+#define LEADING 2
+#define FONTSIZE 13
+#define FONT GLUT_BITMAP_8_BY_13
+#define BASELINE 10
+#define LINEHEIGHT (FONTSIZE+LEADING)
+
 #ifdef DEBUG
 #define D(x) x
 #else
@@ -56,9 +66,9 @@ void terminal_printf(const char *fmt, ...)
 
 static void draw_string(float x, float y, const char *s)
 {
-  glRasterPos2f(x+0.345, y+0.375);
+  glRasterPos2f(x+0.375, y+0.375);
   while(*s)
-    glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *s++);
+    glutBitmapCharacter(FONT, *s++);
 }
 
 static int measure_cursor_pos (void)
@@ -68,7 +78,7 @@ static int measure_cursor_pos (void)
 
   while (i < cursor_pos && command_line[i])
   {
-    rc += glutBitmapWidth(GLUT_BITMAP_8_BY_13, command_line[i]);
+    rc += glutBitmapWidth(FONT, command_line[i]);
     i += 1;
   }
 
@@ -77,25 +87,37 @@ static int measure_cursor_pos (void)
 
 void terminal_display(int w, int h)
 {
-  int i;
+  int i, x, y;
   static int offset = 0;
 
   if (input_state) {
     glEnable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
+
+    /* Draw background */
     glColor4f(0.2,0.2,0.2,0.5);
-    glRectf(10,0,w-10,20*NOLINES+30);
+    glRectf(MARGIN_X, 0, w - MARGIN_X, PADDING_Y*2 + LINEHEIGHT * (NOLINES+1));
+
+    /* Draw text */
     glColor3f(1,1,1);
+    x = MARGIN_X + PADDING_X;
+    y = PADDING_Y + BASELINE;
     for(i=0; i<NOLINES; i++) {
       if (terminal_buf[i] != NULL) {
-        draw_string(20, 20*i+16, terminal_buf[i]);
+        draw_string(x, y, terminal_buf[i]);
+        y += LINEHEIGHT;
       }
     }
+
+    /* Draw input buffer */
     glColor3f(1,.9,0.86);
-    draw_string(20, 20*i+16, command_line);
+    draw_string(x, y, command_line);
+
+    /* Draw caret */
     offset = measure_cursor_pos();
-    glColor3f(1,0.1,0.1);
-    glRectf(20+offset, 20*(i-1)+16+7, 20+offset+2, 20*i+16);
+    glColor3f(1,1,1);
+    glRectf(x+offset, y-BASELINE, x+offset+1, y+(FONTSIZE-BASELINE));
+
     visible = !visible;
     glColor3f(1,1,1);
     glEnable(GL_DEPTH_TEST);
