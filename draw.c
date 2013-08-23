@@ -2,6 +2,8 @@
 #include "unit.h"
 #include "vector.h"
 
+typedef float mat4[16];
+
 static void
 ov_model_draw(struct ov_model *model)
 {
@@ -47,6 +49,28 @@ static void pose_lerp(struct ov_pose *r,
   vec_lerp(r->scale, a->scale, b->scale, t);
 }
 
+static void
+calc_root_motion(float root_motion[16], struct ov_animation *anim, int frame_no)
+{
+  struct ov_pose *start = anim->frames[0];
+  struct ov_pose *stop  = anim->frames[anim->num_frames-1];
+  struct ov_pose still;
+  float  m0[16];
+  float  m[16];
+  float  t = (float)frame_no / (anim->num_frames-1);
+
+  fprintf(stderr, "%s: t == %f\n", __FUNCTION__, t);
+  vec_lerp (still.position, start->position, stop->position, t);
+  quat_lerp (still.rotate, start->rotate, stop->rotate, t);
+  vec_lerp (still.scale, start->scale, stop->scale, t);
+
+  mat_from_pose (m0, start->position, start->rotate, start->scale);
+  mat_from_pose (m, still.position, still.rotate, still.scale);
+
+  mat_invert (m, m);
+  mat_mul (root_motion, m0, m);
+}
+
 void
 ov_skeleton_animate(struct ov_skeleton *skeleton, struct ov_action *action, float frame_time)
 {
@@ -67,12 +91,17 @@ ov_skeleton_animate(struct ov_skeleton *skeleton, struct ov_action *action, floa
 
   for (i = 0; i < skeleton->num_bones; i++) {
     int a = bonemap[i];
-    if (a >= 0)
+//  if (a >= 0)
+    if (frame1 > frame0)
       pose_lerp(&pose[i], &anim_frame_0[a], &anim_frame_1[a], t);
     else
-      pose[i] = skeleton->bones[i].bind_pose;
+      pose_lerp(&pose[i],&anim_frame_1[a], &anim_frame_0[a], t);
+ //   else
+  //    pose[i] = skeleton->bones[i].bind_pose;
   }
 
+  mat4 root_motion;
+  calc_root_motion(root_motion, animation, frame0);
   for (i = 0; i < skeleton->num_bones; i++) {
     float m[16];
     mat_from_pose(m,
@@ -83,8 +112,12 @@ ov_skeleton_animate(struct ov_skeleton *skeleton, struct ov_action *action, floa
       mat_mul44(skeleton->bones[i].pose_matrix,
           skeleton->bones[skeleton->bones[i].parent].pose_matrix,
           m);
+
     else
+    {
+      mat_mul44(m,root_motion, m);
       mat_copy(skeleton->bones[i].pose_matrix, m);
+    }
   }
 }
 
