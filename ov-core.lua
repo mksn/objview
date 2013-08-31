@@ -32,8 +32,14 @@ function unit_mt:get_position(x, y, z)
   return ov.unit_get_position(self.unit)
 end
 
-function unit_mt:animate(time)
-  ov.unit_animate(self.unit, self.action, time)
+function unit_mt:step_action(time)
+  local t = time - self.time
+  self.action_time = self.action_time + t
+  self.time = time
+end
+
+function unit_mt:animate()
+  ov.unit_animate(self.unit, self.action, self.action_time)
 end
 
 function unit_mt:draw(x, y, z)
@@ -44,6 +50,8 @@ function make_unit()
   local t = {
     unit = ov.unit_new(),
     action = 'IDLE',
+    action_time = 0;
+    time = 0;
   }
   table.insert(unit_list, t)
   return setmetatable(t, unit_mt)
@@ -79,7 +87,8 @@ function update(time)
   end
 
   for i,u in ipairs(unit_list) do
-    u:animate(time)
+    u:step_action(time)
+    u:animate(u.action_time)
   end
 end
 

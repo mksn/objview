@@ -23,6 +23,7 @@ unsigned int loadmaterial(char *directory,
 }
 
 #define IQE_MAGIC "# Inter-Quake Export"
+#define ANIM_FPS 30
 
 enum {
   MAXVERTEX = 65535,
@@ -308,6 +309,7 @@ ov_load_iqe(const char *filename,
 
   skeleton->num_bones = bone_count;
   anim->num_frames = frame_index + 1;
+  anim->duration = anim->num_frames/ANIM_FPS;
 
   model->meshes[mesh_count].texture = texture;
   model->meshes[mesh_count].first = mesh_first_element;

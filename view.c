@@ -12,7 +12,7 @@ static int lasty;
 static float pitch = 38;
 static float yaw   = 45;
 static float dist = 5;
-static float start_time = 0;
+//static float start_time = 0;
 static float time = 0;
 
 static float swidth = 1;

@@ -76,10 +76,11 @@ struct ov_model {
 };
 
 struct ov_animation {
-  char *name;
+  char  *name;
   struct ov_skeleton *skeleton;
 
-  int num_frames;
+  float  duration;
+  int    num_frames;
   struct ov_pose **frames;
 };
 

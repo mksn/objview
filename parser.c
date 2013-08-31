@@ -8,6 +8,29 @@
 #include <glob.h>
 
 /*
+ * Convenience functions
+ *
+ */
+static int get_action_id (const char *name)
+{
+  if (strncmp(name, "IDLE", 4))
+    return ANIM_IDLE;
+  if (strncmp(name, "WALK", 4))
+    return ANIM_WALK;
+  if (strncmp(name, "RUN", 3))
+    return ANIM_RUN;
+  if (strncmp(name, "TURN_LEFT", 9))
+    return ANIM_TURN_LEFT;
+  if (strncmp(name, "TURN_RIGHT", 10)) 
+    return ANIM_TURN_RIGHT;
+  if (strncmp(name, "STRAFE_LEFT", 11))
+    return ANIM_STRAFE_LEFT;
+  if (strncmp(name, "STRAFE_RIGHT", 12))
+    return ANIM_STRAFE_RIGHT;
+  return -1;
+}
+
+/*
  * Wraps functions for lua
  *
  */
@@ -43,6 +66,14 @@ static int wraps_animation_load(lua_State *ctx)
   return 1;
 }
 
+static int wraps_unit_get_animation_duration(lua_State *ctx)
+{
+  struct ov_unit *unit = lua_touserdata(ctx, 1);
+  const char *string = luaL_checkstring(ctx, 2);
+  int action = get_action_id(string);
+  lua_pushnumber(ctx, unit->actions[action].animation->duration);
+  return 1;
+}
 static int wraps_unit_set_skeleton (lua_State *ctx)
 {
   struct ov_unit *unit = lua_touserdata(ctx, 1);
@@ -132,6 +163,7 @@ const struct luaL_Reg the_register[] = {
   {"unit_animate", wraps_unit_animate},
   {"unit_draw", wraps_unit_draw},
   {"unit_get_position", wraps_unit_get_position},
+  {"unit_get_animation_duration", wraps_unit_get_animation_duration},
   {NULL, NULL}
 };
 
