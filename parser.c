@@ -8,29 +8,6 @@
 #include <glob.h>
 
 /*
- * Convenience functions
- *
- */
-static int get_action_id (const char *name)
-{
-  if (!strncmp(name, "IDLE", 4))
-    return ANIM_IDLE;
-  if (!strncmp(name, "WALK", 4))
-    return ANIM_WALK;
-  if (!strncmp(name, "RUN", 3))
-    return ANIM_RUN;
-  if (!strncmp(name, "TURN_LEFT", 9))
-    return ANIM_TURN_LEFT;
-  if (!strncmp(name, "TURN_RIGHT", 10)) 
-    return ANIM_TURN_RIGHT;
-  if (!strncmp(name, "STRAFE_LEFT", 11))
-    return ANIM_STRAFE_LEFT;
-  if (!strncmp(name, "STRAFE_RIGHT", 12))
-    return ANIM_STRAFE_RIGHT;
-  return ANIM_IDLE; // fall back to idle
-}
-
-/*
  * Wraps functions for lua
  *
  */
@@ -69,8 +46,11 @@ static int wraps_animation_load(lua_State *ctx)
 static int wraps_unit_get_animation_duration(lua_State *ctx)
 {
   struct ov_unit *unit = lua_touserdata(ctx, 1);
-  const char *string = luaL_checkstring(ctx, 2);
-  int action = get_action_id(string);
+  int action = luaL_checkoption(ctx, 2, "IDLE", anim_name_list);
+  if (!unit->actions[action].animation)
+    action = ANIM_IDLE; // fall back to idle
+  if (!unit->actions[action].animation)
+    return luaL_error(ctx, "action not defined on unit");
   lua_pushnumber(ctx, unit->actions[action].animation->duration);
   return 1;
 }
