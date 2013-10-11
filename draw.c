@@ -59,7 +59,6 @@ calc_root_motion(float root_motion[16], struct ov_animation *anim, float frame_t
   float  m[16];
   float  t = frame_time / (anim->num_frames-1);
 
-  fprintf(stderr, "%s: t == %f\n", __FUNCTION__, t);
   vec_lerp (still.position, start->position, stop->position, t);
   quat_lerp (still.rotate, start->rotate, stop->rotate, t);
   vec_lerp (still.scale, start->scale, stop->scale, t);
@@ -76,19 +75,15 @@ ov_skeleton_animate(struct ov_skeleton *skeleton, struct ov_action *action, floa
 {
   struct ov_animation *animation = action->animation;
   int *bonemap = action->bonemap;
-  static float time_frame = 0;
 
-  int frame0 = floor(time_frame);
-  int frame1 = floor(time_frame + frame_time);
+  int frame0 = floor(frame_time);
+  int frame1 = floor(frame_time + 1);
   float t = frame_time - floor(frame_time);
   int i;
 
-  frame0 %= animation->num_frames;
-  frame1 %= animation->num_frames;
-
-  if (frame1 == 0) {
-    frame1 = 1;
-    frame0 = 0;
+  if (frame0 < 0 || frame0 >= animation->num_frames || frame1 < 0 || frame1 >= animation->num_frames) {
+    fprintf(stderr, "animation overflow! (%d, %d / %d)\n", frame0, frame1, animation->num_frames);
+    return;
   }
 
   struct ov_pose *anim_frame_0 = animation->frames[frame0];
@@ -104,7 +99,8 @@ ov_skeleton_animate(struct ov_skeleton *skeleton, struct ov_action *action, floa
   }
 
   mat4 root_motion;
-  calc_root_motion(root_motion, animation, frame0 + frame_time);
+  calc_root_motion(root_motion, animation, frame_time);
+
   for (i = 0; i < skeleton->num_bones; i++) {
     float m[16];
     mat_from_pose(m,
@@ -122,7 +118,6 @@ ov_skeleton_animate(struct ov_skeleton *skeleton, struct ov_action *action, floa
       mat_copy(skeleton->bones[i].pose_matrix, m);
     }
   }
-  time_frame = fmodf(time_frame + frame_time,animation->duration);
 }
 
 void
