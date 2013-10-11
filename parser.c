@@ -13,21 +13,21 @@
  */
 static int get_action_id (const char *name)
 {
-  if (strncmp(name, "IDLE", 4))
+  if (!strncmp(name, "IDLE", 4))
     return ANIM_IDLE;
-  if (strncmp(name, "WALK", 4))
+  if (!strncmp(name, "WALK", 4))
     return ANIM_WALK;
-  if (strncmp(name, "RUN", 3))
+  if (!strncmp(name, "RUN", 3))
     return ANIM_RUN;
-  if (strncmp(name, "TURN_LEFT", 9))
+  if (!strncmp(name, "TURN_LEFT", 9))
     return ANIM_TURN_LEFT;
-  if (strncmp(name, "TURN_RIGHT", 10)) 
+  if (!strncmp(name, "TURN_RIGHT", 10)) 
     return ANIM_TURN_RIGHT;
-  if (strncmp(name, "STRAFE_LEFT", 11))
+  if (!strncmp(name, "STRAFE_LEFT", 11))
     return ANIM_STRAFE_LEFT;
-  if (strncmp(name, "STRAFE_RIGHT", 12))
+  if (!strncmp(name, "STRAFE_RIGHT", 12))
     return ANIM_STRAFE_RIGHT;
-  return -1;
+  return ANIM_IDLE; // fall back to idle
 }
 
 /*
