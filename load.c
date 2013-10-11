@@ -308,7 +308,7 @@ ov_load_iqe(const char *filename,
 
   skeleton->num_bones = bone_count;
   anim->num_frames = frame_index + 1;
-  anim->duration = anim->num_frames/ANIM_FPS;
+  anim->duration = (float)(anim->num_frames - 1) / ANIM_FPS;
 
   model->meshes[mesh_count].texture = texture;
   model->meshes[mesh_count].first = mesh_first_element;
