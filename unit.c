@@ -56,7 +56,7 @@ ov_unit_animate(struct ov_unit *unit,
   // Fall back to idle
   if (unit->actions[anim].animation == 0)
     anim = ANIM_IDLE;
-  ov_skeleton_animate(unit->skeleton, &unit->actions[anim], time);
+  ov_skeleton_animate(unit->skeleton, &unit->actions[anim], time * ANIM_FPS);
 }
 
 void ov_unit_set_skeleton (struct ov_unit *unit,

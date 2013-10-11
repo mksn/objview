@@ -4,16 +4,12 @@
 #include "parser.h"
 #include "cache.h"
 
-#define ANIM_FPS 30
-
 static int leftstate = 0, rightstate = 0, middlestate = 0;
 static int lastx;
 static int lasty;
 static float pitch = 38;
 static float yaw   = 45;
 static float dist = 5;
-//static float start_time = 0;
-static float time = 0;
 
 static float swidth = 1;
 static float sheight = 1;
@@ -124,9 +120,11 @@ void reshape(int w, int h)
 
 void display(void)
 {
+  static float last_time = 0;
   int time_in_millis = glutGet(GLUT_ELAPSED_TIME);
-
-  time = time_in_millis * ANIM_FPS * 0.001;
+  float this_time = time_in_millis * 0.001;
+  float delta = this_time - last_time;
+  last_time = this_time;
 
   glClearColor (0.3, 0.3, 0.4, 1.0);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -151,7 +149,7 @@ void display(void)
   glEnable(GL_ALPHA_TEST);
 
   char cmd[200];
-  sprintf(cmd, "update(%g)", time);
+  sprintf(cmd, "update(%g)", delta);
   parser_main(cmd);
   parser_main("draw()");
 

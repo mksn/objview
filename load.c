@@ -23,7 +23,6 @@ unsigned int loadmaterial(char *directory,
 }
 
 #define IQE_MAGIC "# Inter-Quake Export"
-#define ANIM_FPS 30
 
 enum {
   MAXVERTEX = 65535,

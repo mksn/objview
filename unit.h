@@ -1,6 +1,8 @@
 #ifndef UNIT_H
 #define UNIT_H
 
+#define ANIM_FPS 30
+
 /* NOTE: must match list in unit.c */
 enum {
   ANIM_IDLE,
