@@ -170,8 +170,7 @@ void display(void)
   glutSwapBuffers();
   glutPostRedisplay();
 
-  GLenum e = glGetError();
-  if (e != GL_NO_ERROR) fprintf (stderr, "display: e: %s\n", gluErrorString(e));
+  glutReportErrors();
 }
 
 int main (int argc, char **argv)
