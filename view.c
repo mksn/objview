@@ -178,7 +178,11 @@ int main (int argc, char **argv)
 {
   glutInit(&argc, argv);
   glutInitDisplayMode(MKSN_GLUT_INIT);
+#ifdef RETINA
+  glutInitWindowSize(1600, 1200);
+#else
   glutInitWindowSize(1024, 768);
+#endif
   glutCreateWindow("ObjView");
 
   glAlphaFunc(GL_GREATER, 0.2);

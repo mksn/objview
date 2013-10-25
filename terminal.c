@@ -16,10 +16,24 @@
 
 #define PROMPT "> "
 
+#define TEXT_COLOR  1.0, 1.0, 1.0
+#define INPUT_COLOR 1.0, 0.9, 0.8
+#define CARET_COLOR 1.0, 1.0, 1.0
+
+#ifdef RETINA
+#define LEADING 4
+#define FONTSIZE 24
+#define FONT GLUT_BITMAP_TIMES_ROMAN_24
+#define BASELINE 19
+#define CARET_WIDTH 2
+#else
 #define LEADING 2
 #define FONTSIZE 13
 #define FONT GLUT_BITMAP_8_BY_13
 #define BASELINE 10
+#define CARET_WIDTH 1
+#endif
+
 #define LINEHEIGHT (FONTSIZE+LEADING)
 
 #ifdef DEBUG
@@ -116,7 +130,7 @@ void terminal_display(int w, int h)
     glRectf(MARGIN_X, 0, w - MARGIN_X, PADDING_Y*2 + LINEHEIGHT * (NOLINES+1));
 
     /* Draw text */
-    glColor3f(1,1,1);
+    glColor3f(TEXT_COLOR);
     x = MARGIN_X + PADDING_X;
     y = PADDING_Y + BASELINE;
     for(i=0; i<NOLINES; i++) {
@@ -127,15 +141,15 @@ void terminal_display(int w, int h)
     }
 
     /* Draw input buffer */
-    glColor3f(1,.9,0.86);
+    glColor3f(INPUT_COLOR);
     offset = measure_string(PROMPT, -1);
     draw_string(x, y, PROMPT);
     draw_string(x + offset, y, command_line);
 
     /* Draw caret */
     offset += measure_string(command_line, cursor_pos);
-    glColor3f(1,1,1);
-    glRectf(x+offset, y-BASELINE, x+offset+1, y+(FONTSIZE-BASELINE));
+    glColor3f(CARET_COLOR);
+    glRectf(x+offset, y-BASELINE, x+offset+CARET_WIDTH, y+(FONTSIZE-BASELINE));
 
     visible = !visible;
     glColor3f(1,1,1);
