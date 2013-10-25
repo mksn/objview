@@ -1,5 +1,7 @@
 -- core functions for objview lua implementation
 
+require "table"
+
 unit_mt = {}
 
 unit_mt.__index = unit_mt
@@ -80,10 +82,19 @@ function unit_mt:save(mdlname, filename)
   io.close(file)
 end
 
+function unit_mt:__tostring()
+  local buf = {}
+  local cat = function(s)
+    table.insert(buf, s)
+  end
+  self:dump(cat)
+  return table.concat(buf, "\n")
+end
+
 function unit_mt:echo()
   print(" -- Current Model --")
   print(" ")
-  self:dump(print)
+  print(self)
 end
 
 function unit_mt:draw(x, y, z)
