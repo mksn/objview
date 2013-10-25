@@ -85,9 +85,11 @@ struct ov_skeleton *ov_skeleton_load(const char *filename)
 {
   struct ov_skeleton *skeleton;
   ov_load_iqe(filename, &skeleton, NULL, NULL);
-  skeleton->name = malloc(strlen(filename)+1);
-  memset(skeleton->name, 0, sizeof(*skeleton->name));
-  strcpy(skeleton->name, filename);
+  if (skeleton) {
+    skeleton->name = malloc(strlen(filename)+1);
+    memset(skeleton->name, 0, sizeof(*skeleton->name));
+    strcpy(skeleton->name, filename);
+  }
   return skeleton;
 }
 
@@ -95,9 +97,11 @@ struct ov_model *ov_model_load(const char *filename)
 {
   struct ov_model *model;
   ov_load_iqe(filename, NULL, &model, NULL);
-  model->name = malloc(strlen(filename)+1);
-  memset(model->name, 0, sizeof(*model->name));
-  strcpy(model->name, filename);
+  if (model) {
+    model->name = malloc(strlen(filename)+1);
+    memset(model->name, 0, sizeof(*model->name));
+    strcpy(model->name, filename);
+  }
   return model;
 }
 
@@ -105,9 +109,11 @@ struct ov_animation *ov_animation_load(const char *filename)
 {
   struct ov_animation *animation;
   ov_load_iqe(filename, NULL, NULL, &animation);
-  animation->name = malloc(strlen(filename)+1);
-  memset(animation->name, 0, sizeof(*animation->name));
-  strcpy(animation->name, filename);
+  if (animation) {
+    animation->name = malloc(strlen(filename)+1);
+    memset(animation->name, 0, sizeof(*animation->name));
+    strcpy(animation->name, filename);
+  }
   return animation;
 }
 
@@ -171,17 +177,26 @@ ov_load_iqe(const char *filename,
   fp = fopen(filename, "r");
   if (!fp) {
     fprintf(stderr, "error: cannot load model '%s'\n", filename);
-    exit(1);
+    if (outskeleton) *outskeleton = NULL;
+    if (outmodel) *outmodel = NULL;
+    if (outanimation) *outanimation = NULL;
+    return;
   }
 
   if (!fgets(line, sizeof line, fp)) {
     fprintf(stderr, "cannot load %s: read error\n", filename);
-    exit(1);
+    if (outskeleton) *outskeleton = NULL;
+    if (outmodel) *outmodel = NULL;
+    if (outanimation) *outanimation = NULL;
+    return;
   }
 
   if (memcmp(line, IQE_MAGIC, strlen(IQE_MAGIC))) {
     fprintf(stderr, "cannot load %s: bad iqe magic\n", filename);
-    exit(1);
+    if (outanimation) *outskeleton = NULL;
+    if (outmodel) *outmodel = NULL;
+    if (outanimation) *outanimation = NULL;
+    return;
   }
 
   while (1) {

@@ -23,7 +23,10 @@ static int wraps_skeleton_load(lua_State *ctx)
 {
   const char *filename = luaL_checkstring(ctx, 1);
   struct ov_skeleton *skel = ov_skeleton_load(filename);
-  lua_pushlightuserdata(ctx, skel);
+  if (skel)
+    lua_pushlightuserdata(ctx, skel);
+  else
+    return luaL_error(ctx, "Unable to load skeleton");
   return 1;
 }
 
@@ -31,7 +34,10 @@ static int wraps_model_load(lua_State *ctx)
 {
   const char *filename = luaL_checkstring(ctx, 1);
   struct ov_model *model = ov_model_load(filename);
-  lua_pushlightuserdata(ctx, model);
+  if (model)
+    lua_pushlightuserdata(ctx, model);
+  else 
+    return luaL_error(ctx,"Unable to load model");
   return 1;
 }
 
@@ -39,7 +45,10 @@ static int wraps_animation_load(lua_State *ctx)
 {
   const char *filename = luaL_checkstring(ctx, 1);
   struct ov_animation *anim = ov_animation_load(filename);
-  lua_pushlightuserdata(ctx, anim);
+  if (anim)
+    lua_pushlightuserdata(ctx, anim);
+  else
+    return luaL_error(ctx, "Unable to load animation");
   return 1;
 }
 
