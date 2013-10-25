@@ -220,7 +220,7 @@ int terminal_special(const char special)
       break;
 
    default:
-      return (input_state = 0);
+      return (input_state = 1);
       break;
   }
 
