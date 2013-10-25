@@ -48,6 +48,44 @@ function unit_mt:animate()
   ov.unit_animate(self.unit, self.action, self.action_time)
 end
 
+function unit_mt:dump(action, prefix)
+  action(string.format("local %s_data = {", prefix))
+  action(string.format("  skeleton = %q,", ov.get_skeleton_name(self.unit)))
+  action("  skin_components = {")
+  local s = ov.get_skin_component_table(self.unit)
+  for i,model in pairs(s) do
+    action(string.format("    %q,", model))
+  end
+  action("  },")
+  local a = ov.get_animations_table(self.unit)
+  action("  animations = {")
+  for a, anim in pairs(a) do
+    action(string.format("    %s = %q,", a, anim))
+  end
+  action("  }")
+  action("}")
+end
+
+function unit_mt:save(mdlname, filename)
+  file = io.open(filename, "w")
+  local function fun(x)
+    return file:write(x,'\n')
+  end
+  file:write(string.format(" -- %s model setup --\n\n", mdlname))
+  self:dump(fun, mdlname)
+  file:write("\n")
+  file:write(string.format("function make_%s()\n", mdlname))
+  file:write(string.format("  make_unit_with_data(%s_data)\n", mdlname))
+  file:write("end\n")
+  io.close(file)
+end
+
+function unit_mt:echo()
+  print(" -- Current Model --")
+  print(" ")
+  self:dump(print)
+end
+
 function unit_mt:draw(x, y, z)
   ov.unit_draw(self.unit)
 end

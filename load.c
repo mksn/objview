@@ -35,7 +35,7 @@ static int element_buf[MAXELEMENT];
 struct ov_unit *
 ov_unit_new(void)
 {
-  struct ov_unit *unit = malloc (sizeof(struct ov_unit));
+  struct ov_unit *unit = malloc (sizeof *unit);
   memset(unit, 0, sizeof *unit);
   return unit;
 }

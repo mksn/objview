@@ -93,7 +93,6 @@ struct ov_bone_component {
 
 struct ov_skin_component {
   struct ov_model *model;
-  char *name;
   int bonemap[MAXBONES];
 };
 

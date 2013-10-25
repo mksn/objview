@@ -62,6 +62,27 @@ static int wraps_unit_set_skeleton (lua_State *ctx)
   return 0;
 }
 
+static int wraps_unit_get_skeleton_name (lua_State *ctx)
+{
+  struct ov_unit *unit = lua_touserdata(ctx,1);
+  if (unit->skeleton) {
+    lua_pushstring(ctx, unit->skeleton->name);
+    return 1;
+  }
+  return 0;
+}
+
+static int wraps_unit_get_animation_name(lua_State *ctx) 
+{
+  struct ov_unit *unit = lua_touserdata(ctx, 1);
+  int action = luaL_checkoption(ctx, 2, "IDLE", anim_name_list);
+  if (unit->actions[action].animation) {
+    lua_pushstring(ctx, unit->actions[action].animation->name);
+    return 1;
+  }
+  return 0;
+}
+
 static int wraps_unit_add_skin_component (lua_State *ctx)
 {
   struct ov_unit *unit = lua_touserdata(ctx, 1);
@@ -129,6 +150,40 @@ static int wraps_unit_get_position(lua_State *ctx)
   return 3;
 }
 
+static int wraps_unit_get_animation_table(lua_State *ctx) 
+{
+  struct ov_unit *unit = lua_touserdata(ctx,1);
+  int i=0;
+
+  lua_newtable(ctx);
+  for (;i<MAXANIM;i++) {
+    if (unit->actions[i].animation) {
+      lua_pushstring(ctx,anim_name_list[i]);
+      lua_pushstring(ctx,unit->actions[i].animation->name);
+      lua_settable(ctx,-3);
+    }
+  }
+  return 1;
+}
+
+static int wraps_unit_get_skin_component_table(lua_State *ctx)
+{
+  struct ov_unit *unit = lua_touserdata(ctx,1);
+  int i=0;
+
+  lua_newtable(ctx);
+  for (;i<MAXCOMPONENTS;i++) {
+    if(unit->skin_components[i].model) {
+      lua_pushinteger(ctx, i+1);
+      lua_pushstring(ctx, unit->skin_components[i].model->name);
+      lua_settable(ctx, -3);
+    } else {
+      break;
+    }
+  }
+  return 1;
+}
+
 const struct luaL_Reg the_register[] = {
   {"unit_new", wraps_unit_new},
   {"skeleton_load", wraps_skeleton_load},
@@ -144,6 +199,10 @@ const struct luaL_Reg the_register[] = {
   {"unit_draw", wraps_unit_draw},
   {"unit_get_position", wraps_unit_get_position},
   {"unit_get_animation_duration", wraps_unit_get_animation_duration},
+  {"get_skeleton_name", wraps_unit_get_skeleton_name},
+  {"get_animation_name", wraps_unit_get_animation_name},
+  {"get_animations_table", wraps_unit_get_animation_table},
+  {"get_skin_component_table", wraps_unit_get_skin_component_table},
   {NULL, NULL}
 };
 
