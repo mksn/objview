@@ -39,6 +39,7 @@ void mat_copy(mat4 p, const mat4 m)
 void mat_mul44(mat4 m, const mat4 a, const mat4 b)
 {
   int i;
+  assert(m != b);
   for (i = 0; i < 4; i++) {
     const float ai0=A(i,0), ai1=A(i,1), ai2=A(i,2), ai3=A(i,3);
     M(i,0) = ai0 * B(0,0) + ai1 * B(1,0) + ai2 * B(2,0) + ai3 * B(3,0);
@@ -51,6 +52,7 @@ void mat_mul44(mat4 m, const mat4 a, const mat4 b)
 void mat_mul(mat4 m, const mat4 a, const mat4 b)
 {
   int i;
+  assert(m != b);
   for (i = 0; i < 3; i++) {
     const float ai0=A(i,0), ai1=A(i,1), ai2=A(i,2), ai3=A(i,3);
     M(i,0) = ai0 * B(0,0) + ai1 * B(1,0) + ai2 * B(2,0);

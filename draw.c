@@ -114,8 +114,7 @@ ov_skeleton_animate(struct ov_skeleton *skeleton, struct ov_action *action, floa
 
     else
     {
-      mat_mul44(m,root_motion, m);
-      mat_copy(skeleton->bones[i].pose_matrix, m);
+      mat_mul44(skeleton->bones[i].pose_matrix, root_motion, m);
     }
   }
 }
