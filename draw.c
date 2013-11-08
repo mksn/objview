@@ -2,6 +2,7 @@
 #include "unit.h"
 #include "vector.h"
 
+int     root_motion_comp;
 typedef float mat4[16];
 
 static void
@@ -99,7 +100,9 @@ ov_skeleton_animate(struct ov_skeleton *skeleton, struct ov_action *action, floa
   }
 
   mat4 root_motion;
-  calc_root_motion(root_motion, animation, frame_time);
+  if (root_motion_comp) {
+    calc_root_motion(root_motion, animation, frame_time);
+  }
 
   for (i = 0; i < skeleton->num_bones; i++) {
     float m[16];
@@ -114,7 +117,10 @@ ov_skeleton_animate(struct ov_skeleton *skeleton, struct ov_action *action, floa
 
     else
     {
-      mat_mul44(skeleton->bones[i].pose_matrix, root_motion, m);
+      if (root_motion_comp)
+        mat_mul44(skeleton->bones[i].pose_matrix, root_motion, m);
+      else 
+        mat_copy(skeleton->bones[i].pose_matrix, m);
     }
   }
 }

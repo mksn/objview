@@ -34,6 +34,10 @@ function unit_mt:get_position(x, y, z)
   return ov.unit_get_position(self.unit)
 end
 
+function unit_mt:reset_action()
+  self.action_time = 0;
+end
+
 function unit_mt:step_action(delta)
   self.action_time = self.action_time + delta
   local duration = ov.unit_get_animation_duration(self.unit, self.action)
@@ -132,6 +136,10 @@ end
 
 function set_current_action(action)
   unit_list[current_unit].action = action
+end
+
+function reset_current_action()
+  unit_list[current_unit]:reset_action()
 end
 
 function update(delta)

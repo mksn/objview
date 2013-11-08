@@ -4,54 +4,65 @@
 #include "parser.h"
 #include "cache.h"
 
-static int leftstate = 0, rightstate = 0, middlestate = 0;
-static int lastx;
-static int lasty;
+extern int   root_motion_comp;
+static int   leftstate = 0, rightstate = 0, middlestate = 0;
+static int   lastx;
+static int   lasty;
 static float pitch = 38;
 static float yaw   = 45;
 static float dist = 5;
-
 static float swidth = 1;
 static float sheight = 1;
-static int terminal_input = 0;
+static int   terminal_input = 0;
+static float last_time = 0;
 
 void keyboardFunc(unsigned char key, int x, int y)
 {
   if (!terminal_input) {
+    root_motion_comp = 1;
     switch (key) {
       case ' ':
         parser_main("select_next_unit()");
         break;
 
       case 'i':
+        parser_main("reset_current_action()");
         parser_main("set_current_action 'IDLE'");
         break;
 
       case 'w':
+        parser_main("reset_current_action()");
         parser_main("set_current_action 'WALK'");
         break;
 
       case 'r':
+        parser_main("reset_current_action()");
         parser_main("set_current_action 'RUN'");
         break;
 
       case 'a':
+        parser_main("reset_current_action()");
         parser_main("set_current_action 'TURN_LEFT'");
         break;
 
       case 'd':
+        parser_main("reset_current_action()");
         parser_main("set_current_action 'TURN_RIGHT'");
         break;
 
       case 'q':
+        parser_main("reset_current_action()");
         parser_main("set_current_action 'STRAFE_LEFT'");
         break;
 
       case 'e':
+        parser_main("reset_current_action()");
         parser_main("set_current_action 'STRAFE_RIGHT'");
         break;
 
       case 'z':
+        root_motion_comp = 0;
+        parser_main("reset_current_action()");
         parser_main("set_current_action 'DEATH'");
         break;
 
@@ -120,7 +131,6 @@ void reshape(int w, int h)
 
 void display(void)
 {
-  static float last_time = 0;
   int time_in_millis = glutGet(GLUT_ELAPSED_TIME);
   float this_time = time_in_millis * 0.001;
   float delta = this_time - last_time;
@@ -175,6 +185,7 @@ void display(void)
 
 int main (int argc, char **argv)
 {
+  root_motion_comp = 1;
   glutInit(&argc, argv);
   glutInitDisplayMode(MKSN_GLUT_INIT);
 #ifdef RETINA
