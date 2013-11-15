@@ -72,7 +72,9 @@ calc_root_motion(float root_motion[16], struct ov_animation *anim, float frame_t
 }
 
 void
-ov_skeleton_animate(struct ov_skeleton *skeleton, struct ov_action *action, float frame_time)
+ov_skeleton_animate(struct ov_skeleton *skeleton,
+                    struct ov_action *action,
+                    float frame_time)
 {
   struct ov_animation *animation = action->animation;
   int *bonemap = action->bonemap;

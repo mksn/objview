@@ -58,51 +58,51 @@ struct ov_mesh {
 };
 
 struct ov_skeleton {
-  char *name;
-  int num_bones;
+  char          *name;
+  int            num_bones;
   struct ov_bone bones[MAXBONES];
 };
 
 struct ov_model {
-  char *name;
-  int num_vertices;
+  char                *name;
+  int                 num_vertices;
   struct ov_vertex    *vertices;
   struct ov_anivertex *anivertices;
   struct ov_skeleton  *skeleton;
 
-  int num_triangles;
-  int *triangles;
+  int                 num_triangles;
+  int                *triangles;
 
-  int num_meshes;
-  struct ov_mesh meshes[MAXMESHES];
+  int                 num_meshes;
+  struct ov_mesh      meshes[MAXMESHES];
 };
 
 struct ov_animation {
-  char  *name;
+  char               *name;
   struct ov_skeleton *skeleton;
 
-  float  duration;
-  int    num_frames;
-  struct ov_pose **frames;
+  float               duration;
+  int                 num_frames;
+  struct ov_pose    **frames;
 };
 
 struct ov_bone_component {
     struct ov_model *model;
-    int bone;
+    int              bone;
 };
 
 struct ov_skin_component {
   struct ov_model *model;
-  int bonemap[MAXBONES];
+  int              bonemap[MAXBONES];
 };
 
 struct ov_action {
   struct ov_animation *animation;
-  int bonemap[MAXBONES];
+  int                  bonemap[MAXBONES];
 };
 
 struct ov_unit {
-  struct ov_skeleton       *skeleton;
+  struct ov_skeleton      *skeleton;
   struct ov_action         actions[MAXANIM];
   struct ov_skin_component skin_components[MAXCOMPONENTS];
   int                      num_skin_components;
@@ -110,6 +110,8 @@ struct ov_unit {
   int                      num_bone_components;
   float                    position[3];
   float                    rotation;
+  struct ov_unit          *parent;
+  int                      parent_bone;
 };
 
 /*
@@ -122,14 +124,14 @@ struct ov_unit *ov_unit_new(void);
  * Loading
  *
  */
-void ov_load_iqe(const char *filename,
-        struct ov_skeleton **skeletonp,
-        struct ov_model **modelp,
-        struct ov_animation **animationp);
+void ov_load_iqe(const char           *filename,
+                 struct ov_skeleton  **skeletonp,
+                 struct ov_model     **modelp,
+                 struct ov_animation **animationp);
 
-struct ov_skeleton *ov_skeleton_load(const char *filename);
-struct ov_model *ov_model_load(const char *filename);
-struct ov_animation *ov_animation_load(const char *filename);
+struct ov_skeleton  *ov_skeleton_load  (const char *filename);
+struct ov_model     *ov_model_load     (const char *filename);
+struct ov_animation *ov_animation_load (const char *filename);
 
 /*
  * Drawing
@@ -137,30 +139,35 @@ struct ov_animation *ov_animation_load(const char *filename);
  */
 
 void ov_skeleton_animate(struct ov_skeleton *skeleton,
-    struct ov_action *action,
-    float frame_time);
-void ov_skin_component_draw(struct ov_skin_component *component,
-    struct ov_skeleton *skeleton);
-void ov_bone_component_draw(struct ov_bone_component *component,
-    struct ov_skeleton *skeleton);
+                         struct ov_action   *action,
+                         float               frame_time);
 
-void ov_unit_draw(struct ov_unit *unit);
-void ov_unit_animate(struct ov_unit *unit,
-    int anim,
+void ov_skin_component_draw(struct ov_skin_component *component,
+                            struct ov_skeleton       *skeleton);
+
+void ov_bone_component_draw(struct ov_bone_component *component,
+                            struct ov_skeleton       *skeleton);
+
+void ov_unit_draw          (struct ov_unit           *unit);
+void ov_unit_animate       (struct ov_unit           *unit,
+                            int anim,
     float frame);
 
 /*
  * Manipulation
  *
  */
-void ov_unit_set_skeleton (struct ov_unit *unit,
-        struct ov_skeleton *skeleton);
+void ov_unit_set_skeleton      (struct ov_unit     *unit,
+                                struct ov_skeleton *skeleton);
 void ov_unit_add_skin_component(struct ov_unit *unit,
-        struct ov_model *model);
+                                struct ov_model *model);
 void ov_unit_add_bone_component(struct ov_unit *unit,
-        struct ov_model *model,
-        const char *bone);
-void ov_unit_add_animation(struct ov_unit *unit,
-        struct ov_animation *animation,
-        int animation_type);
+                                struct ov_model *model,
+                                const char *bone);
+void ov_unit_attach_model      (struct ov_unit *unit,
+                                struct ov_unit *parent,
+                                const char *bone);
+void ov_unit_add_animation     (struct ov_unit *unit,
+                                struct ov_animation *animation,
+                                int animation_type);
 #endif

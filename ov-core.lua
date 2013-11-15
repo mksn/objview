@@ -22,6 +22,10 @@ function unit_mt:add_bone_component(model, bone)
   ov.unit_add_bone_component(self.unit, ov.model_load(model), bone)
 end
 
+function unit_mt:attach_model(model, bone)
+  ov.unit_attach_model(self.unit, model.unit, bone)
+end
+
 function unit_mt:set_position(x, y, z)
   ov.unit_set_position(self.unit, x, y, z)
 end
