@@ -135,6 +135,66 @@ function make_unit_with_data(data)
   return u
 end
 
+-- Group unit to sync animations of children:
+
+group_mt = {}
+group_mt.__index = group_mt
+
+function group_mt:set_position(x, y, z)
+  self.position = { x, y, z }
+  for i,u in ipairs(self.children) do
+    u:set_position(x, y, z)
+  end
+end
+
+function group_mt:get_position()
+  return table.unpack(self.position)
+end
+
+function group_mt:set_rotation(a)
+  for i,u in ipairs(self.children) do
+    u:set_rotation(a)
+  end
+end
+
+function group_mt:reset_action()
+  for i,u in ipairs(self.children) do
+    u:reset_action()
+  end
+end
+
+function group_mt:set_action(action)
+  for i,u in ipairs(self.children) do
+    u:set_action(action)
+  end
+end
+
+function group_mt:step_action(delta)
+  for i,u in ipairs(self.children) do
+    u:step_action(delta)
+  end
+end
+
+function group_mt:animate()
+  for i,u in ipairs(self.children) do
+    u:animate()
+  end
+end
+
+function group_mt:draw()
+  for i,u in ipairs(self.children) do
+    u:draw()
+  end
+end
+
+function make_group(children)
+  local t = {
+    children = children,
+    position = { 0, 0, 0 }
+  }
+  return setmetatable(t, group_mt)
+end
+
 -- Misc
 
 function show_unit(t)
