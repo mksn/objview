@@ -139,11 +139,15 @@ function select_next_unit()
 end
 
 function set_current_action(action)
-  unit_list[current_unit].action = action
+  if unit_list[current_unit] then
+    unit_list[current_unit].action = action
+  end
 end
 
 function reset_current_action()
-  unit_list[current_unit]:reset_action()
+  if unit_list[current_unit] then
+    unit_list[current_unit]:reset_action()
+  end
 end
 
 function update(delta)

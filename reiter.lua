@@ -17,6 +17,6 @@ local reiter_data = {
 
 function make_reiter(parent)
   local t = make_unit_with_data(reiter_data)
-  t:attach_model(parent,"tag.saddle")
+  t:attach_model(parent, "tag.saddle")
   return t
 end
