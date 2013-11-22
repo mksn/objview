@@ -42,6 +42,11 @@ function unit_mt:reset_action()
   self.action_time = 0;
 end
 
+function unit_mt:set_action(action)
+  self.action = action
+  self.action_time = 0;
+end
+
 function unit_mt:step_action(delta)
   self.action_time = self.action_time + delta
   local duration = ov.unit_get_animation_duration(self.unit, self.action)
@@ -113,9 +118,8 @@ function make_unit()
   local t = {
     unit = ov.unit_new(),
     action = 'IDLE',
-    action_time = 0;
+    action_time = 0
   }
-  table.insert(unit_list, t)
   return setmetatable(t, unit_mt)
 end
 
@@ -131,6 +135,12 @@ function make_unit_with_data(data)
   return u
 end
 
+-- Misc
+
+function show_unit(t)
+  table.insert(unit_list, t)
+end
+
 function select_next_unit()
   current_unit = current_unit + 1
   if current_unit > #unit_list then
@@ -140,7 +150,7 @@ end
 
 function set_current_action(action)
   if unit_list[current_unit] then
-    unit_list[current_unit].action = action
+    unit_list[current_unit]:set_action(action)
   end
 end
 
@@ -152,13 +162,13 @@ end
 
 function update(delta)
   if unit_list[current_unit] then
-    local x, y, z = ov.unit_get_position(unit_list[current_unit].unit)
+    local x, y, z = unit_list[current_unit]:get_position()
     highlight.position = {x, y, z + 2, 1}
   end
 
   for i,u in ipairs(unit_list) do
     u:step_action(delta)
-    u:animate(u.action_time)
+    u:animate()
   end
 end
 
