@@ -1,8 +1,13 @@
 local reiter_data = {
   skeleton = "human/ge_hom_skel.iqe",
   animations = {
-    WALK = "human/fy_hom_marche_in0_monture.iqe",
     IDLE = "human/fy_hom_idle_in0_monture.iqe",
+    WALK = "human/fy_hom_marche_in0_monture.iqe",
+    TURN_LEFT = "human/fy_hom_tournegauche_monture.iqe",
+    TURN_RIGHT = "human/fy_hom_tournedroite_monture.iqe",
+    STRAFE_LEFT = "human/fy_hom_idle_in0_monture.iqe",
+    STRAFE_RIGHT = "human/fy_hom_idle_in0_monture.iqe",
+    DEATH = "human/fy_hom_mort_in0_monture.iqe",
   },
   skin_components = {
     "human/fy_hom_armor00_armpad.iqe",
