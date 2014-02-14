@@ -1,11 +1,11 @@
 local dog_data = {
-  skeleton = "dog/tr_mo_chorani.iqe",
+  skeleton = "data/monsters/chien/tr_mo_chorani.iqe",
   animations = {
-    IDLE = "dog/tr_mo_chien_idle.iqe",
-    WALK = "dog/tr_mo_chien_marche.iqe",
+    IDLE = "data/monsters/chien/anims/tr_mo_chien_idle.iqe",
+    WALK = "data/monsters/chien/anims/tr_mo_chien_marche.iqe",
   },
   skin_components = {
-    "dog/tr_mo_chorani.iqe"
+    "data/monsters/chien/tr_mo_chorani.iqe"
   }
 }
 
