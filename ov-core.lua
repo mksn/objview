@@ -129,8 +129,15 @@ function make_unit_with_data(data)
   for action, anim in pairs(data.animations) do
     u:add_animation(anim, action)
   end
-  for i,model in ipairs(data.skin_components) do
-    u:add_skin_component(model)
+  if data.skin_components then
+    for i,model in ipairs(data.skin_components) do
+      u:add_skin_component(model)
+    end
+  end
+  if data.bone_components then
+    for i,bonepair in ipairs(data.bone_components) do
+      u:add_bone_component(bonepair[1], bonepair[2])
+    end
   end
   return u
 end
