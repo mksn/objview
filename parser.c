@@ -4,6 +4,7 @@
 
 #include "objview.h"
 #include "unit.h"
+#include "prop.h"
 #include "parser.h"
 #include <glob.h>
 
@@ -11,6 +12,56 @@
  * Wraps functions for lua
  *
  */
+
+static int wraps_prop_new (lua_State *ctx)
+{
+  const char *filename = luaL_checkstring(ctx, 1);
+  struct ov_prop *prop = ov_prop_new(filename);
+  if (prop)
+    lua_pushlightuserdata(ctx, prop);
+  else
+    return luaL_error(ctx, "Unable to load model");
+  return 1;
+}
+
+static int wraps_prop_draw(lua_State *ctx)
+{
+  struct ov_prop *prop = lua_touserdata(ctx, 1);
+  ov_prop_draw(prop);
+  return 0;
+}
+
+static int wraps_prop_set_position(lua_State *ctx)
+{
+  struct ov_prop *prop = lua_touserdata(ctx, 1);
+  prop->position[0] = luaL_checknumber(ctx, 2);
+  prop->position[1] = luaL_checknumber(ctx, 3);
+  prop->position[2] = luaL_checknumber(ctx, 4);
+  return 0;
+}
+
+static int wraps_prop_set_rotation(lua_State *ctx)
+{
+  struct ov_prop *prop = lua_touserdata(ctx, 1);
+  prop->rotation = luaL_checknumber(ctx, 2);
+  return 0;
+}
+
+static int wraps_prop_get_position(lua_State *ctx)
+{
+  struct ov_prop *prop = lua_touserdata(ctx, 1);
+  lua_pushnumber(ctx, prop->position[0]);
+  lua_pushnumber(ctx, prop->position[1]);
+  lua_pushnumber(ctx, prop->position[2]);
+  return 3;
+}
+
+static int wraps_prop_get_rotation(lua_State *ctx)
+{
+  struct ov_prop *prop = lua_touserdata(ctx, 1);
+  lua_pushnumber(ctx, prop->rotation);
+  return 1;
+}
 
 static int wraps_unit_new (lua_State *ctx)
 {
@@ -169,6 +220,13 @@ static int wraps_unit_get_position(lua_State *ctx)
   return 3;
 }
 
+static int wraps_unit_get_rotation(lua_State *ctx)
+{
+  struct ov_unit *unit = lua_touserdata(ctx, 1);
+  lua_pushnumber(ctx, unit->rotation);
+  return 1;
+}
+
 static int wraps_unit_get_animation_table(lua_State *ctx) 
 {
   struct ov_unit *unit = lua_touserdata(ctx,1);
@@ -204,25 +262,35 @@ static int wraps_unit_get_skin_component_table(lua_State *ctx)
 }
 
 const struct luaL_Reg the_register[] = {
-  {"unit_new", wraps_unit_new},
   {"skeleton_load", wraps_skeleton_load},
   {"model_load", wraps_model_load},
   {"animation_load", wraps_animation_load},
+
+  {"unit_new", wraps_unit_new},
   {"unit_set_skeleton", wraps_unit_set_skeleton},
   {"unit_add_animation", wraps_unit_add_animation},
   {"unit_add_skin_component", wraps_unit_add_skin_component},
   {"unit_add_bone_component", wraps_unit_add_bone_component},
   {"unit_attach_model",wraps_unit_attach_model},
+  {"unit_get_position", wraps_unit_get_position},
+  {"unit_get_rotation", wraps_unit_get_rotation},
   {"unit_set_position", wraps_unit_set_position},
   {"unit_set_rotation", wraps_unit_set_rotation},
   {"unit_animate", wraps_unit_animate},
-  {"unit_draw", wraps_unit_draw},
-  {"unit_get_position", wraps_unit_get_position},
   {"unit_get_animation_duration", wraps_unit_get_animation_duration},
   {"get_skeleton_name", wraps_unit_get_skeleton_name},
   {"get_animation_name", wraps_unit_get_animation_name},
   {"get_animations_table", wraps_unit_get_animation_table},
   {"get_skin_component_table", wraps_unit_get_skin_component_table},
+  {"unit_draw", wraps_unit_draw},
+
+  {"prop_new", wraps_prop_new},
+  {"prop_get_position", wraps_prop_get_position},
+  {"prop_get_rotation", wraps_prop_get_rotation},
+  {"prop_set_position", wraps_prop_set_position},
+  {"prop_set_rotation", wraps_prop_set_rotation},
+  {"prop_draw", wraps_prop_draw},
+
   {NULL, NULL}
 };
 

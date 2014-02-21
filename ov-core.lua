@@ -2,6 +2,36 @@
 
 require "table"
 
+prop_mt = {}
+prop_mt.__index = prop_mt
+
+function prop_mt:set_position(x, y, z)
+  ov.prop_set_position(self.prop, x, y, z)
+end
+
+function prop_mt:set_rotation(a)
+  ov.prop_set_rotation(self.prop, a)
+end
+
+function prop_mt:get_position(x, y, z)
+  return ov.prop_get_position(self.prop)
+end
+
+function prop_mt:get_rotation()
+  ov.prop_get_rotation(self.prop)
+end
+
+function prop_mt:draw()
+  ov.prop_draw(self.prop)
+end
+
+function make_prop(filename)
+  local t = {
+    prop = ov.prop_new(filename),
+  }
+  return setmetatable(t, prop_mt)
+end
+
 unit_mt = {}
 
 unit_mt.__index = unit_mt
@@ -36,6 +66,10 @@ end
 
 function unit_mt:get_position(x, y, z)
   return ov.unit_get_position(self.unit)
+end
+
+function unit_mt:get_rotation()
+  ov.unit_get_rotation(self.unit)
 end
 
 function unit_mt:reset_action()
@@ -110,7 +144,7 @@ function unit_mt:echo()
   print(self)
 end
 
-function unit_mt:draw(x, y, z)
+function unit_mt:draw()
   ov.unit_draw(self.unit)
 end
 
@@ -204,6 +238,18 @@ end
 
 -- Misc
 
+function show_prop(t)
+  table.insert(prop_list, t)
+end
+
+function add_prop(filename, x, y, z, r)
+  local p = make_prop(filename);
+  p:set_position(x, y, z)
+  p:set_rotation(r)
+  show_prop(p)
+  return p
+end
+
 function show_unit(t)
   table.insert(unit_list, t)
 end
@@ -245,6 +291,10 @@ function draw()
     gl.light_set_position(i, table.unpack(light.position))
     gl.light_set_color(i, table.unpack(light.color))
     gl.light_set_attenuation(i, table.unpack(light.attenuation))
+  end
+
+  for i,p in ipairs(prop_list) do
+    p:draw()
   end
 
   for i,u in ipairs(unit_list) do

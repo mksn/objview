@@ -15,6 +15,7 @@ highlight = {
 light_list = { sun, highlight }
 
 unit_list = {}
+prop_list = {}
 
 current_unit = 1
 

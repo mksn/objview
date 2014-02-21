@@ -137,6 +137,7 @@ struct ov_animation *ov_animation_load (const char *filename);
  * Drawing
  *
  */
+void ov_model_draw(struct ov_model *model);
 
 void ov_skeleton_animate(struct ov_skeleton *skeleton,
                          struct ov_action   *action,
@@ -151,7 +152,7 @@ void ov_bone_component_draw(struct ov_bone_component *component,
 void ov_unit_draw          (struct ov_unit           *unit);
 void ov_unit_animate       (struct ov_unit           *unit,
                             int anim,
-    float frame);
+			    float frame);
 
 /*
  * Manipulation

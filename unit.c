@@ -25,7 +25,7 @@ find_bone(struct ov_skeleton *skel,
   return -1;
 }
 
-static 
+static
 void make_bone_map(int                *bonemap,
                    struct ov_skeleton *src,
                    struct ov_skeleton *dst)
@@ -67,11 +67,11 @@ ov_unit_draw(struct ov_unit *unit)
     glRotatef(unit->rotation, 0, 0, 1);
   }
   for (i = 0; i<unit->num_skin_components; i++) {
-    ov_skin_component_draw(&unit->skin_components[i], 
+    ov_skin_component_draw(&unit->skin_components[i],
                            unit->skeleton);
   }
   for (i = 0; i<unit->num_bone_components; i++) {
-    ov_bone_component_draw(&unit->bone_components[i], 
+    ov_bone_component_draw(&unit->bone_components[i],
                            unit->skeleton);
   }
   glPopMatrix();
@@ -90,7 +90,7 @@ ov_unit_animate(struct ov_unit *unit,
                       time * ANIM_FPS);
 }
 
-void 
+void
 ov_unit_set_skeleton (struct ov_unit     *unit,
                       struct ov_skeleton *skeleton)
 {

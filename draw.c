@@ -5,7 +5,7 @@
 int     root_motion_comp;
 typedef float mat4[16];
 
-static void
+void
 ov_model_draw(struct ov_model *model)
 {
   int i;
@@ -22,7 +22,7 @@ ov_model_draw(struct ov_model *model)
   } else {
     glVertexPointer(3, GL_FLOAT, sizeof(struct ov_vertex),
         &model->vertices->position[0]);
-    glNormalPointer(GL_FLOAT, sizeof(struct ov_vertex), 
+    glNormalPointer(GL_FLOAT, sizeof(struct ov_vertex),
         &model->vertices->normal[0]);
   }
 
@@ -121,7 +121,7 @@ ov_skeleton_animate(struct ov_skeleton *skeleton,
     {
       if (root_motion_comp)
         mat_mul44(skeleton->bones[i].pose_matrix, root_motion, m);
-      else 
+      else
         mat_copy(skeleton->bones[i].pose_matrix, m);
     }
   }
@@ -179,8 +179,8 @@ void ov_bone_component_draw(struct ov_bone_component *component,
     struct ov_skeleton *skeleton)
 {
   /*
-   * Concatenate the transform of the bone that the 
-   * component is attached to: 
+   * Concatenate the transform of the bone that the
+   * component is attached to:
    *
    */
   glPushMatrix();
