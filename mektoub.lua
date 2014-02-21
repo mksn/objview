@@ -17,3 +17,9 @@ local mektoub_data = {
 function make_mektoub()
   return make_unit_with_data(mektoub_data)
 end
+
+function new_mektoub()
+  m = make_mektoub()
+  show_unit(m)
+  return m
+end

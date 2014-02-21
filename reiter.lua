@@ -27,3 +27,9 @@ function make_reiter(parent)
   end
   return t
 end
+
+function new_reiter() 
+  local m = make_reiter()
+  show_unit(m)
+  return m
+end
