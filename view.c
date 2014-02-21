@@ -10,7 +10,7 @@ static int   lastx;
 static int   lasty;
 static float pitch = 38;
 static float yaw   = 45;
-static float dist = 5;
+static float dist = 10;
 static float swidth = 1;
 static float sheight = 1;
 static int   terminal_input = 0;
