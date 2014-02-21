@@ -114,6 +114,7 @@ static int wraps_unit_get_animation_duration(lua_State *ctx)
   lua_pushnumber(ctx, unit->actions[action].animation->duration);
   return 1;
 }
+
 static int wraps_unit_set_skeleton (lua_State *ctx)
 {
   struct ov_unit *unit = lua_touserdata(ctx, 1);
@@ -132,7 +133,7 @@ static int wraps_unit_get_skeleton_name (lua_State *ctx)
   return 0;
 }
 
-static int wraps_unit_get_animation_name(lua_State *ctx) 
+static int wraps_unit_get_animation_name(lua_State *ctx)
 {
   struct ov_unit *unit = lua_touserdata(ctx, 1);
   int action = luaL_checkoption(ctx, 2, "IDLE", anim_name_list);

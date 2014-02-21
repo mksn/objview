@@ -136,6 +136,7 @@ void display(void)
   float delta = this_time - last_time;
   last_time = this_time;
 
+
   glClearColor (0.3, 0.3, 0.4, 1.0);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable (GL_DEPTH_TEST);
@@ -167,6 +168,17 @@ void display(void)
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_COLOR_MATERIAL);
   glDisable(GL_LIGHTING);
+
+  glColor3f(1, 0, 0);
+  glBegin(GL_LINES);
+  for (int i = -4; i <= 4; i++) {
+    glVertex3f(-4, i, 0);
+    glVertex3f(4, i, 0);
+    glVertex3f(i, -4, 0);
+    glVertex3f(i, 4, 0);
+  }
+  glEnd();
+  glColor3f(1,1,1);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
