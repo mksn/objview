@@ -131,11 +131,11 @@ void reshape(int w, int h)
 
 void display(void)
 {
+  int i;
   int time_in_millis = glutGet(GLUT_ELAPSED_TIME);
   float this_time = time_in_millis * 0.001;
   float delta = this_time - last_time;
   last_time = this_time;
-
 
   glClearColor (0.3, 0.3, 0.4, 1.0);
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -171,7 +171,7 @@ void display(void)
 
   glColor3f(1, 0, 0);
   glBegin(GL_LINES);
-  for (int i = -4; i <= 4; i++) {
+  for (i = -4; i <= 4; i++) {
     glVertex3f(-4, i, 0);
     glVertex3f(4, i, 0);
     glVertex3f(i, -4, 0);
