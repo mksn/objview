@@ -115,6 +115,18 @@ static int wraps_unit_get_animation_duration(lua_State *ctx)
   return 1;
 }
 
+static int wraps_unit_get_animation_num_frames(lua_State *ctx)
+{
+  struct ov_unit *unit = lua_touserdata(ctx, 1);
+  int action = luaL_checkoption(ctx, 2, "IDLE", anim_name_list);
+  if (!unit->actions[action].animation)
+    action = ANIM_IDLE;
+  if (!unit->actions[action].animation)
+    return luaL_error(ctx, "acton not defined on unit");
+  lua_pushnumber(ctx, unit->actions[action].animation->num_frames);
+  return 1;
+}
+
 static int wraps_unit_set_skeleton (lua_State *ctx)
 {
   struct ov_unit *unit = lua_touserdata(ctx, 1);
@@ -200,8 +212,11 @@ static int wraps_unit_animate(lua_State *ctx)
 {
   struct ov_unit *unit = lua_touserdata(ctx, 1);
   int action = luaL_checkoption(ctx, 2, "IDLE", anim_name_list);
-  float time = luaL_checknumber(ctx, 3);
-  ov_unit_animate(unit, action, time);
+  int next_action = luaL_checkoption(ctx, 3, "IDLE", anim_name_list);
+  float time = luaL_checknumber(ctx, 4);
+  float next_time = luaL_checknumber(ctx, 5);
+  float bfac = luaL_checknumber(ctx, 6);
+  ov_unit_animate(unit, action, next_action, time, next_time, bfac);
   return 0;
 }
 
@@ -279,6 +294,7 @@ const struct luaL_Reg the_register[] = {
   {"unit_set_rotation", wraps_unit_set_rotation},
   {"unit_animate", wraps_unit_animate},
   {"unit_get_animation_duration", wraps_unit_get_animation_duration},
+  {"unit_get_animation_num_frames", wraps_unit_get_animation_num_frames},
   {"get_skeleton_name", wraps_unit_get_skeleton_name},
   {"get_animation_name", wraps_unit_get_animation_name},
   {"get_animations_table", wraps_unit_get_animation_table},

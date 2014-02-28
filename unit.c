@@ -80,14 +80,20 @@ ov_unit_draw(struct ov_unit *unit)
 void
 ov_unit_animate(struct ov_unit *unit,
                 int             anim,
-                float           time)
+                int             next_anim,
+                float           time,
+                float           next_time,
+                float           bfac)
 {
   // Fall back to idle
   if (unit->actions[anim].animation == 0)
     anim = ANIM_IDLE;
   ov_skeleton_animate(unit->skeleton,
                       &unit->actions[anim],
-                      time * ANIM_FPS);
+                      &unit->actions[next_anim],
+                      time * ANIM_FPS,
+                      next_time * ANIM_FPS,
+                      bfac);
 }
 
 void

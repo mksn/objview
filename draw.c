@@ -2,8 +2,11 @@
 #include "unit.h"
 #include "vector.h"
 
+
 int     root_motion_comp;
 typedef float mat4[16];
+typedef float vec3[3];
+typedef float vec4[4];
 
 void
 ov_model_draw(struct ov_model *model)
@@ -74,36 +77,59 @@ calc_root_motion(float root_motion[16], struct ov_animation *anim, float frame_t
 void
 ov_skeleton_animate(struct ov_skeleton *skeleton,
                     struct ov_action *action,
-                    float frame_time)
+                    struct ov_action *next_action,
+                    float  ca_frame_time,
+                    float  na_frame_time,
+                    float  bfac)
 {
   struct ov_animation *animation = action->animation;
+  struct ov_animation *next_animation = next_action->animation;
   int *bonemap = action->bonemap;
 
-  int frame0 = floor(frame_time);
-  int frame1 = floor(frame_time + 1);
-  float t = frame_time - floor(frame_time);
+  int ca_frame0 = floor(ca_frame_time);
+  int ca_frame1 = floor(ca_frame_time + 1);
+  int na_frame0 = floor(na_frame_time);
+  int na_frame1 = floor(na_frame_time + 1);
+  float t = ca_frame_time - floor(ca_frame_time);
+  float u = na_frame_time - floor(na_frame_time);
   int i;
 
-  if (frame0 < 0 || frame0 >= animation->num_frames || frame1 < 0 || frame1 >= animation->num_frames) {
-    fprintf(stderr, "animation overflow! (%d, %d / %d)\n", frame0, frame1, animation->num_frames);
+  if (ca_frame0 < 0 || ca_frame0 >= animation->num_frames || ca_frame1 < 0 || ca_frame1 >= animation->num_frames) {
+    fprintf(stderr, "animation overflow! (%d, %d / %d)\n", ca_frame0, ca_frame1, animation->num_frames);
     return;
   }
 
-  struct ov_pose *anim_frame_0 = animation->frames[frame0];
-  struct ov_pose *anim_frame_1 = animation->frames[frame1];
+  if (na_frame0 < 0 || na_frame0 >= next_animation->num_frames || na_frame1 < 0 || na_frame1 >= next_animation->num_frames) {
+    fprintf(stderr, "next animation overflow! (%d, %d / %d)\n", na_frame0, na_frame1, next_animation->num_frames);
+    return;
+  }
+
+  struct ov_pose *anim_frame_0 = animation->frames[ca_frame0];
+  struct ov_pose *anim_frame_1 = animation->frames[ca_frame1];
+  struct ov_pose *nanim_frame_0 = next_animation->frames[na_frame0];
+  struct ov_pose *nanim_frame_1 = next_animation->frames[na_frame1];
+  struct ov_pose first;
+  struct ov_pose second;
   struct ov_pose pose[MAXBONES];
 
   for (i = 0; i < skeleton->num_bones; i++) {
     int a = bonemap[i];
-    if (a >= 0)
-      pose_lerp(&pose[i], &anim_frame_0[a], &anim_frame_1[a], t);
+    if (a >= 0) {
+      if (action != next_action) {
+        pose_lerp(&first, &anim_frame_0[a], &anim_frame_1[a], t);
+        pose_lerp(&second, &nanim_frame_0[a], &nanim_frame_1[a], u);
+        pose_lerp(&pose[i], &first, &second, bfac);
+      }
+      else
+        pose_lerp(&pose[i], &anim_frame_0[a], &anim_frame_1[a], t);
+    }
     else
       pose[i] = skeleton->bones[i].bind_pose;
   }
 
   mat4 root_motion;
   if (root_motion_comp) {
-    calc_root_motion(root_motion, animation, frame_time);
+    calc_root_motion(root_motion, animation, ca_frame_time);
   }
 
   for (i = 0; i < skeleton->num_bones; i++) {
@@ -116,7 +142,6 @@ ov_skeleton_animate(struct ov_skeleton *skeleton,
       mat_mul44(skeleton->bones[i].pose_matrix,
           skeleton->bones[skeleton->bones[i].parent].pose_matrix,
           m);
-
     else
     {
       if (root_motion_comp)

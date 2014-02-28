@@ -1,6 +1,6 @@
 UNAME := $(shell uname)
 
-CFLAGS := -Wall -g
+CFLAGS := -Wall -g -Wno-deprecated
 
 ifeq ($(UNAME), Linux)
 LUA_CFLAGS := $(shell pkg-config --cflags lua5.2)
