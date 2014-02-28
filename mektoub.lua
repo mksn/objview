@@ -3,6 +3,7 @@ local mektoub_data = {
   animations = {
     IDLE = "data/monsters/cheval/anims/tr_mo_mektoub_selle_idle.iqe",
     WALK = "data/monsters/cheval/anims/tr_mo_mektoub_selle_marche.iqe",
+    RUN = "data/monsters/cheval/anims/tr_mo_mektoub_selle_course.iqe",
     STRAFE_RIGHT = "data/monsters/cheval/anims/tr_mo_mektoub_selle_straf_droite.iqe",
     STRAFE_LEFT = "data/monsters/cheval/anims/tr_mo_mektoub_selle_straf_gauche.iqe",
     TURN_RIGHT = "data/monsters/cheval/anims/tr_mo_mektoub_selle_tournedroite.iqe",

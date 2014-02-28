@@ -88,26 +88,26 @@ function unit_mt:set_action(action)
     local next_duration = ov.unit_get_animation_duration(self.unit,
                                                    self.next_action)
     if duration > next_duration then
-      self.action_speed = duration/next_duration
-      self.next_action_speed = 1
+      self.next_action_speed = next_duration/duration
+      self.action_speed = 1
     elseif next_duration == duration then
       self.action_speed = 1
       self.next_action_speed = 1
     else
-      self.next_action_speed = next_duration/duration
+      self.next_action_speed = duration/next_duration
       self.action_speed = 1
     end
   end
 end
 
 function unit_mt:step_action(delta)
-  self.action_time = self.action_time + delta
+  self.action_time = self.action_time + delta * self.action_speed
   print (string.format("frame: action speed %f, next action speed %f, delta %f",
                         self.action_speed, self.next_action_speed, delta))
   if self.action ~= self.next_action then
     print ("New animation, blending")
     self.blend_factor = self.blend_factor + 0.05
-    self.next_action_time = self.next_action_time + delta 
+    self.next_action_time = self.next_action_time + delta * self.next_action_speed
     if self.blend_factor >= 1 then
       self.action = self.next_action
       self.action_speed = 1

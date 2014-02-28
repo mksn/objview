@@ -3,6 +3,7 @@ local reiter_data = {
   animations = {
     IDLE = "data/actors/anims/fy_hom_idle_in0_monture.iqe",
     WALK = "data/actors/anims/fy_hom_marche_in0_monture.iqe",
+    RUN = "data/actors/anims/fy_hom_course_in0_monture.iqe",
     TURN_LEFT = "data/actors/anims/fy_hom_tournegauche_monture.iqe",
     TURN_RIGHT = "data/actors/anims/fy_hom_tournedroite_monture.iqe",
     STRAFE_LEFT = "data/actors/anims/fy_hom_idle_in0_monture.iqe",
