@@ -11,6 +11,7 @@ const char *anim_name_list[MAXANIM+1] = {
   "STRAFE_LEFT",
   "STRAFE_RIGHT",
   "DEATH",
+  "JUMP",
   NULL
 };
 
