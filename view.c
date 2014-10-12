@@ -92,15 +92,15 @@ void specialKeyboardFunc(int key, int x, int y)
   }
 }
 
-void mouseFunc(int button, int state, int x, int y)
+void mouseFunc(int knapp, int state, int x, int y)
 {
   lastx = x;
   lasty = y;
-  if (button == GLUT_LEFT_BUTTON)
+  if (knapp == GLUT_LEFT_BUTTON)
     leftstate = state == GLUT_DOWN;
-  if (button == GLUT_RIGHT_BUTTON)
+  if (knapp == GLUT_RIGHT_BUTTON)
     rightstate = state == GLUT_DOWN;
-  if (button == GLUT_MIDDLE_BUTTON)
+  if (knapp == GLUT_MIDDLE_BUTTON)
     middlestate = state == GLUT_DOWN;
 }
 
